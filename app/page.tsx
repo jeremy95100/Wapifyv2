@@ -3,12 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-// Au début du composant
-const router = useRouter()
-
 export default function Home() {
   const [prompt, setPrompt] = useState('')
-
+  const router = useRouter() // ← ICI, à l'intérieur du composant
+  
   const handleGenerate = () => {
     if (prompt.trim()) {
       router.push(`/editor?prompt=${encodeURIComponent(prompt)}`)
