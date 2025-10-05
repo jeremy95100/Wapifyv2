@@ -1,13 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+
+// Au début du composant
+const router = useRouter()
 
 export default function Home() {
   const [prompt, setPrompt] = useState('')
 
   const handleGenerate = () => {
     if (prompt.trim()) {
-      console.log('Generating app with prompt:', prompt)
+      router.push(`/editor?prompt=${encodeURIComponent(prompt)}`)
     }
   }
 
