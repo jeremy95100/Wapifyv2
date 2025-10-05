@@ -1,7 +1,18 @@
+'use client'
+
+import { useState } from 'react'
+
 export default function Home() {
+  const [prompt, setPrompt] = useState('')
+
+  const handleGenerate = () => {
+    if (prompt.trim()) {
+      console.log('Generating app with prompt:', prompt)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-wapify-bg">
-      {/* Navigation */}
       <nav className="fixed w-full bg-wapify-panel border-b-2 border-wapify-border z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -11,117 +22,149 @@ export default function Home() {
             <span className="text-2xl font-bold text-wapify-text">Wapify</span>
           </div>
           <button className="px-6 py-2.5 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-lg font-semibold hover:opacity-90 transition shadow-lg">
-            Commencer
+            Get Started
           </button>
         </div>
       </nav>
 
-      {/* Hero Section */}
       <main className="pt-32 pb-20 px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="inline-block mb-6 px-4 py-2 bg-wapify-accent/10 border-2 border-wapify-accent/30 rounded-full">
-            <span className="text-wapify-accent font-semibold text-sm">
-              🚀 Génération en moins de 60 secondes
-            </span>
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-block mb-6 px-4 py-2 bg-wapify-accent/10 border-2 border-wapify-accent/30 rounded-full">
+              <span className="text-wapify-accent font-semibold text-sm">
+                🚀 Generation in less than 60 seconds
+              </span>
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-black text-wapify-text mb-6 leading-tight">
+              Turn your idea into a<br />
+              <span className="text-wapify-accent">Web App</span>
+            </h1>
+
+            <p className="text-xl text-wapify-text-secondary mb-12 max-w-2xl mx-auto">
+              Describe what you want, AI generates the code. Frontend, backend, database and hosting included.
+            </p>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black text-wapify-text mb-6 leading-tight">
-            Transforme ton idée<br />
-            en <span className="text-wapify-accent">Web App</span>
-          </h1>
-
-          <p className="text-xl md:text-2xl text-wapify-text-secondary mb-12 max-w-3xl mx-auto">
-            Décris ce que tu veux, l'IA génère le code. Frontend, backend, base de données et hébergement inclus.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <button className="px-8 py-4 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-bold text-lg hover:opacity-90 transition shadow-xl">
-              Créer mon app gratuitement
-            </button>
-            <button className="px-8 py-4 border-2 border-wapify-border text-wapify-text rounded-xl font-bold text-lg hover:border-wapify-accent transition">
-              Voir la démo →
-            </button>
+          <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-6 shadow-xl mb-8">
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe your app idea... (e.g., A modern dashboard with sales charts, customer table, and real-time statistics)"
+              className="w-full min-h-[120px] bg-transparent border-none outline-none text-wapify-text placeholder-wapify-text-secondary resize-none text-lg"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                  handleGenerate()
+                }
+              }}
+            />
+            
+            <div className="flex items-center justify-between mt-4 pt-4 border-t-2 border-wapify-border">
+              <div className="flex items-center gap-4 text-sm text-wapify-text-secondary">
+                <span>💡 Be specific for better results</span>
+              </div>
+              
+              <button
+                onClick={handleGenerate}
+                disabled={!prompt.trim()}
+                className="px-6 py-3 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-bold hover:opacity-90 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <span>Generate App</span>
+                <span>→</span>
+              </button>
+            </div>
           </div>
 
-          <div className="flex justify-center gap-8 text-sm text-wapify-text-secondary">
+          <div className="flex justify-center gap-8 text-sm text-wapify-text-secondary flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-green-600">✓</span>
-              <span>Pas de carte bancaire</span>
+              <span>No credit card required</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-green-600">✓</span>
-              <span>100 crédits gratuits</span>
+              <span>100 free credits</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400">⌘ + Enter to generate</span>
             </div>
           </div>
         </div>
 
-        {/* Features */}
         <div className="max-w-7xl mx-auto mt-32">
           <h2 className="text-4xl font-bold text-center text-wapify-text mb-4">
-            Tout ce dont tu as besoin,
+            Everything you need,
           </h2>
           <p className="text-xl text-center text-wapify-accent font-semibold mb-16">
-            en un seul endroit
+            in one place
           </p>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
             <div className="bg-wapify-panel p-8 rounded-2xl border-2 border-wapify-border hover:border-wapify-accent transition">
               <div className="w-14 h-14 bg-wapify-accent/20 rounded-xl flex items-center justify-center text-3xl mb-6">
                 🧠
               </div>
               <h3 className="text-2xl font-bold text-wapify-text mb-4">
-                Génération IA Intelligente
+                Smart AI Generation
               </h3>
               <p className="text-wapify-text-secondary leading-relaxed">
-                Décris ton app en français, notre IA comprend et génère du code React + TypeScript professionnel.
+                Describe your app in plain language. Our AI understands and generates professional React + TypeScript code.
               </p>
             </div>
 
-            {/* Feature 2 */}
             <div className="bg-wapify-panel p-8 rounded-2xl border-2 border-wapify-border hover:border-wapify-accent transition">
               <div className="w-14 h-14 bg-wapify-accent/20 rounded-xl flex items-center justify-center text-3xl mb-6">
                 🗄️
               </div>
               <h3 className="text-2xl font-bold text-wapify-text mb-4">
-                Base de Données Incluse
+                Database Included
               </h3>
               <p className="text-wapify-text-secondary leading-relaxed">
-                PostgreSQL configuré automatiquement. Schémas, relations, et APIs générés selon tes besoins.
+                PostgreSQL configured automatically. Schemas, relationships, and APIs generated based on your needs.
               </p>
             </div>
 
-            {/* Feature 3 */}
             <div className="bg-wapify-panel p-8 rounded-2xl border-2 border-wapify-border hover:border-wapify-accent transition">
               <div className="w-14 h-14 bg-wapify-accent/20 rounded-xl flex items-center justify-center text-3xl mb-6">
                 🚀
               </div>
               <h3 className="text-2xl font-bold text-wapify-text mb-4">
-                Hébergement Instantané
+                Instant Hosting
               </h3>
               <p className="text-wapify-text-secondary leading-relaxed">
-                Ton app est déployée automatiquement avec SSL. Connecte ton domaine en 1 clic.
+                Your app is deployed automatically with SSL. Connect your custom domain in one click.
               </p>
             </div>
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="max-w-4xl mx-auto mt-32 bg-gradient-to-r from-wapify-accent/10 to-wapify-accent-dark/10 border-2 border-wapify-accent/50 rounded-2xl p-12 text-center">
-          <h2 className="text-4xl font-bold text-wapify-text mb-6">
-            Prêt à créer ta première app ?
+        <div className="max-w-4xl mx-auto mt-32">
+          <h2 className="text-3xl font-bold text-center text-wapify-text mb-12">
+            Try these examples
           </h2>
-          <p className="text-xl text-wapify-text-secondary mb-8">
-            100 crédits offerts. Pas de carte bancaire. Accès immédiat.
-          </p>
-          <button className="px-8 py-4 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-bold text-lg hover:opacity-90 transition shadow-xl">
-            Commencer gratuitement
-          </button>
+          
+          <div className="grid md:grid-cols-2 gap-4">
+            {[
+              "A modern analytics dashboard with charts and real-time data",
+              "An e-commerce product page with shopping cart",
+              "A task management app with drag and drop",
+              "A landing page for a SaaS product"
+            ].map((example, i) => (
+              <button
+                key={i}
+                onClick={() => setPrompt(example)}
+                className="text-left p-4 bg-wapify-panel border-2 border-wapify-border rounded-xl hover:border-wapify-accent transition"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-wapify-accent text-xl">💡</span>
+                  <span className="text-wapify-text-secondary">{example}</span>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t-2 border-wapify-border py-12 px-6">
+      <footer className="border-t-2 border-wapify-border py-12 px-6 mt-32">
         <div className="max-w-7xl mx-auto text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-xl">
@@ -130,13 +173,13 @@ export default function Home() {
             <span className="text-2xl font-bold text-wapify-text">Wapify</span>
           </div>
           <p className="text-wapify-text-secondary text-sm mb-4">
-            L'alternative française premium. Crée des apps complètes avec l'IA.
+            The premium French alternative. Create complete apps with AI.
           </p>
           <p className="text-wapify-text-secondary text-sm">
-            © 2025 Wapify. Tous droits réservés.
+            © 2025 Wapify. All rights reserved.
           </p>
         </div>
       </footer>
     </div>
-  );
+  )
 }
