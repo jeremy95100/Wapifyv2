@@ -1,0 +1,8 @@
+LES IDEES A RAJOUTER POUR LE PROJET WAPIFY : 
+    - Exporter avec une IA pour aider à la modification loin de notre outil 
+    - Proposer dans le backend une fonctionnalité qui permet de connaitre le nombre de visiteurs sur le site      et des options marketings qui se connecte automatiquement à google ads et Facebook
+    - Déploiement du site web app crée par l'utilisateur avec Vercel puis le ramener direct dans la page 
+      pour héberger son site
+    - Pouvoir accéder à la BDD 
+    - Générer un ReadMe automatique qui expliquerais toutes les fonctionnalités de l'app qui l'a crée 
+    - Faire un contrat pour que les sites qui seront crée soit automatiquement héberger sur OVH par exemple
