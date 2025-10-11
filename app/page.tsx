@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 
 export default function Home() {
   const [prompt, setPrompt] = useState('')
-  const router = useRouter() // ← ICI, à l'intérieur du composant
-  
+  const router = useRouter()
+
   const handleGenerate = () => {
     if (prompt.trim()) {
       router.push(`/editor?prompt=${encodeURIComponent(prompt)}`)
@@ -60,12 +60,12 @@ export default function Home() {
                 }
               }}
             />
-            
+
             <div className="flex items-center justify-between mt-4 pt-4 border-t-2 border-wapify-border">
               <div className="flex items-center gap-4 text-sm text-wapify-text-secondary">
                 <span>💡 Be specific for better results</span>
               </div>
-              
+
               <button
                 onClick={handleGenerate}
                 disabled={!prompt.trim()}
