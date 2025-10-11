@@ -1,13 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function EditorPage() {
+  const searchParams = useSearchParams()
   const [prompt, setPrompt] = useState('')
   const [generatedCode, setGeneratedCode] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [progress, setProgress] = useState(0)
   const [currentStep, setCurrentStep] = useState(0)
+
+  // Récupérer le prompt de l'URL
+  useEffect(() => {
+    const urlPrompt = searchParams.get('prompt')
+    if (urlPrompt) {
+      setPrompt(urlPrompt)
+      // Auto-générer si un prompt est présent
+      setTimeout(() => {
+        handleGenerate(urlPrompt)
+      }, 500)
+    }
+  }, [searchParams])
 
   const steps = [
     'Analyzing your prompt',
@@ -17,14 +31,18 @@ export default function EditorPage() {
     'Finalizing',
   ]
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return
+  const handleGenerate = async (customPrompt?: string) => {
+    const promptToUse = customPrompt || prompt
+    
+      // Vérification de type + trim
+      if (!promptToUse || typeof promptToUse !== 'string' || !promptToUse.trim()) {
+        return
+      }
 
     setIsGenerating(true)
     setProgress(0)
     setCurrentStep(0)
 
-    // Simulate progress
     const progressInterval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 90) {
@@ -40,7 +58,7 @@ export default function EditorPage() {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt: promptToUse }),
       })
 
       const data = await response.json()

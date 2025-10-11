@@ -1,5 +1,5 @@
-typescriptimport { NextRequest, NextResponse } from 'next/server'
-import { generateAppCode } from '@/lib/anthropic'
+import { NextRequest, NextResponse } from 'next/server'
+import { generateAppCode } from '../../../lib/anthropic'  // ← Chemin relatif
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate code with Claude
     const generatedCode = await generateAppCode(prompt)
 
     return NextResponse.json({
