@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { generateAppCodeWithSteps } from '../../../lib/anthropic'
+import { generateAppCodeWithSteps, generateReactProjectWithSteps } from '../../../lib/anthropic'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { prompt, conversationHistory = [] } = body
+    const { prompt, conversationHistory = [], forceReact = false } = body
 
     // Validation du prompt
     if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
@@ -25,41 +25,73 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Détecter si on doit générer un projet React multi-fichiers
+    // Critères: prompt contient des mots-clés React OU forceReact = true
+    const reactKeywords = ['react', 'composant', 'component', 'hook', 'tsx', 'jsx', 'spa']
+    const shouldUseReact = forceReact || reactKeywords.some(keyword =>
+      prompt.toLowerCase().includes(keyword)
+    )
+
     // Créer un stream pour envoyer les événements en temps réel
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const generator = generateAppCodeWithSteps({
-            prompt,
-            conversationHistory
-          })
+          // Choisir le générateur approprié
+          const generator = shouldUseReact
+            ? generateReactProjectWithSteps({ prompt, conversationHistory })
+            : generateAppCodeWithSteps({ prompt, conversationHistory })
 
           let fullCode = ''
           let finalCode = ''
+          let projectStructure: any = null
 
           for await (const event of generator) {
             // Envoyer l'événement au client
             const data = `data: ${JSON.stringify(event)}\n\n`
             controller.enqueue(encoder.encode(data))
 
-            // Accumuler le code brut
+            // Pour les projets HTML single-file
             if (event.type === 'code') {
               fullCode += event.data
             }
 
-            // Capturer le code final nettoyé
             if (event.type === 'final_code') {
               finalCode = event.data
             }
+
+            // Pour les projets React multi-file
+            if (event.type === 'files') {
+              projectStructure = event.data
+            }
           }
 
-          // Envoyer le code final (utiliser finalCode s'il existe, sinon fullCode)
-          const finalEvent = {
-            type: 'complete',
-            data: { code: finalCode || fullCode }
+          // Envoyer la réponse finale appropriée
+          if (shouldUseReact && projectStructure) {
+            // Pour React: envoyer la structure complète
+            const finalEvent = {
+              type: 'complete',
+              data: {
+                isMultiFile: true,
+                files: projectStructure.files,
+                hasDatabase: projectStructure.hasDatabase,
+                databaseSchema: projectStructure.databaseSchema,
+                framework: 'react'
+              }
+            }
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(finalEvent)}\n\n`))
+          } else {
+            // Pour HTML: envoyer le code comme avant
+            const finalEvent = {
+              type: 'complete',
+              data: {
+                isMultiFile: false,
+                code: finalCode || fullCode,
+                framework: 'html'
+              }
+            }
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(finalEvent)}\n\n`))
           }
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(finalEvent)}\n\n`))
 
           controller.close()
         } catch (error) {

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function Home() {
   const [prompt, setPrompt] = useState('')
@@ -23,9 +24,14 @@ export default function Home() {
             </div>
             <span className="text-2xl font-bold text-wapify-text">Wapify</span>
           </div>
-          <button className="px-6 py-2.5 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-lg font-semibold hover:opacity-90 transition shadow-lg">
-            Get Started
-          </button>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="px-6 py-2.5 border-2 border-wapify-accent text-wapify-accent rounded-lg font-semibold hover:bg-wapify-accent/10 transition">
+              Connexion
+            </Link>
+            <Link href="/auth/signin" className="px-6 py-2.5 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-lg font-semibold hover:opacity-90 transition shadow-lg">
+              Créer un compte
+            </Link>
+          </div>
         </div>
       </nav>
 

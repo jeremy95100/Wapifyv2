@@ -141,58 +141,65 @@ CONTENT REQUIREMENTS (CRITICAL - Make it VERY impressive):
 NAVIGATION SYSTEM (ABSOLUTELY CRITICAL - THIS IS THE MOST IMPORTANT RULE!!!):
 ⚠️ ATTENTION: The app runs in an iframe. NEVER use <a href> or page reloads!
 
-MANDATORY NAVIGATION PATTERN (YOU MUST USE THIS EXACT PATTERN):
+MANDATORY NAVIGATION PATTERN (YOU MUST INCLUDE THIS EXACT CODE):
 
-1. ALL navigation links MUST use onclick with event.preventDefault():
-   ❌ WRONG: <a href="#home">Home</a>
-   ❌ WRONG: <a href="home.html">Home</a>
-   ✅ CORRECT: <a href="#" onclick="event.preventDefault(); showPage('home'); return false;">Home</a>
-   ✅ CORRECT: <button onclick="showPage('home')">Home</button>
-
-2. MANDATORY showPage function (MUST be in your code):
+1. YOU MUST INCLUDE THIS EXACT SCRIPT IN YOUR HTML (BEFORE </body>):
    <script>
+     // Navigation system - DO NOT MODIFY
      let currentPage = 'home';
 
      function showPage(pageName) {
+       console.log('Navigating to:', pageName);
+
        // Hide all pages
        document.querySelectorAll('.page').forEach(page => {
          page.style.display = 'none';
+         page.classList.remove('active');
        });
 
-       // Show selected page
+       // Show target page
        const targetPage = document.getElementById('page-' + pageName);
        if (targetPage) {
          targetPage.style.display = 'block';
+         targetPage.classList.add('active');
          currentPage = pageName;
-         window.location.hash = pageName;
+         window.scrollTo(0, 0);
+       } else {
+         console.error('Page not found:', pageName);
        }
      }
 
-     // Initialize on load
+     // Initialize first page
      window.addEventListener('DOMContentLoaded', () => {
        showPage('home');
      });
    </script>
 
-3. Page structure (EACH PAGE IS A DIV):
-   <div id="page-home" class="page" style="display:block;">
+2. Page structure - Each page MUST be a div with class="page" and id="page-{name}":
+   <div id="page-home" class="page">
      <!-- Home content -->
    </div>
-   <div id="page-products" class="page" style="display:none;">
+   <div id="page-products" class="page">
      <!-- Products content -->
    </div>
-   <div id="page-about" class="page" style="display:none;">
+   <div id="page-about" class="page">
      <!-- About content -->
    </div>
 
-4. In your navigation menu, use this pattern for EVERY link:
+3. Navigation links - Use buttons with onclick:
    <nav class="...">
      <button onclick="showPage('home')" class="...">Home</button>
      <button onclick="showPage('products')" class="...">Products</button>
      <button onclick="showPage('about')" class="...">About</button>
    </nav>
 
-REMEMBER: NO <a href="...">, ONLY onclick="showPage(...)"!
+4. CSS for pages (MUST include):
+   <style>
+     .page { display: none; }
+     .page.active { display: block; }
+   </style>
+
+CRITICAL: The showPage() function MUST be in your HTML code, near the end before </body>!
 
 DATABASE IMPLEMENTATION (CRITICAL - Rich data):
 - Create mock data in JavaScript objects/arrays
@@ -676,6 +683,173 @@ export async function* generateAppCodeWithSteps(
   }
 }
 
+// Fonction pour générer des projets React multi-fichiers avec étapes
+export async function* generateReactProjectWithSteps(
+  options: GenerateOptions
+): AsyncGenerator<{type: 'step' | 'plan' | 'substep' | 'modifications' | 'files' | 'complete', data: any}> {
+  const { prompt } = options
+
+  // Étape 1: Analyse et planification
+  yield {
+    type: 'step',
+    data: {
+      step: 'Analyse de votre demande',
+      status: 'in_progress',
+      description: 'Création du plan de projet React'
+    }
+  }
+
+  const plan = await createGenerationPlan(prompt)
+
+  yield {
+    type: 'plan',
+    data: plan
+  }
+
+  yield {
+    type: 'step',
+    data: {
+      step: 'Analyse de votre demande',
+      status: 'completed',
+      description: `React · ${plan.template} · ${plan.style}`
+    }
+  }
+
+  // Étape 2: Génération de la structure de fichiers
+  yield {
+    type: 'step',
+    data: {
+      step: 'Génération de la structure',
+      status: 'in_progress',
+      description: 'Création des composants et fichiers'
+    }
+  }
+
+  // Import du générateur React
+  const { generateReactProject } = require('./react-generator')
+
+  const projectStructure = await generateReactProject(prompt, anthropic)
+
+  const modifications: ModificationDetail[] = []
+
+  // Compter les fichiers par type
+  const componentFiles = projectStructure.files.filter((f: any) => f.type === 'component').length
+  const hookFiles = projectStructure.files.filter((f: any) => f.type === 'hook').length
+  const styleFiles = projectStructure.files.filter((f: any) => f.type === 'style').length
+
+  modifications.push({
+    type: 'component',
+    name: 'Structure React',
+    action: 'created',
+    description: `${projectStructure.files.length} fichiers générés (${componentFiles} composants, ${hookFiles} hooks, ${styleFiles} styles)`
+  })
+
+  yield {
+    type: 'step',
+    data: {
+      step: 'Génération de la structure',
+      status: 'completed',
+      description: `${projectStructure.files.length} fichiers créés`
+    }
+  }
+
+  // Étape 3: Configuration de la base de données (si nécessaire)
+  if (projectStructure.hasDatabase) {
+    yield {
+      type: 'step',
+      data: {
+        step: 'Configuration base de données',
+        status: 'in_progress',
+        description: 'Préparation du schéma SQL'
+      }
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 800))
+
+    modifications.push({
+      type: 'feature',
+      name: 'Base de données',
+      action: 'created',
+      description: 'Schéma SQL généré pour Neon PostgreSQL'
+    })
+
+    yield {
+      type: 'step',
+      data: {
+        step: 'Configuration base de données',
+        status: 'completed',
+        description: 'Schéma prêt pour déploiement'
+      }
+    }
+  }
+
+  // Étape 4: Configuration des dépendances
+  yield {
+    type: 'step',
+    data: {
+      step: 'Configuration dépendances',
+      status: 'in_progress',
+      description: 'Préparation package.json et Vite'
+    }
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+
+  modifications.push({
+    type: 'feature',
+    name: 'Configuration build',
+    action: 'created',
+    description: 'Vite + React + Tailwind configurés'
+  })
+
+  yield {
+    type: 'step',
+    data: {
+      step: 'Configuration dépendances',
+      status: 'completed',
+      description: 'Projet prêt pour le développement'
+    }
+  }
+
+  // Envoyer les modifications
+  yield {
+    type: 'modifications',
+    data: modifications
+  }
+
+  // Envoyer les fichiers générés
+  yield {
+    type: 'files',
+    data: projectStructure
+  }
+
+  // Étape finale
+  yield {
+    type: 'step',
+    data: {
+      step: 'Finalisation',
+      status: 'in_progress',
+      description: 'Préparation du projet'
+    }
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 300))
+
+  yield {
+    type: 'step',
+    data: {
+      step: 'Finalisation',
+      status: 'completed',
+      description: 'Projet React prêt !'
+    }
+  }
+
+  yield {
+    type: 'complete',
+    data: projectStructure
+  }
+}
+
 // Fonction pour les modifications conversationnelles
 export async function modifyAppCode(
   currentCode: string,
@@ -683,8 +857,14 @@ export async function modifyAppCode(
   conversationHistory: Array<{role: 'user' | 'assistant', content: string}>
 ): Promise<string> {
   try {
+    // Nettoyer les messages pour ne garder que role et content
+    const cleanedHistory = conversationHistory.map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }))
+
     const messages: Array<{role: 'user' | 'assistant', content: string}> = [
-      ...conversationHistory,
+      ...cleanedHistory,
       {
         role: 'user',
         content: `Current code:\n\`\`\`\n${currentCode}\n\`\`\`\n\nUser modification request: ${modification}\n\nReturn the COMPLETE modified code, not just the changes.`
@@ -706,6 +886,90 @@ export async function modifyAppCode(
   } catch (error) {
     console.error('Error modifying code:', error)
     throw new Error('Failed to modify code with AI')
+  }
+}
+
+// Fonction pour modifier un projet React multi-fichiers
+export async function modifyReactProject(
+  projectFiles: Array<{path: string, content: string}>,
+  modification: string,
+  conversationHistory: Array<{role: 'user' | 'assistant', content: string}>
+): Promise<Array<{path: string, content: string}>> {
+  try {
+    console.log('🔄 Modification React multi-fichiers:', {
+      filesCount: projectFiles.length,
+      modification: modification.substring(0, 100)
+    })
+
+    // Construire le contexte des fichiers
+    const filesContext = projectFiles.map(f =>
+      `**${f.path}:**\n\`\`\`\n${f.content}\n\`\`\``
+    ).join('\n\n')
+
+    const cleanedHistory = conversationHistory.map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }))
+
+    const messages: Array<{role: 'user' | 'assistant', content: string}> = [
+      ...cleanedHistory,
+      {
+        role: 'user',
+        content: `I have a React multi-file project with the following files:
+
+${filesContext}
+
+User modification request: ${modification}
+
+Please return the COMPLETE modified files in the following JSON format:
+\`\`\`json
+{
+  "files": [
+    {
+      "path": "src/App.jsx",
+      "content": "... complete file content ..."
+    }
+  ]
+}
+\`\`\`
+
+IMPORTANT:
+- Return ALL files, even if unchanged
+- Include complete file content, not just changes
+- Maintain the exact same file paths
+- Keep the JSON structure exactly as shown`
+      }
+    ]
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 16000,
+      temperature: 0.7,
+      messages: messages,
+    })
+
+    const content = message.content[0]
+    const response = content.type === 'text' ? content.text : ''
+
+    // Extraire le JSON de la réponse
+    const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/)
+    if (!jsonMatch) {
+      console.error('❌ No JSON found in response')
+      throw new Error('AI did not return valid JSON format')
+    }
+
+    const parsed = JSON.parse(jsonMatch[1])
+
+    if (!parsed.files || !Array.isArray(parsed.files)) {
+      throw new Error('Invalid response format: missing files array')
+    }
+
+    console.log('✅ Modified files:', parsed.files.length)
+    return parsed.files
+
+  } catch (error) {
+    console.error('❌ Error modifying React project:', error)
+    throw new Error('Failed to modify React project with AI')
   }
 }
 
@@ -738,30 +1002,51 @@ function fixNavigation(html: string): string {
     }
   )
 
-  // 4. Ajouter la fonction showPage si elle n'existe pas
-  if (!fixed.includes('function showPage(')) {
-    const showPageFunction = `
+  // 4. TOUJOURS injecter la fonction showPage (remplacer si existe déjà)
+  const showPageFunction = `
     <script>
+      // ===== WAPIFY NAVIGATION SYSTEM =====
       let currentPage = 'home';
 
       function showPage(pageName) {
+        console.log('🔄 Wapify Navigation: Switching to page:', pageName);
+
         // Hide all pages
         document.querySelectorAll('.page').forEach(page => {
           page.style.display = 'none';
+          page.classList.remove('active');
         });
 
-        // Show selected page
-        const targetPage = document.getElementById('page-' + pageName);
+        // Show selected page with multiple ID formats support
+        let targetPage = document.getElementById('page-' + pageName);
+        if (!targetPage) {
+          targetPage = document.getElementById(pageName);
+        }
+        if (!targetPage) {
+          targetPage = document.querySelector('[data-page="' + pageName + '"]');
+        }
+
         if (targetPage) {
           targetPage.style.display = 'block';
+          targetPage.classList.add('active');
           currentPage = pageName;
           window.location.hash = pageName;
+
+          // Scroll to top
+          window.scrollTo(0, 0);
+        } else {
+          console.error('❌ Wapify Navigation: Page not found:', pageName);
+          console.log('Available page IDs:',
+            Array.from(document.querySelectorAll('[id^="page-"]')).map(el => el.id)
+          );
         }
       }
 
       // Initialize on load
       window.addEventListener('DOMContentLoaded', () => {
-        showPage('home');
+        const initialPage = window.location.hash.slice(1) || 'home';
+        console.log('✅ Wapify Navigation: System initialized, loading page:', initialPage);
+        showPage(initialPage);
       });
 
       // Handle browser back/forward
@@ -772,10 +1057,17 @@ function fixNavigation(html: string): string {
     </script>
     `
 
-    // Insérer avant </body>
-    if (fixed.includes('</body>')) {
-      fixed = fixed.replace('</body>', showPageFunction + '\n</body>')
-    }
+  // Supprimer toute fonction showPage existante (peut-être cassée)
+  fixed = fixed.replace(/<script>[\s\S]*?function showPage[\s\S]*?<\/script>/gi, '')
+
+  // Insérer notre fonction avant </body> ou à la fin si </body> n'existe pas
+  if (fixed.includes('</body>')) {
+    fixed = fixed.replace('</body>', showPageFunction + '\n</body>')
+  } else if (fixed.includes('</html>')) {
+    fixed = fixed.replace('</html>', showPageFunction + '\n</html>')
+  } else {
+    // En dernier recours, ajouter à la fin
+    fixed += showPageFunction
   }
 
   return fixed

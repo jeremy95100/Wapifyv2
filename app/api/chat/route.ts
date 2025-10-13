@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { modifyAppCode, ModificationDetail } from '../../../lib/anthropic'
+import { modifyAppCode, modifyReactProject, ModificationDetail } from '../../../lib/anthropic'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -100,12 +100,19 @@ function analyzeModificationRequest(modification: string): ModificationDetail[] 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { currentCode, modification, conversationHistory = [] } = body
+    const { currentCode, modification, conversationHistory = [], isMultiFile = false, projectFiles = [] } = body
 
     // Validation
-    if (!currentCode || typeof currentCode !== 'string') {
+    if (!isMultiFile && (!currentCode || typeof currentCode !== 'string')) {
       return new Response(
         JSON.stringify({ error: 'Code actuel requis' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (isMultiFile && (!projectFiles || !Array.isArray(projectFiles) || projectFiles.length === 0)) {
+      return new Response(
+        JSON.stringify({ error: 'Fichiers du projet requis pour un projet multi-fichiers' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       )
     }
@@ -161,8 +168,66 @@ export async function POST(request: NextRequest) {
             }
           })}\n\n`))
 
-          // Appeler l'API pour modifier le code
-          const modifiedCode = await modifyAppCode(currentCode, modification, conversationHistory)
+          // Sous-étapes détaillées pour rassurer l'utilisateur
+          const subSteps = [
+            { step: 'Analyse du code existant', desc: 'L\'IA étudie votre code actuel...' },
+            { step: 'Planification des changements', desc: 'L\'IA détermine les modifications nécessaires...' },
+            { step: 'Application des changements', desc: 'L\'IA réécrit les parties concernées...' },
+            { step: 'Vérification et optimisation', desc: 'L\'IA vérifie la cohérence du code...' }
+          ]
+
+          let modifiedCode
+          let modifiedFiles: Array<{path: string, content: string}> = []
+
+          // Envoyer les sous-étapes progressivement
+          for (let i = 0; i < subSteps.length; i++) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+              type: 'substep',
+              data: {
+                step: subSteps[i].step,
+                status: 'in_progress',
+                description: subSteps[i].desc,
+                progress: Math.floor((i / subSteps.length) * 100)
+              }
+            })}\n\n`))
+
+            // Si c'est la dernière sous-étape, appeler l'API pendant son exécution
+            if (i === subSteps.length - 1) {
+              // Appeler l'API pour modifier le code (single-file ou multi-file)
+              if (isMultiFile) {
+                console.log('🔄 Calling modifyReactProject with', projectFiles.length, 'files')
+                modifiedFiles = await modifyReactProject(projectFiles, modification, conversationHistory)
+                console.log('✅ Received', modifiedFiles.length, 'modified files')
+              } else {
+                modifiedCode = await modifyAppCode(currentCode, modification, conversationHistory)
+              }
+
+              // Compléter la dernière sous-étape
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                type: 'substep',
+                data: {
+                  step: subSteps[i].step,
+                  status: 'completed',
+                  description: subSteps[i].desc,
+                  progress: 100
+                }
+              })}\n\n`))
+            } else {
+              // Pause pour les sous-étapes intermédiaires
+              await new Promise(resolve => setTimeout(resolve, 400))
+
+              // Compléter les sous-étapes intermédiaires
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                type: 'substep',
+                data: {
+                  step: subSteps[i].step,
+                  status: 'completed',
+                  description: subSteps[i].desc,
+                  progress: 100
+                }
+              })}\n\n`))
+            }
+          }
 
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({
             type: 'step',
@@ -194,11 +259,24 @@ export async function POST(request: NextRequest) {
             }
           })}\n\n`))
 
-          // Envoyer le code modifié
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
-            type: 'complete',
-            data: { code: modifiedCode }
-          })}\n\n`))
+          // Envoyer le code modifié (single-file) ou les fichiers (multi-file)
+          if (isMultiFile) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+              type: 'complete',
+              data: {
+                isMultiFile: true,
+                files: modifiedFiles
+              }
+            })}\n\n`))
+          } else {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+              type: 'complete',
+              data: {
+                isMultiFile: false,
+                code: modifiedCode
+              }
+            })}\n\n`))
+          }
 
           controller.close()
         } catch (error) {
