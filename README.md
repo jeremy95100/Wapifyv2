@@ -1,3 +1,18 @@
+# Wapify - AI-Powered React App Generator
+
+Wapify is an intelligent application that generates complete React applications from natural language descriptions. Specialized in React + Vite, it creates production-ready code with components, hooks, and database integration.
+
+## Features
+
+- **React-Specialized Generation**: Creates modern React applications with Vite
+- **Multi-file Architecture**: Generates organized project structures with components, hooks, and utilities
+- **Database Integration**: Automatic PostgreSQL schema generation with Supabase/Neon
+- **AI-Powered**: Uses Claude AI to understand and generate code
+- **Real-time Preview**: Instant preview of generated applications
+- **Project Management**: Save, edit, and manage your generated projects
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

@@ -48,17 +48,41 @@ Format de réponse JSON:
   "files": [
     {
       "path": "src/App.jsx",
-      "content": "// contenu du fichier"
+      "content": "// contenu du fichier",
+      "type": "component"
     },
     {
       "path": "src/main.jsx",
-      "content": "// contenu"
+      "content": "// contenu",
+      "type": "other"
+    },
+    {
+      "path": "src/components/Button.jsx",
+      "content": "// contenu",
+      "type": "component"
+    },
+    {
+      "path": "src/hooks/useData.js",
+      "content": "// contenu",
+      "type": "hook"
+    },
+    {
+      "path": "src/styles/App.css",
+      "content": "// contenu",
+      "type": "style"
     }
     // ... autres fichiers
   ],
   "hasDatabase": true/false,
   "databaseSchema": "CREATE TABLE ... (si hasDatabase=true)"
 }
+
+TYPES DE FICHIERS:
+- "component": Fichiers dans src/components/ ou src/App.jsx, src/pages/
+- "hook": Fichiers dans src/hooks/
+- "style": Fichiers .css, .scss
+- "config": package.json, vite.config.js, etc.
+- "other": Tous les autres fichiers
 
 Génère une application React complète et professionnelle.`
 
@@ -67,6 +91,7 @@ Génère une application React complète et professionnelle.`
 Réponds UNIQUEMENT avec un JSON valide contenant tous les fichiers nécessaires.`
 
   try {
+    console.log('🤖 Calling AI to generate React project...')
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 16000,
@@ -81,24 +106,67 @@ Réponds UNIQUEMENT avec un JSON valide contenant tous les fichiers nécessaires
     })
 
     const response = message.content[0].type === 'text' ? message.content[0].text : ''
+    console.log('📝 AI Response length:', response.length, 'characters')
+    console.log('📝 First 500 chars:', response.substring(0, 500))
 
-    // Extraire le JSON de la réponse
+    // Extraire le JSON de la réponse (chercher un objet JSON complet)
     const jsonMatch = response.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
+      console.error('❌ No JSON found in AI response')
+      console.error('Full response:', response)
       throw new Error('No valid JSON found in response')
     }
 
+    console.log('📦 Parsing JSON...')
     const result = JSON.parse(jsonMatch[0])
+    console.log('✅ JSON parsed successfully')
+    console.log('📁 Files count:', result.files?.length || 0)
+    console.log('🗄️ Has database:', result.hasDatabase)
 
     // Ajouter les fichiers de configuration par défaut s'ils manquent
     const structure = ensureCompleteStructure(result, prompt)
 
     return structure
   } catch (error) {
-    console.error('Error generating React project:', error)
+    console.error('❌ Error generating React project:', error)
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
     // Fallback: générer une structure minimale
+    console.log('⚠️ Using fallback structure')
     return generateFallbackStructure(prompt)
   }
+}
+
+/**
+ * Détecte automatiquement le type d'un fichier basé sur son chemin
+ */
+function detectFileType(path: string): string {
+  // Composants
+  if (path.includes('/components/') ||
+      path.includes('/pages/') ||
+      path.match(/src\/App\.(jsx?|tsx?)$/)) {
+    return 'component'
+  }
+
+  // Hooks
+  if (path.includes('/hooks/') || path.match(/use[A-Z]\w+\.(js|ts)$/)) {
+    return 'hook'
+  }
+
+  // Styles
+  if (path.match(/\.(css|scss|sass|less)$/)) {
+    return 'style'
+  }
+
+  // Config
+  if (path.match(/(package\.json|vite\.config|tsconfig|\.eslintrc|\.prettierrc)/)) {
+    return 'config'
+  }
+
+  // Autres
+  return 'other'
 }
 
 /**
@@ -109,6 +177,13 @@ function ensureCompleteStructure(
   prompt: string
 ): ReactProjectStructure {
   const files: ProjectFile[] = result.files || []
+
+  // Ajouter automatiquement le type si manquant
+  files.forEach(file => {
+    if (!file.type) {
+      file.type = detectFileType(file.path)
+    }
+  })
 
   // Vérifier si index.html existe
   if (!files.find(f => f.path === 'index.html')) {
@@ -227,9 +302,230 @@ export const supabase = createClient(supabaseUrl, supabaseKey)`
 }
 
 /**
- * Structure de fallback en cas d'erreur
+ * Structure de fallback en cas d'erreur - Génère une vraie app basique
  */
 function generateFallbackStructure(prompt: string): ReactProjectStructure {
+  // Analyser le prompt pour créer une app basique appropriée
+  const lowerPrompt = prompt.toLowerCase()
+  const isTodo = lowerPrompt.includes('todo') || lowerPrompt.includes('tâche') || lowerPrompt.includes('task')
+  const isTimer = lowerPrompt.includes('chrono') || lowerPrompt.includes('timer') || lowerPrompt.includes('minuteur')
+  const isAlarm = lowerPrompt.includes('alarm') || lowerPrompt.includes('réveil')
+
+  let appContent = `import React, { useState } from 'react'
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('todo')
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white">
+            <h1 className="text-4xl font-bold mb-2">${prompt}</h1>
+            <p className="text-purple-100">Application générée automatiquement</p>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex border-b">
+            ${isTodo ? `<button
+              onClick={() => setActiveTab('todo')}
+              className={\`flex-1 py-4 px-6 font-semibold transition \${
+                activeTab === 'todo'
+                  ? 'bg-purple-50 text-purple-600 border-b-2 border-purple-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }\`}
+            >
+              📝 Todo List
+            </button>` : ''}
+            ${isTimer ? `<button
+              onClick={() => setActiveTab('timer')}
+              className={\`flex-1 py-4 px-6 font-semibold transition \${
+                activeTab === 'timer'
+                  ? 'bg-purple-50 text-purple-600 border-b-2 border-purple-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }\`}
+            >
+              ⏱️ Chronomètre
+            </button>` : ''}
+            ${isAlarm ? `<button
+              onClick={() => setActiveTab('alarm')}
+              className={\`flex-1 py-4 px-6 font-semibold transition \${
+                activeTab === 'alarm'
+                  ? 'bg-purple-50 text-purple-600 border-b-2 border-purple-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }\`}
+            >
+              ⏰ Alarmes
+            </button>` : ''}
+          </div>
+
+          {/* Content */}
+          <div className="p-8">
+            {activeTab === 'todo' && <TodoList />}
+            {activeTab === 'timer' && <Timer />}
+            {activeTab === 'alarm' && <AlarmList />}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TodoList() {
+  const [todos, setTodos] = useState([
+    { id: 1, text: 'Exemple de tâche', done: false },
+    { id: 2, text: 'Cliquez pour marquer comme fait', done: false }
+  ])
+  const [input, setInput] = useState('')
+
+  const addTodo = () => {
+    if (input.trim()) {
+      setTodos([...todos, { id: Date.now(), text: input, done: false }])
+      setInput('')
+    }
+  }
+
+  const toggleTodo = (id) => {
+    setTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t))
+  }
+
+  const deleteTodo = (id) => {
+    setTodos(todos.filter(t => t.id !== id))
+  }
+
+  return (
+    <div>
+      <div className="flex gap-2 mb-6">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && addTodo()}
+          placeholder="Ajouter une tâche..."
+          className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+        />
+        <button
+          onClick={addTodo}
+          className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+        >
+          Ajouter
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        {todos.map(todo => (
+          <div
+            key={todo.id}
+            className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+          >
+            <input
+              type="checkbox"
+              checked={todo.done}
+              onChange={() => toggleTodo(todo.id)}
+              className="w-5 h-5"
+            />
+            <span className={\`flex-1 \${todo.done ? 'line-through text-gray-400' : 'text-gray-800'}\`}>
+              {todo.text}
+            </span>
+            <button
+              onClick={() => deleteTodo(todo.id)}
+              className="px-3 py-1 text-red-600 hover:bg-red-50 rounded"
+            >
+              🗑️
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function Timer() {
+  const [seconds, setSeconds] = useState(0)
+  const [running, setRunning] = useState(false)
+
+  React.useEffect(() => {
+    let interval = null
+    if (running) {
+      interval = setInterval(() => {
+        setSeconds(s => s + 1)
+      }, 1000)
+    }
+    return () => clearInterval(interval)
+  }, [running])
+
+  const formatTime = (totalSeconds) => {
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const secs = totalSeconds % 60
+    return \`\${hours.toString().padStart(2, '0')}:\${minutes.toString().padStart(2, '0')}:\${secs.toString().padStart(2, '0')}\`
+  }
+
+  return (
+    <div className="text-center">
+      <div className="text-7xl font-bold text-purple-600 mb-8 font-mono">
+        {formatTime(seconds)}
+      </div>
+      <div className="flex gap-4 justify-center">
+        <button
+          onClick={() => setRunning(!running)}
+          className={\`px-8 py-4 rounded-lg font-bold text-lg transition \${
+            running
+              ? 'bg-red-600 hover:bg-red-700 text-white'
+              : 'bg-green-600 hover:bg-green-700 text-white'
+          }\`}
+        >
+          {running ? '⏸️ Pause' : '▶️ Start'}
+        </button>
+        <button
+          onClick={() => { setSeconds(0); setRunning(false) }}
+          className="px-8 py-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-bold text-lg transition"
+        >
+          🔄 Reset
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function AlarmList() {
+  const [alarms, setAlarms] = useState([
+    { id: 1, time: '07:00', label: 'Réveil matin', active: true },
+    { id: 2, time: '12:30', label: 'Pause déjeuner', active: false }
+  ])
+
+  const toggleAlarm = (id) => {
+    setAlarms(alarms.map(a => a.id === id ? { ...a, active: !a.active } : a))
+  }
+
+  return (
+    <div className="space-y-4">
+      {alarms.map(alarm => (
+        <div
+          key={alarm.id}
+          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+        >
+          <div className="flex-1">
+            <div className="text-3xl font-bold text-gray-800">{alarm.time}</div>
+            <div className="text-gray-600">{alarm.label}</div>
+          </div>
+          <button
+            onClick={() => toggleAlarm(alarm.id)}
+            className={\`px-6 py-2 rounded-lg font-semibold transition \${
+              alarm.active
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-300 text-gray-600'
+            }\`}
+          >
+            {alarm.active ? 'ON' : 'OFF'}
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}`
+
   return {
     files: [
       {
@@ -242,7 +538,6 @@ function generateFallbackStructure(prompt: string): ReactProjectStructure {
         content: `import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import './styles/App.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -253,22 +548,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       },
       {
         path: 'src/App.jsx',
-        content: `import React from 'react'
-
-export default function App() {
-  return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          ${prompt}
-        </h1>
-        <p className="text-gray-600">
-          Application générée automatiquement. Personnalisez-la selon vos besoins.
-        </p>
-      </div>
-    </div>
-  )
-}`,
+        content: appContent,
         type: 'component'
       },
       {

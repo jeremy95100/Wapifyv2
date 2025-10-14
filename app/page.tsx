@@ -46,11 +46,11 @@ export default function Home() {
 
             <h1 className="text-5xl md:text-7xl font-black text-wapify-text mb-6 leading-tight">
               Turn your idea into a<br />
-              <span className="text-wapify-accent">Web App</span>
+              <span className="text-wapify-accent">React App</span>
             </h1>
 
             <p className="text-xl text-wapify-text-secondary mb-12 max-w-2xl mx-auto">
-              Describe what you want, AI generates the code. Frontend, backend, database and hosting included.
+              Describe what you want, AI generates a complete React application with Vite. Database and deployment ready.
             </p>
           </div>
 
@@ -112,10 +112,10 @@ export default function Home() {
                 🧠
               </div>
               <h3 className="text-2xl font-bold text-wapify-text mb-4">
-                Smart AI Generation
+                React-Specialized AI
               </h3>
               <p className="text-wapify-text-secondary leading-relaxed">
-                Describe your app in plain language. Our AI understands and generates professional React + TypeScript code.
+                Describe your app in plain language. Our AI generates professional React applications with modern hooks, components, and Vite configuration.
               </p>
             </div>
 

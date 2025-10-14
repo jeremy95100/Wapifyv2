@@ -851,13 +851,16 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
 
   // Build automatique du preview React (appelle l'API server-side)
   useEffect(() => {
-    if (!isMultiFile || projectFiles.length === 0 || !projectId) {
+    if (!isMultiFile || projectFiles.length === 0) {
       return
     }
 
+    // Si pas de projectId, utiliser un ID temporaire pour le cache
+    const currentProjectId = projectId || 'temp-' + Date.now()
+
     const buildPreview = async () => {
       setIsBuilding(true)
-      console.log('🔨 Building preview for project:', projectId)
+      console.log('🔨 Building preview for project:', currentProjectId)
 
       try {
         const response = await fetch('/api/build-preview', {
@@ -865,7 +868,7 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             files: projectFiles,
-            projectId
+            projectId: currentProjectId
           })
         })
 

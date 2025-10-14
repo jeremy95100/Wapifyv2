@@ -41,15 +41,14 @@ export interface ModificationDetail {
 }
 
 // Prompt système pour l'analyse et la planification
-const PLANNING_SYSTEM_PROMPT = `You are Wapify AI, an intelligent web application architect.
+const PLANNING_SYSTEM_PROMPT = `You are Wapify AI, an intelligent React application architect.
 
-Your job is to analyze user requirements and create a generation plan.
+Your job is to analyze user requirements and create a generation plan for React applications.
 
-FRAMEWORK SELECTION RULES:
-- ALWAYS prefer HTML + JavaScript for preview purposes (works best in iframe)
-- HTML with vanilla JavaScript can handle complex interactions, dashboards, forms, etc.
-- Only use React if the app is extremely complex and truly needs component architecture
-- Use Vue rarely, only if explicitly requested
+FRAMEWORK SELECTION:
+- ALWAYS use React with Vite (Wapify is specialized in React apps only)
+- Generate modern React applications with hooks and functional components
+- Use component-based architecture for all applications
 
 STYLE SELECTION:
 - modern: For professional, corporate, SaaS apps (gradients, shadows, glassmorphism)
@@ -85,7 +84,7 @@ DATABASE ENTITIES:
 
 RESPONSE FORMAT (JSON only):
 {
-  "framework": "html",
+  "framework": "react",
   "style": "modern",
   "template": "e-commerce",
   "colorTheme": {
@@ -112,21 +111,28 @@ RESPONSE FORMAT (JSON only):
 
 Analyze the user's request and respond with ONLY the JSON plan.`
 
-// Prompt système pour la génération de code
-const CODE_GENERATION_SYSTEM_PROMPT = `You are Wapify AI, an expert in generating professional web applications.
+// Prompt système pour la génération de code React
+const CODE_GENERATION_SYSTEM_PROMPT = `You are Wapify AI, an expert in generating professional React applications.
 
-CRITICAL RULES:
-- Generate COMPLETE, PRODUCTION-READY code
-- For React: Use JavaScript (NOT TypeScript) - NO type annotations, NO interfaces, NO generic types like <Type[]>
+CRITICAL RULES FOR REACT:
+- Generate COMPLETE, PRODUCTION-READY React code
+- Use JavaScript (NOT TypeScript) - NO type annotations, NO interfaces, NO generic types like <Type[]>
 - IMPORTANT: Babel in-browser does NOT support TypeScript syntax - use plain JavaScript only
 - Use PropTypes for type checking if needed, but prefer plain JavaScript
 - Include ALL necessary imports and dependencies
 - Use Tailwind CSS with custom colors (will be provided in the prompt)
-- Create responsive, mobile-first designs
+- Create responsive, mobile-first designs with React components
 - Include proper error handling and loading states
 - NEVER use localStorage or sessionStorage (not supported in iframe)
 - Add meaningful comments for complex logic
 - Ensure accessibility (ARIA labels, semantic HTML)
+
+REACT APPLICATION STRUCTURE:
+- Create a multi-component architecture
+- Use React Router for navigation (if needed)
+- Use React hooks (useState, useEffect, useContext, etc.)
+- Separate concerns: components, hooks, utilities
+- Create reusable components
 
 CONTENT REQUIREMENTS (CRITICAL - Make it VERY impressive):
 - MINIMUM 5-8 pages/sections (not just 3!)
@@ -137,69 +143,6 @@ CONTENT REQUIREMENTS (CRITICAL - Make it VERY impressive):
 - For SaaS: Landing, Features, Pricing, Dashboard, Settings, Billing, Support, Documentation
 - Each page must be FULLY FUNCTIONAL with smooth navigation
 - Include realistic loading states and animations
-
-NAVIGATION SYSTEM (ABSOLUTELY CRITICAL - THIS IS THE MOST IMPORTANT RULE!!!):
-⚠️ ATTENTION: The app runs in an iframe. NEVER use <a href> or page reloads!
-
-MANDATORY NAVIGATION PATTERN (YOU MUST INCLUDE THIS EXACT CODE):
-
-1. YOU MUST INCLUDE THIS EXACT SCRIPT IN YOUR HTML (BEFORE </body>):
-   <script>
-     // Navigation system - DO NOT MODIFY
-     let currentPage = 'home';
-
-     function showPage(pageName) {
-       console.log('Navigating to:', pageName);
-
-       // Hide all pages
-       document.querySelectorAll('.page').forEach(page => {
-         page.style.display = 'none';
-         page.classList.remove('active');
-       });
-
-       // Show target page
-       const targetPage = document.getElementById('page-' + pageName);
-       if (targetPage) {
-         targetPage.style.display = 'block';
-         targetPage.classList.add('active');
-         currentPage = pageName;
-         window.scrollTo(0, 0);
-       } else {
-         console.error('Page not found:', pageName);
-       }
-     }
-
-     // Initialize first page
-     window.addEventListener('DOMContentLoaded', () => {
-       showPage('home');
-     });
-   </script>
-
-2. Page structure - Each page MUST be a div with class="page" and id="page-{name}":
-   <div id="page-home" class="page">
-     <!-- Home content -->
-   </div>
-   <div id="page-products" class="page">
-     <!-- Products content -->
-   </div>
-   <div id="page-about" class="page">
-     <!-- About content -->
-   </div>
-
-3. Navigation links - Use buttons with onclick:
-   <nav class="...">
-     <button onclick="showPage('home')" class="...">Home</button>
-     <button onclick="showPage('products')" class="...">Products</button>
-     <button onclick="showPage('about')" class="...">About</button>
-   </nav>
-
-4. CSS for pages (MUST include):
-   <style>
-     .page { display: none; }
-     .page.active { display: block; }
-   </style>
-
-CRITICAL: The showPage() function MUST be in your HTML code, near the end before </body>!
 
 DATABASE IMPLEMENTATION (CRITICAL - Rich data):
 - Create mock data in JavaScript objects/arrays
@@ -283,7 +226,7 @@ export async function createGenerationPlan(prompt: string): Promise<GenerationPl
 
     // Plan par défaut en cas d'erreur
     return {
-      framework: 'html',
+      framework: 'react',
       style: 'modern',
       template: 'custom',
       colorTheme: {
@@ -300,7 +243,10 @@ export async function createGenerationPlan(prompt: string): Promise<GenerationPl
   }
 }
 
-// Fonction principale de génération avec étapes
+// ⚠️ DEPRECATED - Wapify utilise maintenant React uniquement
+// Cette fonction était utilisée pour générer du HTML, mais n'est plus nécessaire
+// Conservée pour référence historique
+/*
 export async function* generateAppCodeWithSteps(
   options: GenerateOptions
 ): AsyncGenerator<{type: 'step' | 'plan' | 'code' | 'substep' | 'modifications' | 'final_code' | 'complete', data: any}> {
@@ -682,6 +628,7 @@ export async function* generateAppCodeWithSteps(
     throw new Error('Failed to generate code with AI')
   }
 }
+*/
 
 // Fonction pour générer des projets React multi-fichiers avec étapes
 export async function* generateReactProjectWithSteps(

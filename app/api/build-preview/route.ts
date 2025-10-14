@@ -110,13 +110,26 @@ export async function POST(request: NextRequest) {
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useCallback, useMemo, useRef } = React;
+    console.log('🚀 React Preview: Starting...');
+    const { useState, useEffect, useCallback, useMemo, useRef, useContext, createContext, useReducer, memo } = React;
 
     ${allComponentsCode}
 
-    // Render
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    // Vérifier que App existe
+    if (typeof App === 'undefined') {
+      console.error('❌ App component not found!');
+      document.getElementById('root').innerHTML = '<div style="padding: 20px; color: red;">Error: App component not found</div>';
+    } else {
+      console.log('✅ App component found, rendering...');
+      try {
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+        console.log('✅ React app rendered successfully!');
+      } catch (error) {
+        console.error('❌ Error rendering React app:', error);
+        document.getElementById('root').innerHTML = '<div style="padding: 20px; color: red;">Error rendering: ' + error.message + '</div>';
+      }
+    }
   </script>
 </body>
 </html>`
