@@ -184,13 +184,13 @@ export default function EditorPage() {
 
   // Fonction pour sauvegarder le projet (single-file ou multi-file)
   const saveProject = useCallback(async (code: string, prompt: string) => {
-    if ((!code && !isMultiFile) || !prompt || !session?.user?.id) return
+    if ((!code && !isMultiFile) || !prompt || !session?.user?.email) return
 
     try {
       setIsSaving(true)
 
       // Utiliser l'ID de l'utilisateur authentifié
-      const userId = session.user.id
+      const userId = (session.user as any)?.id || session.user.email
 
       if (!projectId) {
         // Créer un nouveau projet
