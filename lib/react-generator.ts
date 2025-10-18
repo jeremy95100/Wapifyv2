@@ -196,6 +196,14 @@ EXEMPLE:
 6. Utilise @tailwind directives dans src/index.css
 7. TOUTES les dépendances npm dans package.json (avec versions compatibles)
 
+⚠️ RÈGLES JSX CRITIQUES (OBLIGATOIRE):
+1. ❌ NE JAMAIS utiliser de SVG inline en data URL dans className
+   Exemple INTERDIT: className="bg-[url('data:image/svg+xml,...')]"
+2. ✅ Pour les backgrounds patterns: utilise des gradients CSS ou Tailwind patterns
+3. ✅ Si SVG nécessaire: créer un fichier .svg séparé dans public/patterns/
+4. ❌ NE JAMAIS mettre de guillemets doubles imbriqués dans className
+5. ✅ Utilise des background gradients Tailwind: bg-gradient-to-br, from-blue-500, etc.
+
 Format de réponse JSON:
 {
   "files": [
