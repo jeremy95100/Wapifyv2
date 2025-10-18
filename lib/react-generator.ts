@@ -73,23 +73,45 @@ L'application sera compilée avec Vite Build Server (npm install + vite build) d
   - React 18.3+ avec tous les hooks
   - React Router DOM pour la navigation
   - Tailwind CSS (configuré via PostCSS, pas CDN)
-  - Lucide-react, react-icons, heroicons pour les icônes
-  - recharts, chart.js, victory pour les graphiques
-  - date-fns, dayjs pour les dates
-  - axios, ky pour les requêtes HTTP
-  - framer-motion pour les animations
-  - react-hook-form, formik pour les formulaires
-  - zod, yup pour la validation
-  - @tanstack/react-query pour le data fetching
-  - zustand, jotai pour le state management
-  - clsx, tailwind-merge pour les classes CSS
+
+📱 UI & COMPOSANTS:
+  - lucide-react, react-icons, @heroicons/react pour les icônes
+  - @radix-ui/react-* (dialog, dropdown, select, etc.) - primitives UI accessibles
+  - framer-motion pour animations sophistiquées
+  - react-hot-toast, sonner pour notifications toast
+  - vaul pour drawer mobile
+  - cmdk pour command palette (⌘K)
+
+📊 DATA & VISUALISATION:
+  - recharts, tremor pour dashboards et graphiques
+  - @tanstack/react-table pour tables avancées
+  - react-virtualized, @tanstack/react-virtual pour infinite scroll
+
+📝 FORMULAIRES & VALIDATION:
+  - react-hook-form (recommandé) ou formik
+  - zod, yup pour validation schemas
+
+🔄 STATE & DATA FETCHING:
+  - zustand, jotai pour state management
+  - @tanstack/react-query pour data fetching et cache
+
+📅 DATES & UTILITAIRES:
+  - date-fns, dayjs pour manipulation de dates
+  - clsx, tailwind-merge, cn pour classes CSS
+  - axios, ky pour requêtes HTTP
+
+🎨 AUTRES:
+  - react-dropzone pour upload fichiers
+  - react-dnd pour drag & drop
   - Et toute autre bibliothèque npm pertinente!
 
-🎨 STYLING MODERNE:
-  - Utilise Tailwind CSS (configuré via tailwind.config.js)
-  - Fichier CSS principal: src/index.css avec @tailwind directives
-  - Tu PEUX utiliser des composants UI (shadcn/ui style)
-  - Animations avec Tailwind ou Framer Motion
+🎨 STYLING ULTRA-MODERNE (shadcn/ui style):
+  - Tailwind CSS avec variables CSS personnalisées (--background, --foreground, --primary, etc.)
+  - Design system shadcn/ui: utilise bg-background, text-foreground, border-border, etc.
+  - Dark mode natif supporté (.dark class)
+  - Composants UI réutilisables (Button, Card, Dialog, Input, etc.)
+  - Animations sophistiquées avec Framer Motion ou Tailwind
+  - Classes utilitaires: cn() pour merge de classes conditionnelles
 
 EXEMPLE:
   // src/index.css
@@ -108,20 +130,25 @@ EXEMPLE:
   const formatted = format(new Date(), 'PPP', { locale: fr })
   const timeAgo = formatDistance(date, new Date(), { addSuffix: true, locale: fr })
 
-🔧 STRUCTURE DE PROJET COMPLÈTE:
-- src/App.jsx (composant principal avec routing si nécessaire)
-- src/main.jsx (point d'entrée React)
-- src/index.css (Tailwind + styles globaux)
-- src/components/*.jsx (composants UI réutilisables)
-- src/hooks/*.js (custom hooks)
-- src/lib/*.js (utilitaires, clients API)
-- src/pages/*.jsx (pages si routing)
+🔧 STRUCTURE DE PROJET MODERNE:
+- src/App.tsx (composant principal avec routing)
+- src/main.tsx (point d'entrée React)
+- src/index.css (Tailwind + CSS variables + styles globaux)
+- src/components/ui/*.tsx (composants UI primitifs: Button, Card, Dialog, Input, etc.)
+- src/components/*.tsx (composants métier réutilisables)
+- src/hooks/*.ts (custom hooks)
+- src/lib/utils.ts (fonction cn() et utilitaires)
+- src/lib/*.ts (clients API, services)
+- src/pages/*.tsx (pages pour routing)
+- src/contexts/*.tsx (React Context pour state global)
+- src/types/*.ts (TypeScript types/interfaces)
 - public/* (assets statiques)
 - index.html (HTML de base)
-- package.json (TOUTES les dépendances nécessaires)
-- vite.config.js (configuration Vite + React plugin)
-- tailwind.config.js (configuration Tailwind)
+- package.json (TOUTES les dépendances + devDependencies)
+- vite.config.ts (configuration Vite + React + path aliases)
+- tailwind.config.js (config Tailwind avec shadcn/ui variables)
 - postcss.config.js (PostCSS pour Tailwind)
+- tsconfig.json (TypeScript config)
 - database/schema.sql (UNIQUEMENT si DB demandée)
 
 ⚠️ FICHIERS OBLIGATOIRES À GÉNÉRER:
@@ -130,17 +157,21 @@ EXEMPLE:
 - postcss.config.js (OBLIGATOIRE pour Tailwind)
 - src/index.css avec directives @tailwind (OBLIGATOIRE)
 
-💎 EXIGENCES QUALITÉ:
-1. Application COMPLÈTE et FONCTIONNELLE (pas de placeholders)
-2. Au minimum 30-50 items de données mockées (ex: 40 produits, 30 articles, 50 utilisateurs)
-3. Minimum 5-8 sections/pages différentes (pas juste 3!)
-4. TOUS les boutons doivent être fonctionnels (pas de boutons morts)
-5. Animations et transitions fluides (hover, click, fade-in)
-6. Design moderne et professionnel avec Tailwind
-7. Responsive mobile-first
-8. Loading states et feedback utilisateur
-9. Gestion d'erreurs propre
-10. Code propre, commenté, organisé
+💎 EXIGENCES QUALITÉ PRODUCTION-READY:
+1. Application COMPLÈTE et FONCTIONNELLE (ZÉRO placeholders ou TODOs)
+2. 50-100 items de données mockées réalistes (ex: 80 produits, 60 articles, 100 users)
+3. 8-12 pages/sections minimum (dashboard riche, pas juste 3 pages)
+4. TOUS les boutons fonctionnels avec feedback visuel immédiat
+5. Micro-animations partout (hover states, focus rings, smooth transitions)
+6. Design system cohérent (espacements, couleurs, typographie)
+7. Responsive mobile-first (testable sur iPhone/Android)
+8. Loading skeletons (pas juste "Loading...")
+9. Error boundaries + fallback UI élégants
+10. Toast notifications pour actions importantes
+11. Formulaires avec validation temps réel et messages d'erreur clairs
+12. Accessibility complet (aria-labels, keyboard navigation, focus management)
+13. Performance optimisée (lazy loading, memoization si nécessaire)
+14. Code ultra-propre, bien organisé, commenté en français
 
 🗃️ BASE DE DONNÉES:
 - Si la demande nécessite une base de données → génère database/schema.sql
@@ -156,13 +187,14 @@ EXEMPLE:
 - NE PAS utiliser Row Level Security (RLS) ni CREATE POLICY
 - Utiliser PostgreSQL standard uniquement (CREATE TABLE, CREATE INDEX, etc.)
 
-✅ RÈGLES À SUIVRE:
-1. JavaScript uniquement (pas TypeScript)
-2. import.meta.env pour les variables d'environnement Vite
-3. Génère TOUJOURS vite.config.js, tailwind.config.js, postcss.config.js
-4. Utilise @tailwind directives dans src/index.css
-5. Code propre, bien organisé, commenté
-6. TOUTES les dépendances npm dans package.json
+✅ STACK TECHNIQUE:
+1. TypeScript par défaut (.tsx, .ts) pour excellente DX et type safety
+2. ESLint configuré pour React + TypeScript
+3. Path aliases (@/components, @/lib, @/hooks, etc.)
+4. import.meta.env.VITE_* pour variables d'environnement
+5. Génère TOUJOURS: vite.config.ts, tailwind.config.js, postcss.config.js, tsconfig.json
+6. Utilise @tailwind directives dans src/index.css
+7. TOUTES les dépendances npm dans package.json (avec versions compatibles)
 
 Format de réponse JSON:
 {
@@ -514,12 +546,68 @@ export default defineConfig({
 function generateTailwindConfig(): string {
   return `/** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: ["class"],
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+    },
   },
   plugins: [],
 }`
@@ -545,14 +633,65 @@ function generateIndexCSS(): string {
 @tailwind components;
 @tailwind utilities;
 
-/* Styles globaux personnalisés */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 * {
