@@ -30,7 +30,7 @@ export default function DashboardPage() {
   }, [status, router])
 
   useEffect(() => {
-    if (session?.user?.id) {
+    if (session?.user?.email) {
       fetchProjects()
     }
   }, [session])
@@ -38,7 +38,7 @@ export default function DashboardPage() {
   const fetchProjects = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/projects?userId=${session?.user?.id}`)
+      const response = await fetch(`/api/projects?userId=${(session?.user as any)?.id || session?.user?.email}`)
 
       if (!response.ok) {
         throw new Error('Erreur lors de la récupération des projets')
