@@ -151,7 +151,8 @@ export async function getProjectFiles(
     })
 
     const downloadedFiles = await Promise.all(downloadPromises)
-    files.push(...downloadedFiles.filter((f): f is ProjectFile => f !== null))
+    const validFiles = downloadedFiles.filter((f): f is NonNullable<typeof f> => f !== null)
+    files.push(...validFiles)
 
     const elapsed = Date.now() - startTime
     console.log(`⚡ Downloaded ${files.length} files in ${elapsed}ms`)
