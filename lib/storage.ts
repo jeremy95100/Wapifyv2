@@ -79,8 +79,9 @@ export async function getProjectFiles(
 
     const storagePath = `${userId}/${projectId}`
     const files: ProjectFile[] = []
+    const filesToDownload: Array<{ fullPath: string; displayPath: string }> = []
 
-    // Fonction récursive pour lister tous les fichiers
+    // Fonction récursive pour lister tous les fichiers (sans télécharger)
     async function listFilesRecursive(path: string, currentPath: string = '') {
       const { data: items, error: listError } = await supabaseAdmin!.storage
         .from('project-files')
@@ -109,29 +110,51 @@ export async function getProjectFiles(
           // Récursion dans le sous-dossier
           await listFilesRecursive(fullStoragePath, itemPath)
         } else {
-          // C'est un fichier, le télécharger
-          const { data: fileData, error: downloadError } = await supabaseAdmin!.storage
-            .from('project-files')
-            .download(fullStoragePath)
-
-          if (downloadError) {
-            console.error(`❌ Error downloading ${fullStoragePath}:`, downloadError)
-            continue
-          }
-
-          const content = await fileData.text()
-
-          files.push({
-            path: itemPath,
-            content,
-            type: inferFileType(itemPath)
+          // Ajouter à la liste des fichiers à télécharger
+          filesToDownload.push({
+            fullPath: fullStoragePath,
+            displayPath: itemPath
           })
         }
       }
     }
 
-    // Lancer la recherche récursive
+    // 1. Lister tous les fichiers (rapide)
     await listFilesRecursive(storagePath)
+
+    // 2. Télécharger tous les fichiers EN PARALLÈLE (beaucoup plus rapide!)
+    console.log(`⚡ Downloading ${filesToDownload.length} files in parallel...`)
+    const startTime = Date.now()
+
+    const downloadPromises = filesToDownload.map(async ({ fullPath, displayPath }) => {
+      try {
+        const { data: fileData, error: downloadError } = await supabaseAdmin!.storage
+          .from('project-files')
+          .download(fullPath)
+
+        if (downloadError) {
+          console.error(`❌ Error downloading ${fullPath}:`, downloadError)
+          return null
+        }
+
+        const content = await fileData.text()
+
+        return {
+          path: displayPath,
+          content,
+          type: inferFileType(displayPath)
+        }
+      } catch (error) {
+        console.error(`❌ Exception downloading ${fullPath}:`, error)
+        return null
+      }
+    })
+
+    const downloadedFiles = await Promise.all(downloadPromises)
+    files.push(...downloadedFiles.filter((f): f is ProjectFile => f !== null))
+
+    const elapsed = Date.now() - startTime
+    console.log(`⚡ Downloaded ${files.length} files in ${elapsed}ms`)
 
     if (files.length === 0) {
       console.log(`📂 No files found in Storage for project ${projectId}`)

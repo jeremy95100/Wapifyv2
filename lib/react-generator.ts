@@ -4,6 +4,50 @@
 
 import { ProjectFile } from './storage'
 
+/**
+ * Tente de réparer un JSON tronqué
+ */
+function attemptJsonRepair(jsonText: string): string {
+  let repaired = jsonText.trim()
+
+  // Compter les accolades ouvertes et fermées
+  const openBraces = (repaired.match(/\{/g) || []).length
+  const closeBraces = (repaired.match(/\}/g) || []).length
+  const openBrackets = (repaired.match(/\[/g) || []).length
+  const closeBrackets = (repaired.match(/\]/g) || []).length
+
+  console.log('🔧 JSON structure:', { openBraces, closeBraces, openBrackets, closeBrackets })
+
+  // Si une chaîne est ouverte mais non fermée, la fermer
+  // Chercher la dernière quote non échappée
+  const lastQuoteIndex = repaired.lastIndexOf('"')
+  const beforeLastQuote = repaired.substring(0, lastQuoteIndex)
+  const afterLastQuote = repaired.substring(lastQuoteIndex + 1)
+
+  // Compter les quotes non échappées avant la dernière
+  const quotesBeforeLast = (beforeLastQuote.match(/(?<!\\)"/g) || []).length
+
+  // Si nombre impair de quotes, il manque une quote de fermeture
+  if (quotesBeforeLast % 2 === 0 && !afterLastQuote.includes('"')) {
+    console.log('🔧 Adding missing closing quote')
+    repaired += '"'
+  }
+
+  // Fermer les tableaux ouverts
+  for (let i = 0; i < openBrackets - closeBrackets; i++) {
+    console.log('🔧 Adding missing ]')
+    repaired += ']'
+  }
+
+  // Fermer les objets ouverts
+  for (let i = 0; i < openBraces - closeBraces; i++) {
+    console.log('🔧 Adding missing }')
+    repaired += '}'
+  }
+
+  return repaired
+}
+
 export interface ReactProjectStructure {
   files: ProjectFile[]
   hasDatabase: boolean
@@ -18,30 +62,107 @@ export async function generateReactProject(
   anthropic: any
 ): Promise<ReactProjectStructure> {
 
-  const systemPrompt = `Tu es un expert développeur React. Tu génères des applications React complètes et modernes.
+  const systemPrompt = `Tu es un expert développeur React pour WAPIFY, une plateforme no-code pour utilisateurs NON-TECHNIQUES.
 
-IMPORTANT: Tu dois générer une structure de projet COMPLÈTE avec plusieurs fichiers séparés.
+🎯 MISSION WAPIFY:
+Tu crées des applications React COMPLÈTES, FONCTIONNELLES et VISUELLEMENT IMPRESSIONNANTES pour des utilisateurs qui ne connaissent RIEN au code.
+L'application sera compilée avec Vite Build Server (npm install + vite build) donc TOUTES les dépendances npm sont supportées.
 
-Structure attendue:
-- src/App.jsx (composant principal)
-- src/main.jsx (point d'entrée)
-- src/components/*.jsx (composants réutilisables)
-- src/hooks/*.js (custom hooks si nécessaire)
-- src/lib/supabase.js (client Supabase/Neon si DB nécessaire)
-- src/styles/App.css (styles)
+📦 BIBLIOTHÈQUES DISPONIBLES:
+✅ TU PEUX UTILISER TOUTES LES BIBLIOTHÈQUES NPM POPULAIRES:
+  - React 18.3+ avec tous les hooks
+  - React Router DOM pour la navigation
+  - Tailwind CSS (configuré via PostCSS, pas CDN)
+  - Lucide-react, react-icons, heroicons pour les icônes
+  - recharts, chart.js, victory pour les graphiques
+  - date-fns, dayjs pour les dates
+  - axios, ky pour les requêtes HTTP
+  - framer-motion pour les animations
+  - react-hook-form, formik pour les formulaires
+  - zod, yup pour la validation
+  - @tanstack/react-query pour le data fetching
+  - zustand, jotai pour le state management
+  - clsx, tailwind-merge pour les classes CSS
+  - Et toute autre bibliothèque npm pertinente!
+
+🎨 STYLING MODERNE:
+  - Utilise Tailwind CSS (configuré via tailwind.config.js)
+  - Fichier CSS principal: src/index.css avec @tailwind directives
+  - Tu PEUX utiliser des composants UI (shadcn/ui style)
+  - Animations avec Tailwind ou Framer Motion
+
+EXEMPLE:
+  // src/index.css
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+
+📅 MANIPULATION DE DATES:
+  - Utilise date-fns ou dayjs (recommandé)
+  - Format: formatRelative(), formatDistance(), etc.
+
+EXEMPLE:
+  import { format, formatDistance } from 'date-fns'
+  import { fr } from 'date-fns/locale'
+
+  const formatted = format(new Date(), 'PPP', { locale: fr })
+  const timeAgo = formatDistance(date, new Date(), { addSuffix: true, locale: fr })
+
+🔧 STRUCTURE DE PROJET COMPLÈTE:
+- src/App.jsx (composant principal avec routing si nécessaire)
+- src/main.jsx (point d'entrée React)
+- src/index.css (Tailwind + styles globaux)
+- src/components/*.jsx (composants UI réutilisables)
+- src/hooks/*.js (custom hooks)
+- src/lib/*.js (utilitaires, clients API)
+- src/pages/*.jsx (pages si routing)
+- public/* (assets statiques)
 - index.html (HTML de base)
-- package.json (dépendances)
-- vite.config.js (config Vite)
-- database/schema.sql (si base de données nécessaire)
+- package.json (TOUTES les dépendances nécessaires)
+- vite.config.js (configuration Vite + React plugin)
+- tailwind.config.js (configuration Tailwind)
+- postcss.config.js (PostCSS pour Tailwind)
+- database/schema.sql (UNIQUEMENT si DB demandée)
 
-RÈGLES IMPORTANTES:
-1. Utilise React moderne avec hooks
-2. Utilise Tailwind CSS pour le styling
-3. Si l'app a besoin d'une base de données, génère le schéma SQL dans database/schema.sql
-4. Chaque composant dans un fichier séparé
-5. Utilise Vite comme bundler
-6. Code propre et bien organisé
-7. Génère TOUS les fichiers nécessaires
+⚠️ FICHIERS OBLIGATOIRES À GÉNÉRER:
+- vite.config.js (OBLIGATOIRE pour Vite Build)
+- tailwind.config.js (OBLIGATOIRE pour Tailwind)
+- postcss.config.js (OBLIGATOIRE pour Tailwind)
+- src/index.css avec directives @tailwind (OBLIGATOIRE)
+
+💎 EXIGENCES QUALITÉ:
+1. Application COMPLÈTE et FONCTIONNELLE (pas de placeholders)
+2. Au minimum 30-50 items de données mockées (ex: 40 produits, 30 articles, 50 utilisateurs)
+3. Minimum 5-8 sections/pages différentes (pas juste 3!)
+4. TOUS les boutons doivent être fonctionnels (pas de boutons morts)
+5. Animations et transitions fluides (hover, click, fade-in)
+6. Design moderne et professionnel avec Tailwind
+7. Responsive mobile-first
+8. Loading states et feedback utilisateur
+9. Gestion d'erreurs propre
+10. Code propre, commenté, organisé
+
+🗃️ BASE DE DONNÉES:
+- Si la demande nécessite une base de données → génère database/schema.sql
+- Utilise des données mockées pour la preview (useState pour le CRUD)
+- La vraie DB Neon sera connectée lors du déploiement final
+- Tu PEUX générer src/lib/db.js avec client PostgreSQL si nécessaire
+
+⚠️ SCHÉMA SQL POUR NEON POSTGRESQL (CRITIQUE):
+- NE PAS utiliser le schéma "auth" (n'existe pas dans Neon)
+- Utiliser UNIQUEMENT le schéma "public" par défaut
+- NE PAS créer de tables auth.users (créer public.users à la place)
+- NE PAS utiliser les extensions Supabase (pgjwt, etc.)
+- NE PAS utiliser Row Level Security (RLS) ni CREATE POLICY
+- Utiliser PostgreSQL standard uniquement (CREATE TABLE, CREATE INDEX, etc.)
+
+✅ RÈGLES À SUIVRE:
+1. JavaScript uniquement (pas TypeScript)
+2. import.meta.env pour les variables d'environnement Vite
+3. Génère TOUJOURS vite.config.js, tailwind.config.js, postcss.config.js
+4. Utilise @tailwind directives dans src/index.css
+5. Code propre, bien organisé, commenté
+6. TOUTES les dépendances npm dans package.json
 
 Format de réponse JSON:
 {
@@ -92,10 +213,11 @@ Réponds UNIQUEMENT avec un JSON valide contenant tous les fichiers nécessaires
 
   try {
     console.log('🤖 Calling AI to generate React project...')
-    const message = await anthropic.messages.create({
+    const stream = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 16000,
+      max_tokens: 50000, // Augmenté pour permettre de grandes apps avec beaucoup de données
       temperature: 0.7,
+      stream: true, // Activer le streaming pour éviter le timeout de 10 minutes
       system: systemPrompt,
       messages: [
         {
@@ -105,21 +227,58 @@ Réponds UNIQUEMENT avec un JSON valide contenant tous les fichiers nécessaires
       ]
     })
 
-    const response = message.content[0].type === 'text' ? message.content[0].text : ''
+    // Collecter la réponse depuis le stream
+    let response = ''
+    for await (const event of stream) {
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        response += event.delta.text
+      }
+    }
+
     console.log('📝 AI Response length:', response.length, 'characters')
     console.log('📝 First 500 chars:', response.substring(0, 500))
 
-    // Extraire le JSON de la réponse (chercher un objet JSON complet)
-    const jsonMatch = response.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      console.error('❌ No JSON found in AI response')
-      console.error('Full response:', response)
-      throw new Error('No valid JSON found in response')
+    // Extraire le JSON de la réponse
+    // Chercher les blocs ```json first
+    let jsonText = ''
+    const codeBlockMatch = response.match(/```json\s*([\s\S]*?)\s*```/)
+    if (codeBlockMatch) {
+      jsonText = codeBlockMatch[1]
+      console.log('📦 Found JSON in code block')
+    } else {
+      // Sinon chercher un objet JSON brut
+      const jsonMatch = response.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) {
+        console.error('❌ No JSON found in AI response')
+        console.error('Full response:', response)
+        throw new Error('No valid JSON found in response')
+      }
+      jsonText = jsonMatch[0]
+      console.log('📦 Found JSON in raw response')
     }
 
-    console.log('📦 Parsing JSON...')
-    const result = JSON.parse(jsonMatch[0])
-    console.log('✅ JSON parsed successfully')
+    console.log('📦 Parsing JSON... (length:', jsonText.length, 'chars)')
+    let result
+    try {
+      result = JSON.parse(jsonText)
+      console.log('✅ JSON parsed successfully')
+    } catch (parseError) {
+      console.error('❌ JSON Parse Error:', parseError)
+      console.error('JSON text length:', jsonText.length)
+      console.error('Last 200 chars:', jsonText.substring(jsonText.length - 200))
+
+      // Tentative de réparation du JSON tronqué
+      console.log('🔧 Attempting to repair truncated JSON...')
+      const repairedJson = attemptJsonRepair(jsonText)
+      try {
+        result = JSON.parse(repairedJson)
+        console.log('✅ Repaired JSON parsed successfully!')
+      } catch (repairError) {
+        console.error('❌ Failed to repair JSON:', repairError)
+        throw new Error(`Failed to parse AI response as JSON: ${parseError}`)
+      }
+    }
+
     console.log('📁 Files count:', result.files?.length || 0)
     console.log('🗄️ Has database:', result.hasDatabase)
 
@@ -170,6 +329,24 @@ function detectFileType(path: string): string {
 }
 
 /**
+ * Nettoyer les imports Tailwind dans les fichiers CSS
+ */
+function cleanTailwindImports(content: string): string {
+  let cleaned = content
+
+  // Supprimer les imports Tailwind (format @import)
+  cleaned = cleaned.replace(/@import\s+['"]tailwindcss\/base['"];?/g, '')
+  cleaned = cleaned.replace(/@import\s+['"]tailwindcss\/components['"];?/g, '')
+  cleaned = cleaned.replace(/@import\s+['"]tailwindcss\/utilities['"];?/g, '')
+  cleaned = cleaned.replace(/@import\s+['"]tailwindcss['"];?/g, '')
+
+  // Nettoyer les lignes vides multiples
+  cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n')
+
+  return cleaned.trim()
+}
+
+/**
  * S'assurer que la structure est complète avec tous les fichiers nécessaires
  */
 function ensureCompleteStructure(
@@ -178,10 +355,19 @@ function ensureCompleteStructure(
 ): ReactProjectStructure {
   const files: ProjectFile[] = result.files || []
 
-  // Ajouter automatiquement le type si manquant
+  // Ajouter automatiquement le type si manquant et nettoyer les CSS
   files.forEach(file => {
     if (!file.type) {
       file.type = detectFileType(file.path)
+    }
+
+    // Nettoyer les imports Tailwind dans les fichiers CSS
+    if (file.path.match(/\.(css|scss|sass)$/)) {
+      const originalLength = file.content.length
+      file.content = cleanTailwindImports(file.content)
+      if (file.content.length !== originalLength) {
+        console.log(`🧹 Cleaned Tailwind imports from ${file.path}`)
+      }
     }
   })
 
@@ -203,7 +389,7 @@ function ensureCompleteStructure(
     })
   }
 
-  // Vérifier si vite.config.js existe
+  // Ajouter vite.config.js (OBLIGATOIRE pour Vite Build)
   if (!files.find(f => f.path === 'vite.config.js')) {
     files.push({
       path: 'vite.config.js',
@@ -212,13 +398,38 @@ function ensureCompleteStructure(
     })
   }
 
-  // Si DB nécessaire, ajouter le client Supabase
-  if (result.hasDatabase && !files.find(f => f.path === 'src/lib/supabase.js')) {
+  // Ajouter tailwind.config.js (OBLIGATOIRE pour Tailwind)
+  if (!files.find(f => f.path === 'tailwind.config.js')) {
     files.push({
-      path: 'src/lib/supabase.js',
-      content: generateSupabaseClient(),
-      type: 'other'
+      path: 'tailwind.config.js',
+      content: generateTailwindConfig(),
+      type: 'config'
     })
+  }
+
+  // Ajouter postcss.config.js (OBLIGATOIRE pour Tailwind)
+  if (!files.find(f => f.path === 'postcss.config.js')) {
+    files.push({
+      path: 'postcss.config.js',
+      content: generatePostCSSConfig(),
+      type: 'config'
+    })
+  }
+
+  // Ajouter src/index.css (OBLIGATOIRE pour Tailwind)
+  if (!files.find(f => f.path === 'src/index.css')) {
+    files.push({
+      path: 'src/index.css',
+      content: generateIndexCSS(),
+      type: 'style'
+    })
+  }
+
+  // Vérifier que src/main.jsx importe index.css
+  const mainFile = files.find(f => f.path === 'src/main.jsx' || f.path === 'src/main.js')
+  if (mainFile && !mainFile.content.includes("index.css")) {
+    console.log('⚠️ Adding index.css import to main.jsx')
+    mainFile.content = `import './index.css'\n${mainFile.content}`
   }
 
   return {
@@ -229,39 +440,46 @@ function ensureCompleteStructure(
 }
 
 /**
- * Générer un index.html de base
+ * Générer un index.html de base pour Vite Build
  */
 function generateIndexHTML(appName: string): string {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${appName}</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
-</body>
+  return `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${appName}</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>`
 }
 
 /**
- * Générer package.json
+ * Générer package.json pour Vite Build
  */
 function generatePackageJSON(appName: string, hasDatabase: boolean): string {
   const dependencies: Record<string, string> = {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.21.0",
+    "lucide-react": "^0.263.1"
   }
 
-  if (hasDatabase) {
-    dependencies["@supabase/supabase-js"] = "^2.58.0"
+  const devDependencies: Record<string, string> = {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.12",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.32",
+    "autoprefixer": "^10.4.16"
   }
 
   return JSON.stringify({
     name: appName.toLowerCase().replace(/\s+/g, '-'),
+    private: true,
     version: "1.0.0",
     type: "module",
     scripts: {
@@ -270,10 +488,7 @@ function generatePackageJSON(appName: string, hasDatabase: boolean): string {
       preview: "vite preview"
     },
     dependencies,
-    devDependencies: {
-      "@vitejs/plugin-react": "^4.3.4",
-      "vite": "^6.0.12"
-    }
+    devDependencies
   }, null, 2)
 }
 
@@ -286,19 +501,83 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    port: 3000,
+    host: true
+  }
 })`
 }
 
 /**
+ * Générer tailwind.config.js
+ */
+function generateTailwindConfig(): string {
+  return `/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}`
+}
+
+/**
+ * Générer postcss.config.js
+ */
+function generatePostCSSConfig(): string {
+  return `export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}`
+}
+
+/**
+ * Générer src/index.css avec directives Tailwind
+ */
+function generateIndexCSS(): string {
+  return `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles globaux personnalisés */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}`
+}
+
+/**
  * Générer le client Supabase
+ * Note: Les variables d'environnement seront injectées par Wapify lors du déploiement
  */
 function generateSupabaseClient(): string {
   return `import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Variables mockées pour la preview Sandpack
+// Wapify injectera les vraies valeurs lors du déploiement
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://mock.supabase.co'
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'mock-key'
 
-export const supabase = createClient(supabaseUrl, supabaseKey)`
+export const supabase = createClient(supabaseUrl, supabaseKey)
+
+// Pour la preview, le supabase client retournera toujours des erreurs
+// Les hooks doivent utiliser des données mockées en fallback
+console.log('📦 Supabase client initialisé (mode mock pour preview)')
+`
 }
 
 /**

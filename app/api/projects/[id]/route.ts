@@ -5,6 +5,10 @@ import { getProjectFiles } from '../../../../lib/storage'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+// Cache simple pour éviter de recharger les mêmes fichiers
+const filesCache = new Map<string, { files: any[]; timestamp: number }>()
+const CACHE_DURATION = 2 * 60 * 1000 // 2 minutes
+
 // GET - Récupérer un projet spécifique
 export async function GET(
   request: NextRequest,
@@ -37,14 +41,25 @@ export async function GET(
     // Si c'est un projet multi-fichiers (React), charger les fichiers depuis Storage
     let files = null
     if (project.framework === 'react' && project.storage_path) {
-      console.log(`📂 Loading files for React project: ${id}`)
-      const filesResult = await getProjectFiles(project.user_id, id)
+      // Vérifier le cache d'abord
+      const cacheKey = `${project.user_id}:${id}`
+      const cached = filesCache.get(cacheKey)
 
-      if (filesResult.success && filesResult.files) {
-        files = filesResult.files
-        console.log(`✅ Loaded ${files.length} files from Storage`)
+      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+        console.log(`⚡ Using cached files for project: ${id}`)
+        files = cached.files
       } else {
-        console.warn(`⚠️ Failed to load files: ${filesResult.error}`)
+        console.log(`📂 Loading files for React project: ${id}`)
+        const filesResult = await getProjectFiles(project.user_id, id)
+
+        if (filesResult.success && filesResult.files) {
+          files = filesResult.files
+          // Mettre en cache
+          filesCache.set(cacheKey, { files, timestamp: Date.now() })
+          console.log(`✅ Loaded ${files.length} files from Storage (cached)`)
+        } else {
+          console.warn(`⚠️ Failed to load files: ${filesResult.error}`)
+        }
       }
     }
 

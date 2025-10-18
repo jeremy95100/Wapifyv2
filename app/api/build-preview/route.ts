@@ -7,7 +7,7 @@ interface BuildRequest {
 
 // Cache simple en mémoire
 const buildCache = new Map<string, { html: string; timestamp: number }>()
-const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+const CACHE_DURATION = 30 * 1000 // 30 secondes (réduit pour faciliter les tests)
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
 
     // Transformer le code JSX de tous les composants
     let allComponentsCode = ''
+    const declaredNames = new Set()
 
     for (const file of componentFiles) {
       let code = file.content
@@ -79,9 +80,32 @@ export async function POST(request: NextRequest) {
         // Enlever CommonJS exports
         .replace(/module\.exports\s*=\s*[^;]+;?/g, '')
         .replace(/exports\.\w+\s*=\s*[^;]+;?/g, '')
+        // Remplacer import.meta.env par un objet vide (pour Vite)
+        .replace(/import\.meta\.env\.\w+/g, '""')
+        .replace(/import\.meta/g, '{}')
         .trim()
 
-      allComponentsCode += `\n// ${file.path}\n${code}\n`
+      // Détecter et garder trace des déclarations
+      const hookMatches = code.match(/(?:const|function)\s+([A-Za-z_]\w*)\s*(?:=|\()/g)
+      if (hookMatches) {
+        for (const match of hookMatches) {
+          const name = match.match(/(?:const|function)\s+([A-Za-z_]\w*)/)?.[1]
+          if (name) {
+            if (declaredNames.has(name)) {
+              console.log(`⚠️ Duplicate declaration found: ${name} in ${file.path} - keeping first occurrence`)
+              // Ne pas inclure ce fichier s'il redéclare exactement la même chose
+              code = ''
+              break
+            }
+            declaredNames.add(name)
+          }
+        }
+      }
+
+      // Toujours inclure le code des composants (sauf si détecté comme doublon exact)
+      if (code && code.trim().length > 0) {
+        allComponentsCode += `\n// ${file.path}\n${code}\n`
+      }
     }
 
     // Créer le HTML final avec React CDN + Babel + Tailwind CDN
@@ -111,9 +135,187 @@ export async function POST(request: NextRequest) {
 
   <script type="text/babel">
     console.log('🚀 React Preview: Starting...');
-    const { useState, useEffect, useCallback, useMemo, useRef, useContext, createContext, useReducer, memo } = React;
+    const { useState, useEffect, useCallback, useMemo, useRef, useContext, createContext, useReducer, memo, forwardRef, useImperativeHandle, useLayoutEffect, useDebugValue, useId, useDeferredValue, useTransition, useSyncExternalStore } = React;
+
+    // Mock Icon components - Mapping d'icônes courantes vers emojis
+    const iconMap = {
+      CheckSquare: '✅', Square: '⬜', Plus: '➕', Trash: '🗑️', Edit: '✏️',
+      Check: '✓', X: '✕', Menu: '☰', Search: '🔍', User: '👤',
+      LogOut: '🚪', Settings: '⚙️', Home: '🏠', ChevronDown: '▼',
+      ChevronUp: '▲', ChevronRight: '▶', ChevronLeft: '◀',
+      BarChart3: '📊', BarChart: '📊', PieChart: '📈', TrendingUp: '📈',
+      Calendar: '📅', Clock: '🕐', Star: '⭐', Heart: '❤️',
+      Send: '📤', Download: '⬇️', Upload: '⬆️', File: '📄',
+      Folder: '📁', Image: '🖼️', Video: '🎥', Music: '🎵',
+      Bell: '🔔', AlertCircle: '⚠️', Info: 'ℹ️', CheckCircle: '✅',
+      XCircle: '❌', Filter: '🔽', Sort: '⇅', RefreshCw: '🔄',
+      Loader: '⏳', Lock: '🔒', Unlock: '🔓', Eye: '👁️', EyeOff: '🙈',
+      Mail: '📧', Phone: '📞', MapPin: '📍', Globe: '🌐',
+      Share: '🔗', Link: '🔗', Copy: '📋', Clipboard: '📋',
+      Save: '💾', Printer: '🖨️', Archive: '📦', Package: '📦',
+      ShoppingCart: '🛒', CreditCard: '💳', DollarSign: '$',
+      ArrowLeft: '←', ArrowRight: '→', ArrowUp: '↑', ArrowDown: '↓'
+    };
+
+    // Créer dynamiquement tous les composants d'icônes
+    Object.keys(iconMap).forEach(iconName => {
+      window[iconName] = ({ className, ...props }) => (
+        <span className={className} {...props} style={{ display: 'inline-block', marginRight: '4px' }}>
+          {iconMap[iconName]}
+        </span>
+      );
+    });
+
+    // Note: On ne peut pas créer de fallback automatique pour les icônes
+    // car ça casserait le Proxy natif de JavaScript
+
+    // Mock React Router pour la preview (navigation simulée)
+    const Router = ({ children }) => {
+      console.log('🎭 Using mock Router for preview');
+      return <>{children}</>;
+    };
+    const BrowserRouter = Router;
+    const HashRouter = Router;
+    const MemoryRouter = Router;
+    const Routes = ({ children }) => <>{children}</>;
+    const Route = ({ element, path, children }) => {
+      // Afficher le premier élément ou children
+      return element || children || null;
+    };
+    const Link = ({ to, children, className, ...props }) => (
+      <a href={'#' + to} className={className} {...props} onClick={(e) => {
+        e.preventDefault();
+        console.log('🔗 Mock navigation to:', to);
+      }}>
+        {children}
+      </a>
+    );
+    const NavLink = Link;
+    const Navigate = ({ to }) => {
+      console.log('🔀 Mock redirect to:', to);
+      return null;
+    };
+    const useNavigate = () => (to) => console.log('🧭 Mock navigate to:', to);
+    const useLocation = () => ({ pathname: '/', search: '', hash: '', state: null });
+    const useParams = () => ({});
+    const useSearchParams = () => [new URLSearchParams(), () => {}];
+    const Outlet = () => null;
+
+    // Mock Supabase pour la preview (données en mémoire, pas de vraie DB)
+    const createClient = (url, key) => {
+      console.log('🎭 Using mock Supabase client for preview');
+      let mockData = {};
+
+      return {
+        from: (table) => {
+          const query = {
+            select: (columns = '*') => {
+              console.log(\`📊 Mock SELECT \${columns} from \${table}\`);
+              query._operation = 'select';
+              return query;
+            },
+            insert: (data) => {
+              console.log(\`✏️ Mock INSERT into \${table}\`, data);
+              query._operation = 'insert';
+              query._data = data;
+              return query;
+            },
+            update: (data) => {
+              console.log(\`📝 Mock UPDATE in \${table}\`, data);
+              query._operation = 'update';
+              query._data = data;
+              return query;
+            },
+            delete: () => {
+              console.log(\`🗑️ Mock DELETE from \${table}\`);
+              query._operation = 'delete';
+              return query;
+            },
+            eq: (column, value) => {
+              console.log(\`🔍 Mock WHERE \${column} = \${value}\`);
+              return query;
+            },
+            neq: (column, value) => query,
+            gt: (column, value) => query,
+            gte: (column, value) => query,
+            lt: (column, value) => query,
+            lte: (column, value) => query,
+            like: (column, pattern) => query,
+            ilike: (column, pattern) => query,
+            in: (column, values) => query,
+            contains: (column, value) => query,
+            order: (column, options) => query,
+            limit: (count) => query,
+            range: (from, to) => query,
+            single: () => {
+              query._single = true;
+              return query;
+            },
+            then: (resolve, reject) => {
+              // Exécuter la requête
+              if (!mockData[table]) mockData[table] = [];
+
+              if (query._operation === 'insert') {
+                const newData = Array.isArray(query._data) ? query._data : [query._data];
+                newData.forEach(item => {
+                  item.id = Date.now() + Math.random();
+                  mockData[table].push(item);
+                });
+                return resolve({ data: newData, error: null });
+              } else if (query._operation === 'update') {
+                return resolve({ data: [query._data], error: null });
+              } else if (query._operation === 'delete') {
+                return resolve({ data: null, error: null });
+              } else {
+                // select
+                const data = query._single ? mockData[table]?.[0] || null : mockData[table] || [];
+                return resolve({ data, error: null });
+              }
+            }
+          };
+          return query;
+        },
+        auth: {
+          getUser: async () => ({
+            data: { user: { id: 'demo-user', email: 'demo@example.com' } },
+            error: null
+          }),
+          getSession: async () => ({
+            data: {
+              session: {
+                user: { id: 'demo-user', email: 'demo@example.com' },
+                access_token: 'demo-token'
+              }
+            },
+            error: null
+          }),
+          onAuthStateChange: (callback) => {
+            console.log('🎭 Mock onAuthStateChange');
+            // Simuler une session connectée
+            setTimeout(() => {
+              callback('SIGNED_IN', {
+                user: { id: 'demo-user', email: 'demo@example.com' },
+                access_token: 'demo-token'
+              });
+            }, 100);
+            return { data: { subscription: { unsubscribe: () => {} } } };
+          },
+          signInWithPassword: async () => ({ data: { session: {}, user: {} }, error: null }),
+          signUp: async () => ({ data: { session: {}, user: {} }, error: null }),
+          signOut: async () => ({ error: null })
+        }
+      };
+    };
 
     ${allComponentsCode}
+
+    // Fallbacks pour composants manquants (si pas déjà définis)
+    if (typeof LoadingSpinner === 'undefined') {
+      const LoadingSpinner = ({ className, size }) => (
+        <div className={className} style={{ display: 'inline-block' }}>⏳</div>
+      );
+      window.LoadingSpinner = LoadingSpinner;
+    }
 
     // Vérifier que App existe
     if (typeof App === 'undefined') {

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import JSZip from 'jszip'
 import { GenerationPlan, GenerationStep, ModificationDetail} from '../../lib/anthropic'
+import BuildProgress from '../../components/BuildProgress'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -135,8 +136,11 @@ export default function EditorPage() {
   const [hasDatabase, setHasDatabase] = useState(false)
   const [databaseSchema, setDatabaseSchema] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'preview' | 'dashboard'>('preview')
-  const [builtPreviewHtml, setBuiltPreviewHtml] = useState<string>('')
-  const [isBuilding, setIsBuilding] = useState(false)
+
+  // Build server states
+  const [buildJobId, setBuildJobId] = useState<string | null>(null)
+  const [buildUrl, setBuildUrl] = useState<string | null>(null)
+  const [buildStatus, setBuildStatus] = useState<'idle' | 'queued' | 'building' | 'completed' | 'failed'>('idle')
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -663,6 +667,60 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     await handleGenerateWithPrompt(input)
   }
 
+  // Déclencher un build sur le serveur Vite
+  const triggerBuild = async (files: Array<{path: string, content: string}>, projId: string) => {
+    try {
+      console.log('🔨 Triggering build for', files.length, 'files')
+      setBuildStatus('queued')
+
+      const response = await fetch('/api/build', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: projId || `temp-${Date.now()}`,
+          files,
+          projectName: projectName || 'Wapify App'
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to trigger build')
+      }
+
+      const data = await response.json()
+      console.log('✅ Build job created:', data.jobId)
+      setBuildJobId(data.jobId)
+      setBuildStatus('building')
+    } catch (error) {
+      console.error('❌ Error triggering build:', error)
+      setBuildStatus('failed')
+      setError('Échec du démarrage du build')
+    }
+  }
+
+  // Callback quand le build est terminé
+  const handleBuildComplete = (url: string) => {
+    console.log('✅ Build completed, URL:', url)
+    setBuildUrl(url)
+    setBuildStatus('completed')
+  }
+
+  // Callback en cas d'erreur de build
+  const handleBuildError = (error: string) => {
+    console.error('❌ Build failed:', error)
+    setBuildStatus('failed')
+    setError(`Erreur de build: ${error}`)
+  }
+
+  // Effet pour déclencher le build quand projectFiles change
+  useEffect(() => {
+    if (isMultiFile && projectFiles.length > 0 && buildStatus === 'idle') {
+      // Déclencher le build automatiquement après la génération
+      const currentProjectId = projectId || `temp-${Date.now()}`
+      triggerBuild(projectFiles, currentProjectId)
+    }
+  }, [projectFiles, isMultiFile, buildStatus, projectId])
+
   const handleModification = async () => {
     if (!input.trim() || isGenerating || !generatedCode) return
 
@@ -849,53 +907,7 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     setError('')
   }
 
-  // Build automatique du preview React (appelle l'API server-side)
-  useEffect(() => {
-    if (!isMultiFile || projectFiles.length === 0) {
-      return
-    }
-
-    // Si pas de projectId, utiliser un ID temporaire pour le cache
-    const currentProjectId = projectId || 'temp-' + Date.now()
-
-    const buildPreview = async () => {
-      setIsBuilding(true)
-      console.log('🔨 Building preview for project:', currentProjectId)
-
-      try {
-        const response = await fetch('/api/build-preview', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            files: projectFiles,
-            projectId: currentProjectId
-          })
-        })
-
-        if (!response.ok) {
-          const error = await response.json()
-          console.error('❌ Build failed:', error)
-          setBuiltPreviewHtml(`<div style="padding: 20px; color: red;">Erreur de build: ${error.details || error.error}</div>`)
-          return
-        }
-
-        const { html } = await response.json()
-        console.log('📦 HTML reçu:', html.length, 'bytes')
-        console.log('📝 Premiers 200 chars:', html.substring(0, 200))
-        setBuiltPreviewHtml(html)
-        console.log('✅ Preview built successfully')
-      } catch (error) {
-        console.error('❌ Build error:', error)
-        setBuiltPreviewHtml(`<div style="padding: 20px; color: red;">Erreur de build: ${error instanceof Error ? error.message : 'Unknown error'}</div>`)
-      } finally {
-        setIsBuilding(false)
-      }
-    }
-
-    // Petit délai pour éviter de rebuilder trop souvent pendant la génération
-    const timer = setTimeout(buildPreview, 500)
-    return () => clearTimeout(timer)
-  }, [projectFiles, projectId, isMultiFile])
+  // Plus besoin de build - Sandpack gère tout automatiquement! 🎉
 
   // Debug: Log projectFiles changes
   useEffect(() => {
@@ -1358,26 +1370,52 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
               <>
                 {generatedCode ? (
                   isMultiFile && projectFiles.length > 0 ? (
-                    // Preview React - Affichage du rendu uniquement
-                    <div className="w-full h-full relative">
-                      {isBuilding && (
-                        <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10">
-                          <div className="text-center">
-                            <div className="w-12 h-12 border-4 border-wapify-accent border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                            <p className="text-wapify-text-secondary font-semibold">Build en cours...</p>
+                    // Preview React avec Vite Build
+                    <div className="w-full h-full relative bg-white">
+                      {buildStatus === 'queued' || buildStatus === 'building' ? (
+                        // Afficher la progression du build
+                        <BuildProgress
+                          jobId={buildJobId}
+                          onComplete={handleBuildComplete}
+                          onError={handleBuildError}
+                        />
+                      ) : buildStatus === 'completed' && buildUrl ? (
+                        // Afficher l'app compilée
+                        <iframe
+                          src={buildUrl}
+                          className="w-full h-full border-none"
+                          sandbox="allow-scripts allow-forms allow-modals allow-popups allow-same-origin"
+                          title="App Preview"
+                        />
+                      ) : buildStatus === 'failed' ? (
+                        // Afficher l'erreur
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-center p-8">
+                            <div className="text-6xl mb-4">❌</div>
+                            <h3 className="text-2xl font-bold text-red-600 mb-2">Échec du build</h3>
+                            <p className="text-gray-600 mb-4">{error || 'Une erreur est survenue'}</p>
+                            <button
+                              onClick={() => {
+                                setBuildStatus('idle')
+                                if (projectFiles.length > 0) {
+                                  triggerBuild(projectFiles, projectId || `temp-${Date.now()}`)
+                                }
+                              }}
+                              className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
+                            >
+                              🔄 Réessayer
+                            </button>
                           </div>
                         </div>
+                      ) : (
+                        // État idle (ne devrait pas arriver)
+                        <div className="flex items-center justify-center h-full">
+                          <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
+                        </div>
                       )}
-                      <iframe
-                        ref={iframeRef}
-                        srcDoc={builtPreviewHtml || '<div style="padding: 20px; color: #999;">En attente du build...</div>'}
-                        className="w-full h-full border-none bg-white"
-                        sandbox="allow-scripts allow-modals"
-                        title="React App Preview"
-                      />
                     </div>
                   ) : (
-                    // Preview HTML classique avec iframe
+                    // Preview HTML classique avec iframe (legacy, si jamais on supporte HTML)
                     <iframe
                       ref={iframeRef}
                       srcDoc={generatedCode}

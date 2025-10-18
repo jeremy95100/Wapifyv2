@@ -110,6 +110,38 @@ export async function createNeonDatabase(
 }
 
 /**
+ * Nettoyer le SQL généré pour le rendre compatible avec Neon PostgreSQL
+ */
+function cleanSQLForNeon(sql: string): string {
+  let cleaned = sql
+
+  // 1. Supprimer les références au schéma "auth" de Supabase
+  cleaned = cleaned.replace(/\bauth\./g, 'public.')
+
+  // 2. Supprimer CREATE SCHEMA auth si présent
+  cleaned = cleaned.replace(/CREATE\s+SCHEMA\s+(?:IF\s+NOT\s+EXISTS\s+)?auth\s*;?/gi, '')
+
+  // 3. Supprimer les extensions Supabase spécifiques qui n'existent pas dans Neon
+  cleaned = cleaned.replace(/CREATE\s+EXTENSION\s+(?:IF\s+NOT\s+EXISTS\s+)?pgjwt\s*;?/gi, '')
+
+  // 4. Remplacer auth.users par public.users (si l'AI a créé cette table)
+  cleaned = cleaned.replace(/\bauth\.users\b/g, 'public.users')
+
+  // 5. Supprimer les politiques RLS (Row Level Security) Supabase-specific
+  cleaned = cleaned.replace(/ALTER\s+TABLE\s+[\w.]+\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY\s*;?/gi, '')
+
+  // 6. Supprimer les politiques CREATE POLICY qui référencent auth
+  cleaned = cleaned.replace(/CREATE\s+POLICY\s+.*?auth\..*?;/gis, '')
+
+  // 7. Nettoyer les lignes vides multiples
+  cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n')
+
+  console.log('🧹 SQL cleaned for Neon PostgreSQL')
+
+  return cleaned.trim()
+}
+
+/**
  * Exécuter un schéma SQL sur une base de données Neon
  */
 export async function executeNeonSQL(
@@ -118,6 +150,12 @@ export async function executeNeonSQL(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     console.log('🔷 Executing SQL on Neon database...')
+
+    // Nettoyer le SQL pour Neon
+    const cleanedSQL = cleanSQLForNeon(sql)
+
+    console.log('📝 Original SQL length:', sql.length, 'chars')
+    console.log('📝 Cleaned SQL length:', cleanedSQL.length, 'chars')
 
     // Utiliser node-postgres pour exécuter le SQL
     const { Client } = require('pg')
@@ -128,8 +166,8 @@ export async function executeNeonSQL(
 
     await client.connect()
 
-    // Exécuter le SQL
-    await client.query(sql)
+    // Exécuter le SQL nettoyé
+    await client.query(cleanedSQL)
 
     await client.end()
 
