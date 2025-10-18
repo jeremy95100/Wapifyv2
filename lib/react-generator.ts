@@ -491,8 +491,18 @@ function ensureCompleteStructure(
     if (file.path.match(/\.(css|scss|sass)$/)) {
       const originalLength = file.content.length
       file.content = cleanTailwindImports(file.content)
+
+      // 🔧 POST-PROCESSING: Supprimer @apply border-border qui cause des erreurs
+      if (file.content.includes('@apply border-border')) {
+        console.log(`🔧 Removing problematic @apply border-border from ${file.path}`)
+        // Supprimer la ligne entière contenant @apply border-border
+        file.content = file.content.replace(/^\s*\*\s*\{\s*@apply\s+border-border;\s*\}\s*$/gm, '')
+        // Supprimer aussi les variations
+        file.content = file.content.replace(/@apply\s+border-border;?/g, '')
+      }
+
       if (file.content.length !== originalLength) {
-        console.log(`🧹 Cleaned Tailwind imports from ${file.path}`)
+        console.log(`🧹 Cleaned CSS in ${file.path}`)
       }
     }
   })
