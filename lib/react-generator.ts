@@ -235,10 +235,6 @@ export default {
     --radius: 0.5rem;
   }
 
-  * {
-    @apply border-border;
-  }
-
   body {
     @apply bg-background text-foreground;
   }
@@ -779,9 +775,6 @@ function generateIndexCSS(): string {
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
     @apply bg-background text-foreground;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
