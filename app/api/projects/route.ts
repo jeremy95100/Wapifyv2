@@ -181,6 +181,7 @@ export async function POST(request: NextRequest) {
             project_id: project.id,
             file_path: file.path,
             file_type: file.type || null,
+            storage_path: `${storagePath}/${file.path}`,
             size_bytes: file.content.length
           }))
 
