@@ -131,7 +131,7 @@ function cleanSQLForNeon(sql: string): string {
   cleaned = cleaned.replace(/ALTER\s+TABLE\s+[\w.]+\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY\s*;?/gi, '')
 
   // 6. Supprimer les politiques CREATE POLICY qui référencent auth
-  cleaned = cleaned.replace(/CREATE\s+POLICY\s+.*?auth\..*?;/gis, '')
+  cleaned = cleaned.replace(/CREATE\s+POLICY\s+[\s\S]*?auth\.[\s\S]*?;/gi, '')
 
   // 7. Nettoyer les lignes vides multiples
   cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n')
