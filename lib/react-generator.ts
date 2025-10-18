@@ -153,9 +153,99 @@ EXEMPLE:
 
 ⚠️ FICHIERS OBLIGATOIRES À GÉNÉRER:
 - vite.config.js (OBLIGATOIRE pour Vite Build)
-- tailwind.config.js (OBLIGATOIRE pour Tailwind)
+- tailwind.config.js (OBLIGATOIRE - utilise le template EXACT ci-dessous)
 - postcss.config.js (OBLIGATOIRE pour Tailwind)
-- src/index.css avec directives @tailwind (OBLIGATOIRE)
+- src/index.css avec directives @tailwind (OBLIGATOIRE - utilise le template EXACT ci-dessous)
+
+📋 TEMPLATE OBLIGATOIRE tailwind.config.js (COPIER EXACTEMENT):
+\`\`\`js
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: ["class"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+    },
+  },
+  plugins: [],
+}
+\`\`\`
+
+📋 TEMPLATE OBLIGATOIRE src/index.css (COPIER EXACTEMENT):
+\`\`\`css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+\`\`\`
+
+⚠️ CRITIQUE: TU DOIS utiliser ces templates EXACTEMENT! Ne change PAS les variables CSS!
 
 💎 EXIGENCES QUALITÉ PRODUCTION-READY:
 1. Application COMPLÈTE et FONCTIONNELLE (ZÉRO placeholders ou TODOs)
