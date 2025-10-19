@@ -37,12 +37,13 @@ export async function buildProject({ projectId, files, projectName, onProgress }
     const installStart = Date.now()
 
     try {
-      const { stdout, stderr } = await execAsync('npm install --legacy-peer-deps', {
+      const { stderr } = await execAsync('npm install --legacy-peer-deps', {
         cwd: buildDir,
         timeout: 120000 // 2 minutes max
       })
 
-      if (stderr && !stderr.includes('npm WARN')) {
+      // Log warnings but don't fail on them
+      if (stderr) {
         console.warn('⚠️ npm install warnings:', stderr)
       }
 
@@ -50,7 +51,16 @@ export async function buildProject({ projectId, files, projectName, onProgress }
       console.log(`✅ Dependencies installed in ${(installTime / 1000).toFixed(1)}s`)
     } catch (error) {
       console.error('❌ npm install failed:', error.stderr || error.message)
-      throw new Error(`Dependency installation failed: ${error.stderr || error.message}`)
+
+      // Extract only actual errors, not npm warnings
+      const errorMessage = error.stderr || error.message
+      const actualError = errorMessage
+        .split('\n')
+        .filter(line => !line.includes('npm warn') && !line.includes('npm WARN'))
+        .join('\n')
+        .trim() || errorMessage
+
+      throw new Error(`Dependency installation failed: ${actualError}`)
     }
 
     await onProgress?.(60)
@@ -65,7 +75,8 @@ export async function buildProject({ projectId, files, projectName, onProgress }
         timeout: 120000 // 2 minutes max
       })
 
-      if (stderr && !stderr.includes('vite')) {
+      // Log warnings but don't fail on them
+      if (stderr) {
         console.warn('⚠️ Build warnings:', stderr)
       }
 
@@ -73,7 +84,16 @@ export async function buildProject({ projectId, files, projectName, onProgress }
       console.log(`✅ Build completed in ${(buildTime / 1000).toFixed(1)}s`)
     } catch (error) {
       console.error('❌ Vite build failed:', error.stderr || error.message)
-      throw new Error(`Build failed: ${error.stderr || error.message}`)
+
+      // Extract only actual errors, not npm warnings
+      const errorMessage = error.stderr || error.message
+      const actualError = errorMessage
+        .split('\n')
+        .filter(line => !line.includes('npm warn') && !line.includes('npm WARN'))
+        .join('\n')
+        .trim() || errorMessage
+
+      throw new Error(`Build failed: ${actualError}`)
     }
 
     await onProgress?.(80)
