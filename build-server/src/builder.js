@@ -37,7 +37,7 @@ export async function buildProject({ projectId, files, projectName, onProgress }
     const installStart = Date.now()
 
     try {
-      const { stdout, stderr } = await execAsync('npm install --legacy-peer-deps 2>&1', {
+      const { stdout } = await execAsync('npm install --legacy-peer-deps 2>&1', {
         cwd: buildDir,
         timeout: 120000, // 2 minutes max
         maxBuffer: 10 * 1024 * 1024 // 10MB buffer
@@ -49,29 +49,27 @@ export async function buildProject({ projectId, files, projectName, onProgress }
       const installTime = Date.now() - installStart
       console.log(`✅ Dependencies installed in ${(installTime / 1000).toFixed(1)}s`)
     } catch (error) {
-      // Only fail if exit code is not 0
-      if (error.code && error.code !== 0) {
-        console.error('❌ npm install failed:', error.message)
+      console.error('❌ npm install failed - Full error:', error)
 
-        // Extract only actual errors, not npm warnings
-        const errorMessage = error.message || error.stderr || ''
-        const actualError = errorMessage
-          .split('\n')
-          .filter(line =>
-            line.trim() &&
-            !line.includes('npm warn') &&
-            !line.includes('npm WARN') &&
-            !line.includes('deprecated')
-          )
-          .join('\n')
-          .trim() || 'Unknown installation error'
+      // Log the complete error message for debugging
+      const fullErrorMessage = error.message || error.stdout || error.stderr || 'Unknown error'
+      console.error('Full error output:', fullErrorMessage)
 
-        throw new Error(`Dependency installation failed: ${actualError}`)
-      }
+      // Extract meaningful error lines (skip npm warnings but keep actual errors)
+      const errorLines = fullErrorMessage
+        .split('\n')
+        .filter(line => {
+          const trimmed = line.trim()
+          if (!trimmed) return false
+          if (trimmed.includes('npm warn') || trimmed.includes('npm WARN')) return false
+          if (trimmed.includes('deprecated') && !trimmed.includes('error')) return false
+          return true
+        })
 
-      // If no error code, it's just warnings - continue
-      const installTime = Date.now() - installStart
-      console.log(`✅ Dependencies installed in ${(installTime / 1000).toFixed(1)}s (with warnings)`)
+      const meaningfulError = errorLines.join('\n').trim()
+      const errorToThrow = meaningfulError || `Installation failed with exit code ${error.code || 'unknown'}`
+
+      throw new Error(`Dependency installation failed: ${errorToThrow}`)
     }
 
     await onProgress?.(60)
@@ -93,29 +91,31 @@ export async function buildProject({ projectId, files, projectName, onProgress }
       const buildTime = Date.now() - buildStart
       console.log(`✅ Build completed in ${(buildTime / 1000).toFixed(1)}s`)
     } catch (error) {
-      // Only fail if exit code is not 0
-      if (error.code && error.code !== 0) {
-        console.error('❌ Vite build failed:', error.message)
+      console.error('❌ Vite build failed - Full error:', error)
 
-        // Extract only actual errors, not npm warnings
-        const errorMessage = error.message || error.stderr || ''
-        const actualError = errorMessage
-          .split('\n')
-          .filter(line =>
-            line.trim() &&
-            !line.includes('npm warn') &&
-            !line.includes('npm WARN') &&
-            !line.includes('deprecated')
-          )
-          .join('\n')
-          .trim() || 'Unknown build error'
+      // Log the complete error message for debugging
+      const fullErrorMessage = error.message || error.stdout || error.stderr || 'Unknown error'
+      console.error('Full error output:', fullErrorMessage)
 
-        throw new Error(`Build failed: ${actualError}`)
-      }
+      // Extract meaningful error lines (skip npm warnings but keep actual errors)
+      const errorLines = fullErrorMessage
+        .split('\n')
+        .filter(line => {
+          const trimmed = line.trim()
+          // Skip empty lines and npm warnings
+          if (!trimmed) return false
+          if (trimmed.includes('npm warn') || trimmed.includes('npm WARN')) return false
+          if (trimmed.includes('deprecated') && !trimmed.includes('error')) return false
+          // Keep lines with 'error', 'failed', 'Error:', or other important indicators
+          return true
+        })
 
-      // If no error code, it's just warnings - continue
-      const buildTime = Date.now() - buildStart
-      console.log(`✅ Build completed in ${(buildTime / 1000).toFixed(1)}s (with warnings)`)
+      const meaningfulError = errorLines.join('\n').trim()
+
+      // If we have meaningful errors, use them; otherwise use a generic message with exit code
+      const errorToThrow = meaningfulError || `Build process failed with exit code ${error.code || 'unknown'}`
+
+      throw new Error(`Build failed: ${errorToThrow}`)
     }
 
     await onProgress?.(80)
