@@ -282,6 +282,13 @@ export default {
 6. Utilise @tailwind directives dans src/index.css
 7. TOUTES les dépendances npm dans package.json (avec versions compatibles)
 
+⚠️ CONFIGURATION TYPESCRIPT (tsconfig.json):
+- Set "noUnusedLocals": false (to avoid unused variable errors)
+- Set "noUnusedParameters": false
+- Set "strict": false (for easier builds)
+- Include React types and DOM types
+- Allow JSX
+
 ⚠️ RÈGLES JSX CRITIQUES (OBLIGATOIRE):
 1. ❌ NE JAMAIS utiliser de SVG inline en data URL dans className
    Exemple INTERDIT: className="bg-[url('data:image/svg+xml,...')]"
