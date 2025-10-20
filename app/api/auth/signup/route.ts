@@ -73,13 +73,16 @@ export async function POST(request: NextRequest) {
 
     if (dbError) {
       console.error('Database error:', dbError)
-      // Ne pas bloquer si l'utilisateur existe déjà dans la table
+      // Si l'utilisateur existe déjà dans la table (code 23505), c'est OK
+      // Cela peut arriver si l'utilisateur a été créé dans auth.users mais pas dans public.users
       if (dbError.code !== '23505') { // 23505 = duplicate key
         return NextResponse.json(
           { error: 'Erreur lors de la création du profil utilisateur' },
           { status: 500 }
         )
       }
+      // Si duplicate key, on continue quand même (l'utilisateur existe déjà)
+      console.log('User already exists in public.users table, continuing...')
     }
 
     return NextResponse.json(
