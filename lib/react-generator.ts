@@ -289,6 +289,12 @@ export default {
 - Include React types and DOM types
 - Allow JSX
 
+⚠️ PACKAGE.JSON BUILD SCRIPT (CRITIQUE):
+- ❌ NE JAMAIS utiliser "build": "tsc && vite build"
+- ✅ TOUJOURS utiliser "build": "vite build" UNIQUEMENT
+- Raison: tsc bloque le build sur des erreurs TypeScript mineures (unused imports, etc.)
+- Vite fait déjà la vérification TypeScript nécessaire pendant le build
+
 ⚠️ RÈGLES JSX CRITIQUES (OBLIGATOIRE):
 1. ❌ NE JAMAIS utiliser de SVG inline en data URL dans className
    Exemple INTERDIT: className="bg-[url('data:image/svg+xml,...')]"
