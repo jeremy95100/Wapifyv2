@@ -1391,7 +1391,7 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
                         <iframe
                           src={buildUrl}
                           className="w-full h-full border-none"
-                          sandbox="allow-scripts allow-forms allow-modals allow-popups allow-same-origin"
+                          sandbox="allow-scripts allow-forms allow-modals allow-popups allow-same-origin allow-downloads"
                           title="App Preview"
                         />
                       ) : buildStatus === 'failed' ? (
