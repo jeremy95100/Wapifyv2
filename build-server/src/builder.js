@@ -91,29 +91,52 @@ export async function buildProject({ projectId, files, projectName, onProgress }
       const buildTime = Date.now() - buildStart
       console.log(`✅ Build completed in ${(buildTime / 1000).toFixed(1)}s`)
     } catch (error) {
-      console.error('❌ Vite build failed - Full error:', error)
+      console.error('❌ Vite build failed')
+      console.error('Error object:', JSON.stringify({
+        message: error.message,
+        code: error.code,
+        stdout: error.stdout?.substring(0, 5000),
+        stderr: error.stderr?.substring(0, 5000)
+      }, null, 2))
 
-      // Log the complete error message for debugging
-      const fullErrorMessage = error.message || error.stdout || error.stderr || 'Unknown error'
-      console.error('Full error output:', fullErrorMessage)
+      // Combine all error outputs
+      const fullOutput = [
+        error.message || '',
+        error.stdout || '',
+        error.stderr || ''
+      ].join('\n')
 
-      // Extract meaningful error lines (skip npm warnings but keep actual errors)
-      const errorLines = fullErrorMessage
+      console.error('Combined output (first 10000 chars):', fullOutput.substring(0, 10000))
+
+      // Extract meaningful error lines - look for actual Vite/Rollup errors
+      const errorLines = fullOutput
         .split('\n')
         .filter(line => {
           const trimmed = line.trim()
-          // Skip empty lines and npm warnings
           if (!trimmed) return false
           if (trimmed.includes('npm warn') || trimmed.includes('npm WARN')) return false
           if (trimmed.includes('deprecated') && !trimmed.includes('error')) return false
-          // Keep lines with 'error', 'failed', 'Error:', or other important indicators
-          return true
+
+          // Keep lines with error indicators
+          if (trimmed.includes('error') ||
+              trimmed.includes('Error:') ||
+              trimmed.includes('failed') ||
+              trimmed.includes('✘') ||
+              trimmed.includes('✗') ||
+              trimmed.includes('Cannot find') ||
+              trimmed.includes('Module not found') ||
+              trimmed.includes('Unexpected token')) {
+            return true
+          }
+
+          return false
         })
 
-      const meaningfulError = errorLines.join('\n').trim()
+      const meaningfulError = errorLines.slice(0, 20).join('\n').trim() // Limit to first 20 error lines
 
-      // If we have meaningful errors, use them; otherwise use a generic message with exit code
-      const errorToThrow = meaningfulError || `Build process failed with exit code ${error.code || 'unknown'}`
+      // If we have meaningful errors, use them
+      const errorToThrow = meaningfulError ||
+        `Build process failed with exit code ${error.code || 'unknown'}. Check Railway logs for details.`
 
       throw new Error(`Build failed: ${errorToThrow}`)
     }
