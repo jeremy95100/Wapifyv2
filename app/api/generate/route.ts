@@ -3,6 +3,7 @@ import { generateReactProjectWithSteps } from '../../../lib/anthropic'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const maxDuration = 300 // Maximum duration in seconds (5 minutes for Pro plan)
 
 export async function POST(request: NextRequest) {
   try {
