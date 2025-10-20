@@ -427,14 +427,14 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
       setProjectName(project.name)
 
       // Vérifier si c'est un projet multi-fichiers (React)
-      if (project.framework === 'react' && project.storage_path) {
-        console.log(`✅ React project detected with storage_path`)
+      if (project.framework === 'react') {
+        console.log(`✅ React project detected`)
         // Projet React multi-fichiers
         setIsMultiFile(true)
         setHasDatabase(project.has_database || false)
 
-        // Charger les fichiers depuis l'API
-        if (data.files && Array.isArray(data.files)) {
+        // Charger les fichiers depuis l'API (avec ou sans storage_path)
+        if (data.files && Array.isArray(data.files) && data.files.length > 0) {
           console.log(`📁 Setting ${data.files.length} files to state`)
           setProjectFiles(data.files)
           setGeneratedCode('multi-file-project') // Indicateur pour afficher Sandpack
@@ -444,7 +444,10 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
             setSelectedFile(data.files[0].path)
           }
         } else {
-          console.warn(`⚠️ No files in API response`)
+          console.warn(`⚠️ No files in API response for React project`)
+          if (!project.storage_path) {
+            console.warn(`⚠️ Project has no storage_path - files may be lost`)
+          }
         }
       } else if (project.code) {
         console.log(`📄 HTML single-file project`)
@@ -452,7 +455,7 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
         setIsMultiFile(false)
         setGeneratedCode(project.code)
       } else {
-        console.warn(`⚠️ Unknown project type:`, { framework: project.framework, hasCode: !!project.code })
+        console.warn(`⚠️ Unknown project type:`, { framework: project.framework, hasCode: !!project.code, hasStoragePath: !!project.storage_path })
       }
 
       // Ajouter le prompt initial dans les messages
