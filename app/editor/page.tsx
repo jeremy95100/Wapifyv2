@@ -444,10 +444,14 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
             setSelectedFile(data.files[0].path)
           }
         } else {
-          console.warn(`⚠️ No files in API response for React project`)
+          console.error(`❌ No files found for React project`)
           if (!project.storage_path) {
-            console.warn(`⚠️ Project has no storage_path - files may be lost`)
+            console.error(`❌ Project has no storage_path - files were never saved`)
           }
+          // Afficher un message d'erreur à l'utilisateur
+          setError('Ce projet React n\'a aucun fichier sauvegardé. Il s\'agit probablement d\'un ancien projet. Veuillez créer un nouveau projet.')
+          setProjectFiles([])
+          setGeneratedCode('')
         }
       } else if (project.code) {
         console.log(`📄 HTML single-file project`)
