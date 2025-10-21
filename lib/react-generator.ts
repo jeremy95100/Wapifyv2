@@ -243,10 +243,10 @@ export default {
 
 ⚠️ CRITIQUE: TU DOIS utiliser ces templates EXACTEMENT! Ne change PAS les variables CSS!
 
-💎 EXIGENCES QUALITÉ (MINIMALISTE MAIS FONCTIONNEL):
+💎 EXIGENCES QUALITÉ (MICRO-APP MINIMALISTE):
 1. Application COMPLÈTE et FONCTIONNELLE (ZÉRO placeholders ou TODOs)
-2. 8-12 items de données mockées réalistes (focus sur qualité, pas quantité)
-3. 3-4 pages CORE uniquement (ex e-commerce: Home, Products, Cart - PAS de Wishlist/Reviews/Profile)
+2. 4-6 items de données mockées MAXIMUM (ultra minimal!)
+3. 2 pages CORE UNIQUEMENT (ex e-commerce: Home + Products - C'EST TOUT!)
 4. TOUS les boutons fonctionnels avec feedback visuel immédiat
 5. Animations simples mais efficaces (hover states, transitions basiques)
 6. Design system cohérent (espacements, couleurs, typographie)
@@ -256,8 +256,8 @@ export default {
 10. Formulaires avec validation basique (required, pattern)
 11. Accessibility de base (aria-labels essentiels, semantic HTML)
 12. Code propre, bien organisé, commenté en français
-13. ⚠️ PAS DE: Wishlist, Reviews/Ratings, User Profiles, Advanced Filters, Infinite Scroll
-14. ⚠️ FOCUS: Fonctionnalités CORE qui démontrent le concept
+13. ⚠️ PAS DE: Cart, Wishlist, Reviews, Profiles, Filters, About, Contact, Login
+14. ⚠️ FOCUS: 2 PAGES MAX - DÉMONSTRATION DU CONCEPT UNIQUEMENT
 
 🗃️ BASE DE DONNÉES:
 - Si la demande nécessite une base de données → génère database/schema.sql
