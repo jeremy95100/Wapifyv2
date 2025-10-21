@@ -733,10 +733,29 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     }
   }
 
+  // Convert Vercel Blob URL to proxy URL
+  // Blob URL: https://....blob.vercel-storage.com/{projectId}/{buildId}/{file}
+  // Proxy URL: /api/preview/{projectId}/{buildId}/{file}
+  const convertToProxyUrl = (blobUrl: string): string => {
+    try {
+      const url = new URL(blobUrl)
+      const pathParts = url.pathname.split('/').filter(Boolean)
+      // pathParts = [projectId, buildId, ...filePath]
+      if (pathParts.length >= 3) {
+        return `/api/preview/${pathParts.join('/')}`
+      }
+    } catch (e) {
+      console.error('Failed to convert URL:', e)
+    }
+    return blobUrl // Fallback to original
+  }
+
   // Callback quand le build est terminé
   const handleBuildComplete = (url: string) => {
-    console.log('✅ Build completed, URL:', url)
-    setBuildUrl(url)
+    console.log('✅ Build completed, Blob URL:', url)
+    const proxyUrl = convertToProxyUrl(url)
+    console.log('📡 Using proxy URL:', proxyUrl)
+    setBuildUrl(proxyUrl)
     setBuildStatus('completed')
   }
 
