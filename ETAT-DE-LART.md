@@ -63,6 +63,41 @@
 
 ---
 
+### ✅ Fix appliqué : Fichiers imports manquants (21 Oct 2025)
+
+**Problème découvert lors du test** :
+```
+Could not resolve "./pages/ProductsPage" from "src/App.tsx"
+```
+
+**Cause** :
+- `src/App.tsx` importait : `import ProductsPage from './pages/ProductsPage'`
+- Mais le dossier `src/pages/` n'existait pas dans les fichiers générés
+- Claude générait les imports mais oubliait de créer les fichiers correspondants
+
+**Solution appliquée** :
+Ajout d'une règle CRITIQUE dans le prompt système :
+
+```
+🚨 RÈGLE CRITIQUE - COHÉRENCE IMPORTS/FICHIERS (OBLIGATOIRE):
+CHAQUE import dans un fichier DOIT avoir son fichier correspondant dans le JSON!
+
+VÉRIFICATION AVANT DE RÉPONDRE:
+1. Liste TOUS les imports dans TOUS les fichiers
+2. Pour CHAQUE import, vérifie qu'il existe dans le JSON
+3. Si un import manque → GÉNÈRE le fichier correspondant
+4. Utilise TOUJOURS l'extension .tsx pour les composants React
+```
+
+**Impact** :
+- ✅ Garantit cohérence entre imports et fichiers générés
+- ✅ Évite les erreurs de build Vite "Cannot resolve"
+- ✅ Force Claude à vérifier avant de répondre
+
+**Status** : ⏳ À TESTER - Régénérer une app e-commerce
+
+---
+
 ## 📋 Table des Matières
 
 1. [Résumé Exécutif](#résumé-exécutif)

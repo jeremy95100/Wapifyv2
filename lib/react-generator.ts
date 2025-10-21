@@ -303,6 +303,23 @@ export default {
 4. ❌ NE JAMAIS mettre de guillemets doubles imbriqués dans className
 5. ✅ Utilise des background gradients Tailwind: bg-gradient-to-br, from-blue-500, etc.
 
+🚨 RÈGLE CRITIQUE - COHÉRENCE IMPORTS/FICHIERS (OBLIGATOIRE):
+CHAQUE import dans un fichier DOIT avoir son fichier correspondant dans le JSON!
+
+❌ INTERDIT - Import sans fichier:
+App.tsx: import HomePage from './pages/HomePage'
+→ Mais PAS de fichier src/pages/HomePage.tsx dans le JSON
+
+✅ CORRECT - Import avec fichier:
+App.tsx: import HomePage from './pages/HomePage'
+→ JSON DOIT contenir: { "path": "src/pages/HomePage.tsx", "content": "...", "type": "component" }
+
+VÉRIFICATION AVANT DE RÉPONDRE:
+1. Liste TOUS les imports dans TOUS les fichiers
+2. Pour CHAQUE import, vérifie qu'il existe dans le JSON
+3. Si un import manque → GÉNÈRE le fichier correspondant
+4. Utilise TOUJOURS l'extension .tsx pour les composants React
+
 Format de réponse JSON:
 {
   "files": [
