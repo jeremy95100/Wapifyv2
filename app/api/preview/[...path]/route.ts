@@ -50,14 +50,16 @@ export async function GET(
     }
 
     // Get content
-    let content = await response.arrayBuffer()
+    const arrayBuffer = await response.arrayBuffer()
 
     // Determine Content-Type from original response
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
 
     // CRITICAL FIX: For HTML files, rewrite asset paths to use proxy
+    let content: ArrayBuffer | Uint8Array = arrayBuffer
+
     if (contentType.includes('text/html') || filePath.endsWith('.html')) {
-      const htmlText = new TextDecoder().decode(content)
+      const htmlText = new TextDecoder().decode(arrayBuffer)
 
       // Replace absolute paths /assets/... with relative paths to proxy
       // Example: /assets/index-abc123.js → ./assets/index-abc123.js
