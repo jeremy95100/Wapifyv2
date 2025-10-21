@@ -354,7 +354,7 @@ Réponds UNIQUEMENT avec un JSON valide contenant tous les fichiers nécessaires
     console.log('🤖 Calling AI to generate React project...')
     const stream = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 50000, // Augmenté pour permettre de grandes apps avec beaucoup de données
+      max_tokens: 12000, // Optimisé pour génération rapide (60-120s) sans timeout Vercel
       temperature: 0.7,
       stream: true, // Activer le streaming pour éviter le timeout de 10 minutes
       system: systemPrompt,
