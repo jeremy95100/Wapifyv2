@@ -338,16 +338,23 @@ App.tsx: import HomePage from './pages/HomePage'
    - ❌ INTERDIT: onClick={() => {}} (fonction vide)
    - ✅ OBLIGATOIRE: onClick={() => addToCart(product)} (action réelle)
 
-4. NAVIGATION:
-   - Tous les liens doivent utiliser React Router (<Link to="...">)
-   - Vérifie que chaque route existe dans le Router
-   - Vérifie que chaque page est accessible
+4. NAVIGATION (CRITIQUE):
+   - TOUS les liens de navigation DOIVENT être des <Link> de React Router
+   - ❌ INTERDIT: <div onClick={() => navigate('/about')}>About</div>
+   - ❌ INTERDIT: <span onClick={handleClick}>Contact</span>
+   - ❌ INTERDIT: <button onClick={() => router.push('/page')}>Page</button>
+   - ✅ OBLIGATOIRE: <Link to="/about">About</Link>
+   - ✅ OBLIGATOIRE: import { Link } from 'react-router-dom'
+   - Vérifie que chaque <Link to="..."> a sa route correspondante dans <Routes>
+   - Vérifie que chaque page est accessible et complète
 
 EXEMPLES:
 - INTERDIT: Page vide ou placeholder text
 - INTERDIT: Bouton sans onClick handler
+- INTERDIT: Navigation avec div/span onClick au lieu de Link
 - OBLIGATOIRE: Page avec données et composants fonctionnels
 - OBLIGATOIRE: Bouton avec onClick qui appelle fonction réelle
+- OBLIGATOIRE: Navigation avec Link React Router uniquement
 
 Format de réponse JSON:
 {

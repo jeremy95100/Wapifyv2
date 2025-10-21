@@ -241,7 +241,52 @@ function ProductsPage() {
 - ✅ Navigation garantie fonctionnelle
 - ✅ Pas de "placeholder" ou "TODO"
 
-**Status** : ⏳ À TESTER - Générer e-commerce pour valider
+**Status** : ⚠️ Partiellement résolu - Certaines pages encore cassées
+
+**Test utilisateur** : Pages Accueil et Produits OK, mais À propos et Contact ne marchent pas (pas de clic droit "Ouvrir dans nouvel onglet")
+
+---
+
+### ✅ Fix appliqué : Navigation avec Link obligatoire (21 Oct 2025)
+
+**Problème découvert lors du test** :
+- Liens "À propos" et "Contact" ne marchent pas
+- Pas de "Ouvrir dans nouvel onglet" au clic droit
+- Ce sont des `<div>` ou `<span>` avec `onClick` au lieu de vrais liens
+
+**Cause** :
+Claude génère des faux liens (div/span onClick) au lieu de `<Link>` React Router
+
+**Code probablement généré** :
+```jsx
+// ❌ Mauvais - pas un vrai lien
+<div onClick={() => navigate('/about')}>À propos</div>
+
+// ✅ Bon - vrai lien
+<Link to="/about">À propos</Link>
+```
+
+**Solution appliquée** :
+Renforcement de la règle 4 (Navigation) avec exemples très explicites :
+
+```
+4. NAVIGATION (CRITIQUE):
+   - TOUS les liens de navigation DOIVENT être des <Link> de React Router
+   - ❌ INTERDIT: <div onClick={() => navigate('/about')}>
+   - ❌ INTERDIT: <span onClick={handleClick}>
+   - ❌ INTERDIT: <button onClick={() => router.push('/page')}>
+   - ✅ OBLIGATOIRE: <Link to="/about">About</Link>
+   - ✅ OBLIGATOIRE: import { Link } from 'react-router-dom'
+   - Vérifie que chaque <Link to="..."> a sa route correspondante
+```
+
+**Impact** :
+- ✅ Tous les liens de navigation seront de vrais <Link>
+- ✅ Clic droit "Ouvrir dans nouvel onglet" fonctionnera
+- ✅ Navigation clavier (Ctrl+Click) fonctionnera
+- ✅ SEO et accessibilité améliorés
+
+**Status** : ⏳ À TESTER - Régénérer pour valider
 
 ---
 
