@@ -705,6 +705,34 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     }
   }
 
+  // Rebuild un projet existant avec fichiers frais depuis Supabase Storage
+  const rebuildProject = async (projId: string) => {
+    try {
+      console.log('🔄 Rebuilding project with fresh files from Storage:', projId)
+      setBuildStatus('queued')
+      setError(null)
+
+      const response = await fetch(`/api/projects/${projId}/rebuild`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to rebuild project')
+      }
+
+      const data = await response.json()
+      console.log('✅ Rebuild job created:', data.jobId, `(${data.filesCount} fresh files)`)
+      setBuildJobId(data.jobId)
+      setBuildStatus('building')
+    } catch (error) {
+      console.error('❌ Error rebuilding project:', error)
+      setBuildStatus('failed')
+      setError(error instanceof Error ? error.message : 'Échec du rebuild')
+    }
+  }
+
   // Callback quand le build est terminé
   const handleBuildComplete = (url: string) => {
     console.log('✅ Build completed, URL:', url)
@@ -1403,9 +1431,13 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
                             <p className="text-gray-600 mb-4">{error || 'Une erreur est survenue'}</p>
                             <button
                               onClick={() => {
-                                setBuildStatus('idle')
-                                if (projectFiles.length > 0) {
-                                  triggerBuild(projectFiles, projectId || `temp-${Date.now()}`)
+                                if (projectId) {
+                                  // Projet existant : utiliser rebuildProject pour récupérer les fichiers frais
+                                  rebuildProject(projectId)
+                                } else if (projectFiles.length > 0) {
+                                  // Projet temporaire : utiliser les fichiers du state
+                                  setBuildStatus('idle')
+                                  triggerBuild(projectFiles, `temp-${Date.now()}`)
                                 }
                               }}
                               className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"

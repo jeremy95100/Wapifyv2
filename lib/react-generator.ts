@@ -619,6 +619,7 @@ function generatePackageJSON(appName: string, hasDatabase: boolean): string {
   }
 
   const devDependencies: Record<string, string> = {
+    "@types/node": "^20.10.0",
     "@vitejs/plugin-react": "^4.3.4",
     "vite": "^6.0.12",
     "tailwindcss": "^3.4.0",
@@ -647,10 +648,16 @@ function generatePackageJSON(appName: string, hasDatabase: boolean): string {
 function generateViteConfig(): string {
   return `import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
   base: './', // IMPORTANT: Use relative paths for deployments
+  resolve: {
+    alias: {
+      '@': path.resolve(process.cwd(), './src')
+    }
+  },
   server: {
     port: 3000,
     host: true
