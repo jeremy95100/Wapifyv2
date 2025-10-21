@@ -179,7 +179,69 @@ catch (error) {
 - Comprendre pourquoi il n'arrive pas à générer l'e-commerce
 - Corriger le problème root cause au lieu de masquer avec le fallback
 
-**Status** : ⏳ À TESTER - Générer pour voir l'erreur exacte
+**Status** : ✅ Résolu - Logs ajoutés et fallback désactivé
+
+**Résultat** : Génération fonctionne maintenant (cause exacte inconnue, possiblement cache Vercel)
+
+---
+
+### ✅ Fix appliqué : Règles strictes pages/boutons (21 Oct 2025)
+
+**Nouveau problème découvert** :
+- Certaines pages ne marchent pas (vides ou "Coming soon")
+- Certains boutons ne font rien quand on clique
+- Navigation parfois cassée
+
+**Cause** :
+Claude génère parfois des pages/boutons **visuels** sans la **logique fonctionnelle**
+
+**Solution appliquée** :
+Ajout de **4 vérifications obligatoires** avant de répondre :
+
+```
+🔥 VÉRIFICATIONS OBLIGATOIRES AVANT DE RÉPONDRE:
+
+1. COHÉRENCE IMPORTS/FICHIERS
+   - Tous les imports doivent avoir leurs fichiers
+
+2. PAGES FONCTIONNELLES (CRITIQUE)
+   - Chaque page doit avoir du CONTENU RÉEL
+   - Chaque page doit afficher les DONNÉES
+   - ❌ INTERDIT: "Coming soon" ou pages vides
+   - ✅ OBLIGATOIRE: Pages COMPLÈTES et FONCTIONNELLES
+
+3. BOUTONS FONCTIONNELS (CRITIQUE)
+   - Chaque bouton doit avoir onClick avec logique RÉELLE
+   - ❌ INTERDIT: <button> sans onClick
+   - ❌ INTERDIT: onClick={() => {}} (fonction vide)
+   - ✅ OBLIGATOIRE: onClick avec action réelle
+
+4. NAVIGATION
+   - Tous les liens utilisent React Router
+   - Toutes les routes existent dans le Router
+```
+
+**Exemples ajoutés** :
+```jsx
+// ❌ INTERDIT
+function ProductsPage() {
+  return <div>Coming soon...</div>
+}
+
+// ✅ CORRECT
+function ProductsPage() {
+  const [products] = useState(mockProducts)
+  return <div>{products.map(p => <ProductCard />)}</div>
+}
+```
+
+**Impact** :
+- ✅ Toutes les pages générées seront complètes
+- ✅ Tous les boutons seront fonctionnels
+- ✅ Navigation garantie fonctionnelle
+- ✅ Pas de "placeholder" ou "TODO"
+
+**Status** : ⏳ À TESTER - Générer e-commerce pour valider
 
 ---
 

@@ -314,11 +314,54 @@ App.tsx: import HomePage from './pages/HomePage'
 App.tsx: import HomePage from './pages/HomePage'
 → JSON DOIT contenir: { "path": "src/pages/HomePage.tsx", "content": "...", "type": "component" }
 
-VÉRIFICATION AVANT DE RÉPONDRE:
-1. Liste TOUS les imports dans TOUS les fichiers
-2. Pour CHAQUE import, vérifie qu'il existe dans le JSON
-3. Si un import manque → GÉNÈRE le fichier correspondant
-4. Utilise TOUJOURS l'extension .tsx pour les composants React
+🔥 VÉRIFICATIONS OBLIGATOIRES AVANT DE RÉPONDRE:
+
+1. COHÉRENCE IMPORTS/FICHIERS:
+   - Liste TOUS les imports dans TOUS les fichiers
+   - Pour CHAQUE import, vérifie qu'il existe dans le JSON
+   - Si un import manque → GÉNÈRE le fichier correspondant
+   - Utilise TOUJOURS l'extension .tsx pour les composants React
+
+2. PAGES FONCTIONNELLES (CRITIQUE):
+   - Pour CHAQUE page générée (Home, Products, Cart, etc.):
+     * Vérifie que la page a du CONTENU RÉEL (pas juste un titre)
+     * Vérifie que les données sont affichées (produits, infos, etc.)
+     * Vérifie que la navigation fonctionne (liens React Router)
+   - ❌ INTERDIT: Page vide ou "Coming soon" ou "Work in progress"
+   - ✅ OBLIGATOIRE: Chaque page doit être COMPLÈTE et FONCTIONNELLE
+
+3. BOUTONS FONCTIONNELS (CRITIQUE):
+   - Pour CHAQUE bouton dans l'interface:
+     * Vérifie qu'il a un onClick avec logique RÉELLE
+     * Vérifie que la fonction existe et fait quelque chose
+   - ❌ INTERDIT: <button>Ajouter au panier</button> (sans onClick)
+   - ❌ INTERDIT: onClick={() => {}} (fonction vide)
+   - ✅ OBLIGATOIRE: onClick={() => addToCart(product)} (action réelle)
+
+4. NAVIGATION:
+   - Tous les liens doivent utiliser React Router (<Link to="...">)
+   - Vérifie que chaque route existe dans le Router
+   - Vérifie que chaque page est accessible
+
+EXEMPLE DE PAGE VALIDE:
+```jsx
+// ❌ INTERDIT - Page vide
+function ProductsPage() {
+  return <div>Products coming soon...</div>
+}
+
+// ✅ CORRECT - Page complète
+function ProductsPage() {
+  const [products] = useState(mockProducts) // Données réelles
+  return (
+    <div>
+      {products.map(p => (
+        <ProductCard key={p.id} product={p} />
+      ))}
+    </div>
+  )
+}
+```
 
 Format de réponse JSON:
 {
