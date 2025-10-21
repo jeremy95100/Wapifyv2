@@ -648,14 +648,17 @@ function generatePackageJSON(appName: string, hasDatabase: boolean): string {
 function generateViteConfig(): string {
   return `import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'url'
 import path from 'path'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   plugins: [react()],
   base: './', // IMPORTANT: Use relative paths for deployments
   resolve: {
     alias: {
-      '@': path.resolve(process.cwd(), './src')
+      '@': path.resolve(__dirname, './src')
     }
   },
   server: {
