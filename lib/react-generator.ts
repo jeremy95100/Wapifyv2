@@ -343,25 +343,11 @@ App.tsx: import HomePage from './pages/HomePage'
    - Vérifie que chaque route existe dans le Router
    - Vérifie que chaque page est accessible
 
-EXEMPLE DE PAGE VALIDE:
-```jsx
-// ❌ INTERDIT - Page vide
-function ProductsPage() {
-  return <div>Products coming soon...</div>
-}
-
-// ✅ CORRECT - Page complète
-function ProductsPage() {
-  const [products] = useState(mockProducts) // Données réelles
-  return (
-    <div>
-      {products.map(p => (
-        <ProductCard key={p.id} product={p} />
-      ))}
-    </div>
-  )
-}
-```
+EXEMPLES:
+- INTERDIT: Page vide ou placeholder text
+- INTERDIT: Bouton sans onClick handler
+- OBLIGATOIRE: Page avec données et composants fonctionnels
+- OBLIGATOIRE: Bouton avec onClick qui appelle fonction réelle
 
 Format de réponse JSON:
 {
