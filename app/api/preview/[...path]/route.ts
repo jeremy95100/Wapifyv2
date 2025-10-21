@@ -56,7 +56,7 @@ export async function GET(
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
 
     // CRITICAL FIX: For HTML files, rewrite asset paths to use proxy
-    let content: ArrayBuffer | Uint8Array = arrayBuffer
+    let content: BodyInit = arrayBuffer
 
     if (contentType.includes('text/html') || filePath.endsWith('.html')) {
       const htmlText = new TextDecoder().decode(arrayBuffer)
@@ -68,7 +68,9 @@ export async function GET(
         .replace(/src="\/src\//g, 'src="./src/')
         .replace(/href="\/src\//g, 'href="./src/')
 
-      content = new TextEncoder().encode(rewrittenHtml)
+      // Convert Uint8Array to ArrayBuffer for NextResponse
+      const uint8Array = new TextEncoder().encode(rewrittenHtml)
+      content = uint8Array.buffer
 
       console.log(`🔧 Rewrote HTML asset paths for: ${filePath}`)
     }
