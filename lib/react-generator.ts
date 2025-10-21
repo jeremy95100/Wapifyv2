@@ -95,6 +95,25 @@ NE GÉNÈRE PAS ENCORE les pages secondaires (Products, Cart, etc.) - elles sero
 - Composants UI supplémentaires si nécessaire
 - 4-6 items de données pour ces pages
 
+🚨 RÈGLES CRITIQUES POUR L'ÉTAPE 2:
+1. NE CRÉE PAS de nouveaux Contexts (CartContext, AuthContext, etc.) - ils n'existeront pas!
+2. Utilise UNIQUEMENT useState/useEffect locaux dans chaque page
+3. Chaque page doit être 100% AUTONOME et ne dépendre d'AUCUN fichier externe sauf:
+   - React Router (Link, useNavigate)
+   - Composants UI de base (Button, Card)
+   - lucide-react pour les icônes
+4. Les données mockées doivent être DANS LA PAGE (const products = [...])
+5. NE PAS importer de contexts, hooks customs, ou services qui n'existent pas
+
+EXEMPLE CORRECT pour ProductsPage:
+- const products = [...] // Données dans la page
+- const [cart, setCart] = useState([]) // État local
+- const addToCart = (item) => setCart([...cart, item]) // Fonction locale
+
+EXEMPLE INTERDIT:
+- import { useCart } from '../contexts/CartContext' // ❌ N'existe pas!
+- import { useAuth } from '../hooks/useAuth' // ❌ N'existe pas!
+
 NE RÉGÉNÈRE PAS les fichiers de config, App.jsx, HomePage, etc. - ils existent déjà!
 Utilise les mêmes imports React Router, les mêmes composants UI que l'étape 1.`,
     anthropic,
