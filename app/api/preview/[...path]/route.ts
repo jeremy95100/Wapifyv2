@@ -50,10 +50,26 @@ export async function GET(
     }
 
     // Get content
-    const content = await response.arrayBuffer()
+    let content = await response.arrayBuffer()
 
     // Determine Content-Type from original response
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
+
+    // CRITICAL FIX: For HTML files, rewrite asset paths to use proxy
+    if (contentType.includes('text/html') || filePath.endsWith('.html')) {
+      const htmlText = new TextDecoder().decode(content)
+
+      // Replace absolute paths /assets/... with relative paths to proxy
+      // Example: /assets/index-abc123.js → ./assets/index-abc123.js
+      const rewrittenHtml = htmlText
+        .replace(/\/assets\//g, './assets/')
+        .replace(/src="\/src\//g, 'src="./src/')
+        .replace(/href="\/src\//g, 'href="./src/')
+
+      content = new TextEncoder().encode(rewrittenHtml)
+
+      console.log(`🔧 Rewrote HTML asset paths for: ${filePath}`)
+    }
 
     // Create response with proper headers
     const proxyResponse = new NextResponse(content, {
