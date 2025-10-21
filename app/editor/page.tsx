@@ -710,7 +710,7 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     try {
       console.log('🔄 Rebuilding project with fresh files from Storage:', projId)
       setBuildStatus('queued')
-      setError(null)
+      setError('')
 
       const response = await fetch(`/api/projects/${projId}/rebuild`, {
         method: 'POST',
