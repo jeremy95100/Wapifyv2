@@ -9,7 +9,7 @@
 
 ## 🆕 CHANGEMENTS RÉCENTS
 
-### ✅ Fix appliqué : Timeout 300 secondes (21 Oct 2025)
+### ✅ Fix appliqué : Timeout 300s + JSON tronqué (21 Oct 2025)
 
 **Problème initial** :
 - Vercel Runtime Timeout Error après 300 secondes lors de la génération
@@ -23,17 +23,41 @@
 ```
 **Résultat** : ❌ JSON tronqué à 30,885 caractères pour apps e-commerce
 
-**Tentative 2** : Ajustement à 22,000 tokens ✅ (ACTUEL)
+**Tentative 2** : Ajustement à 22,000 tokens
 ```diff
 - max_tokens: 12000,
 + max_tokens: 22000, // Optimisé pour apps complètes (e-commerce) sans timeout - 2-3 min
 ```
+**Résultat** : ❌ JSON tronqué à 62,615 caractères (mieux mais toujours incomplet)
+
+**Solution finale** : Réduire complexité + augmenter tokens ✅ (ACTUEL)
+
+**Changements appliqués** :
+1. **Prompt système** - Exigences plus raisonnables :
+   ```diff
+   - 2. 50-100 items de données mockées réalistes
+   + 2. 25-35 items de données mockées réalistes (suffisant pour démo)
+
+   - 3. 8-12 pages/sections minimum
+   + 3. 5-7 pages/sections (qualité > quantité - chaque page riche)
+   ```
+
+2. **max_tokens augmenté** à 25,000 :
+   ```diff
+   - max_tokens: 22000,
+   + max_tokens: 25000, // Optimisé: 5-7 pages + 25-35 items = ~65k chars en 2-3 min
+   ```
 
 **Résultat attendu** :
-- Génération en 2-3 minutes (acceptable)
-- JSON complet (~50-55k caractères)
-- Apps e-commerce complètes sans troncature
-- Reste sous le timeout de 5 minutes
+- ✅ Apps complètes et fonctionnelles (5-7 pages de qualité)
+- ✅ Données suffisantes pour démo convaincante (25-35 items)
+- ✅ JSON complet (~65-75k caractères)
+- ✅ Génération en 2-3 minutes (sous timeout)
+- ✅ Solution pérenne (balance complexité/performance)
+
+**Philosophie** : Qualité > Quantité
+- Mieux vaut 5 pages riches et finies que 12 pages incomplètes
+- 30 produits bien détaillés > 100 produits génériques
 
 **Status** : ⏳ À TESTER - Générer une app e-commerce pour valider
 

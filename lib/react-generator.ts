@@ -245,8 +245,8 @@ export default {
 
 💎 EXIGENCES QUALITÉ PRODUCTION-READY:
 1. Application COMPLÈTE et FONCTIONNELLE (ZÉRO placeholders ou TODOs)
-2. 50-100 items de données mockées réalistes (ex: 80 produits, 60 articles, 100 users)
-3. 8-12 pages/sections minimum (dashboard riche, pas juste 3 pages)
+2. 25-35 items de données mockées réalistes (suffisant pour démo convaincante)
+3. 5-7 pages/sections (qualité > quantité - chaque page doit être riche)
 4. TOUS les boutons fonctionnels avec feedback visuel immédiat
 5. Micro-animations partout (hover states, focus rings, smooth transitions)
 6. Design system cohérent (espacements, couleurs, typographie)
@@ -354,7 +354,7 @@ Réponds UNIQUEMENT avec un JSON valide contenant tous les fichiers nécessaires
     console.log('🤖 Calling AI to generate React project...')
     const stream = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 22000, // Optimisé pour apps complètes (e-commerce) sans timeout - 2-3 min
+      max_tokens: 25000, // Optimisé: 5-7 pages + 25-35 items data = ~65k chars en 2-3 min
       temperature: 0.7,
       stream: true, // Activer le streaming pour éviter le timeout de 10 minutes
       system: systemPrompt,
