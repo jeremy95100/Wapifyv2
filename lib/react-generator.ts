@@ -243,21 +243,21 @@ export default {
 
 ⚠️ CRITIQUE: TU DOIS utiliser ces templates EXACTEMENT! Ne change PAS les variables CSS!
 
-💎 EXIGENCES QUALITÉ PRODUCTION-READY:
+💎 EXIGENCES QUALITÉ (MINIMALISTE MAIS FONCTIONNEL):
 1. Application COMPLÈTE et FONCTIONNELLE (ZÉRO placeholders ou TODOs)
-2. 25-35 items de données mockées réalistes (suffisant pour démo convaincante)
-3. 5-7 pages/sections (qualité > quantité - chaque page doit être riche)
+2. 8-12 items de données mockées réalistes (focus sur qualité, pas quantité)
+3. 3-4 pages CORE uniquement (ex e-commerce: Home, Products, Cart - PAS de Wishlist/Reviews/Profile)
 4. TOUS les boutons fonctionnels avec feedback visuel immédiat
-5. Micro-animations partout (hover states, focus rings, smooth transitions)
+5. Animations simples mais efficaces (hover states, transitions basiques)
 6. Design system cohérent (espacements, couleurs, typographie)
 7. Responsive mobile-first (testable sur iPhone/Android)
-8. Loading skeletons (pas juste "Loading...")
-9. Error boundaries + fallback UI élégants
-10. Toast notifications pour actions importantes
-11. Formulaires avec validation temps réel et messages d'erreur clairs
-12. Accessibility complet (aria-labels, keyboard navigation, focus management)
-13. Performance optimisée (lazy loading, memoization si nécessaire)
-14. Code ultra-propre, bien organisé, commenté en français
+8. Loading states simples (spinner ou texte, PAS de skeletons complexes)
+9. Toast notifications pour actions importantes (react-hot-toast simple)
+10. Formulaires avec validation basique (required, pattern)
+11. Accessibility de base (aria-labels essentiels, semantic HTML)
+12. Code propre, bien organisé, commenté en français
+13. ⚠️ PAS DE: Wishlist, Reviews/Ratings, User Profiles, Advanced Filters, Infinite Scroll
+14. ⚠️ FOCUS: Fonctionnalités CORE qui démontrent le concept
 
 🗃️ BASE DE DONNÉES:
 - Si la demande nécessite une base de données → génère database/schema.sql
@@ -371,7 +371,7 @@ Réponds UNIQUEMENT avec un JSON valide contenant tous les fichiers nécessaires
     console.log('🤖 Calling AI to generate React project...')
     const stream = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 25000, // Optimisé: 5-7 pages + 25-35 items data = ~65k chars en 2-3 min
+      max_tokens: 25000, // Optimisé pour apps minimalistes complètes
       temperature: 0.7,
       stream: true, // Activer le streaming pour éviter le timeout de 10 minutes
       system: systemPrompt,

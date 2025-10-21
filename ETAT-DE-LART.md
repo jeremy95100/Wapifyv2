@@ -98,6 +98,52 @@ VÉRIFICATION AVANT DE RÉPONDRE:
 
 ---
 
+### ✅ Fix appliqué : Version minimaliste (21 Oct 2025)
+
+**Problème persistant** :
+Même avec 25k tokens, JSON tronqué à 67,836 chars pour apps e-commerce
+```
+Unterminated string in JSON at position 67836
+```
+
+**Analyse** :
+- 67k chars ≈ 27k tokens (proche de la limite 25k)
+- Les exigences (25-35 items, 5-7 pages) génèrent trop de code
+- Features secondaires (Reviews, Wishlist, Profiles) alourdissent
+
+**Solution appliquée** :
+Réduction drastique des exigences → **MVP fonctionnel** :
+
+```diff
+- 2. 25-35 items de données mockées
++ 2. 8-12 items de données mockées (qualité > quantité)
+
+- 3. 5-7 pages/sections
++ 3. 3-4 pages CORE uniquement (Home, Products, Cart - PAS Wishlist/Profile)
+
+- 8. Loading skeletons complexes
++ 8. Loading states simples (spinner basique)
+
++ 13. ⚠️ PAS DE: Wishlist, Reviews/Ratings, User Profiles, Advanced Filters
++ 14. ⚠️ FOCUS: Fonctionnalités CORE qui démontrent le concept
+```
+
+**max_tokens** : Conservé à 25,000 (marge de sécurité)
+
+**Philosophie** : MVP > Feature Bloat
+- E-commerce minimal : Home + Produits + Panier = démo convaincante
+- 10 produits bien faits > 50 produits génériques
+- App qui BUILD > App massive mais cassée
+
+**Estimation** :
+- 3-4 pages + 10 items = ~40-50k chars (~16-20k tokens)
+- Large marge sous 25k tokens
+- Génération rapide (~2 min)
+
+**Status** : ⏳ À TESTER - Version minimaliste
+
+---
+
 ## 📋 Table des Matières
 
 1. [Résumé Exécutif](#résumé-exécutif)
