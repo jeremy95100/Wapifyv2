@@ -11,24 +11,31 @@
 
 ### ✅ Fix appliqué : Timeout 300 secondes (21 Oct 2025)
 
-**Problème** :
+**Problème initial** :
 - Vercel Runtime Timeout Error après 300 secondes lors de la génération
 - `max_tokens: 50000` prenait 4-7 minutes à générer
 - Dépassait le timeout Vercel de 5 minutes (300s)
 
-**Solution appliquée** :
+**Tentative 1** : Réduction à 12,000 tokens
 ```diff
-// lib/react-generator.ts:357
 - max_tokens: 50000, // Augmenté pour permettre de grandes apps
 + max_tokens: 12000, // Optimisé pour génération rapide (60-120s) sans timeout Vercel
 ```
+**Résultat** : ❌ JSON tronqué à 30,885 caractères pour apps e-commerce
+
+**Tentative 2** : Ajustement à 22,000 tokens ✅ (ACTUEL)
+```diff
+- max_tokens: 12000,
++ max_tokens: 22000, // Optimisé pour apps complètes (e-commerce) sans timeout - 2-3 min
+```
 
 **Résultat attendu** :
-- Génération en 60-120 secondes (vs 4-7 minutes avant)
-- Plus de timeout Vercel
-- Apps toujours complètes (8-12 fichiers suffisants)
+- Génération en 2-3 minutes (acceptable)
+- JSON complet (~50-55k caractères)
+- Apps e-commerce complètes sans troncature
+- Reste sous le timeout de 5 minutes
 
-**Status** : ⏳ À TESTER - Générer une app pour valider
+**Status** : ⏳ À TESTER - Générer une app e-commerce pour valider
 
 ---
 
