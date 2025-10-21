@@ -448,9 +448,20 @@ Réponds UNIQUEMENT avec un JSON valide contenant tous les fichiers nécessaires
       console.error('Error message:', error.message)
       console.error('Error stack:', error.stack)
     }
-    // Fallback: générer une structure minimale
-    console.log('⚠️ Using fallback structure')
-    return generateFallbackStructure(prompt)
+
+    // Log détaillé de l'erreur pour debugging
+    console.error('🔍 DETAILED ERROR ANALYSIS:')
+    console.error('- Prompt:', prompt)
+    console.error('- Error type:', error instanceof Error ? error.constructor.name : typeof error)
+    console.error('- Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2))
+
+    // ⚠️ IMPORTANT: Ne PAS utiliser le fallback silencieusement
+    // Throw l'erreur pour qu'elle soit visible dans les logs Vercel
+    throw new Error(`Failed to generate React project: ${error instanceof Error ? error.message : 'Unknown error'}`)
+
+    // Fallback désactivé temporairement pour voir l'erreur réelle
+    // console.log('⚠️ Using fallback structure')
+    // return generateFallbackStructure(prompt)
   }
 }
 

@@ -144,6 +144,45 @@ Réduction drastique des exigences → **MVP fonctionnel** :
 
 ---
 
+### 🔍 Investigation : Claude utilise le fallback (21 Oct 2025)
+
+**Problème découvert** :
+Au lieu de générer un site e-commerce, Claude génère une app **Todo/Timer/Alarm** !
+
+**Cause identifiée** :
+- Claude AI génère une erreur lors de la génération
+- Le code catch l'erreur et utilise `generateFallbackStructure()`
+- Le fallback génère **TOUJOURS** une app Todo (structure par défaut)
+- L'erreur réelle de Claude est **masquée**
+
+**Solution appliquée** :
+Ajout de logs détaillés + désactivation temporaire du fallback :
+
+```typescript
+catch (error) {
+  // Logs détaillés pour voir l'erreur exacte
+  console.error('🔍 DETAILED ERROR ANALYSIS:')
+  console.error('- Prompt:', prompt)
+  console.error('- Error type:', error.constructor.name)
+  console.error('- Full error object:', JSON.stringify(error))
+
+  // Throw l'erreur au lieu d'utiliser le fallback silencieusement
+  throw new Error(`Failed to generate: ${error.message}`)
+
+  // Fallback désactivé temporairement
+  // return generateFallbackStructure(prompt)
+}
+```
+
+**Objectif** :
+- Voir l'erreur RÉELLE de Claude
+- Comprendre pourquoi il n'arrive pas à générer l'e-commerce
+- Corriger le problème root cause au lieu de masquer avec le fallback
+
+**Status** : ⏳ À TESTER - Générer pour voir l'erreur exacte
+
+---
+
 ## 📋 Table des Matières
 
 1. [Résumé Exécutif](#résumé-exécutif)
