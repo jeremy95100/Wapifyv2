@@ -235,11 +235,12 @@ async function uploadDistToBlob(distDir, projectId, buildId) {
         const pathname = relativePath.replace(/\\/g, '/') // Windows compat
         const contentType = getContentType(pathname)
 
-        // Upload to Blob with correct Content-Type
+        // Upload to Blob with correct Content-Type and inline disposition
         const blob = await put(`${projectId}/${buildId}/${pathname}`, content, {
           access: 'public',
           addRandomSuffix: false,
-          contentType: contentType
+          contentType: contentType,
+          contentDisposition: 'inline' // Display in browser instead of download
         })
 
         console.log(`  ✅ Uploaded: ${pathname} (${contentType})`)
