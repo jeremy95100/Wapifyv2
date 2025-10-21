@@ -11,6 +11,34 @@ const execAsync = promisify(exec)
 const BUILDS_DIR = path.join(process.cwd(), 'builds')
 
 /**
+ * Get the correct Content-Type for a file based on its extension
+ */
+function getContentType(filename) {
+  const ext = path.extname(filename).toLowerCase()
+  const types = {
+    '.html': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.mjs': 'application/javascript; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.svg': 'image/svg+xml',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.ico': 'image/x-icon',
+    '.woff': 'font/woff',
+    '.woff2': 'font/woff2',
+    '.ttf': 'font/ttf',
+    '.eot': 'application/vnd.ms-fontobject',
+    '.txt': 'text/plain; charset=utf-8',
+    '.xml': 'application/xml; charset=utf-8'
+  }
+  return types[ext] || 'application/octet-stream'
+}
+
+/**
  * Build a React project with Vite
  */
 export async function buildProject({ projectId, files, projectName, onProgress }) {
@@ -205,14 +233,16 @@ async function uploadDistToBlob(distDir, projectId, buildId) {
       } else {
         const content = await fs.readFile(fullPath)
         const pathname = relativePath.replace(/\\/g, '/') // Windows compat
+        const contentType = getContentType(pathname)
 
-        // Upload to Blob
+        // Upload to Blob with correct Content-Type
         const blob = await put(`${projectId}/${buildId}/${pathname}`, content, {
           access: 'public',
-          addRandomSuffix: false
+          addRandomSuffix: false,
+          contentType: contentType
         })
 
-        console.log(`  ✅ Uploaded: ${pathname}`)
+        console.log(`  ✅ Uploaded: ${pathname} (${contentType})`)
         uploadedFiles.push({
           pathname,
           url: blob.url,
