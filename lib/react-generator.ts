@@ -55,11 +55,91 @@ export interface ReactProjectStructure {
 }
 
 /**
- * Générer la structure d'un projet React avec l'AI
+ * Générer la structure d'un projet React avec l'AI - EN 2 ÉTAPES
+ * Nouvelle approche: 2 appels séparés pour éviter le timeout
  */
 export async function generateReactProject(
   prompt: string,
   anthropic: any
+): Promise<ReactProjectStructure> {
+  console.log('🔄 Starting 2-step generation process...')
+
+  // ÉTAPE 1: Structure de base + Config + Home (tokens réduits)
+  console.log('📦 Step 1: Generating base structure + HomePage...')
+  const step1Result = await generateReactProjectSingleCall(
+    `${prompt}
+
+⚠️ ÉTAPE 1/2 - GÉNÈRE UNIQUEMENT:
+- Fichiers de configuration (package.json, vite, tailwind, postcss)
+- index.html, src/main.jsx, src/index.css
+- src/App.jsx avec React Router (avec 1-2 routes seulement pour HomePage)
+- src/pages/HomePage.jsx COMPLÈTE et FONCTIONNELLE avec 4-6 items de données
+- src/components/ui/*.jsx (Button, Card uniquement - composants UI de base)
+- src/lib/utils.js (fonction cn())
+
+NE GÉNÈRE PAS ENCORE les pages secondaires (Products, Cart, etc.) - elles seront générées en étape 2!`,
+    anthropic,
+    15000 // Tokens réduits pour étape 1
+  )
+
+  console.log(`✅ Step 1 complete: ${step1Result.files.length} files`)
+
+  // ÉTAPE 2: Pages secondaires uniquement
+  console.log('📦 Step 2: Generating secondary pages...')
+  const step2Result = await generateReactProjectSingleCall(
+    `${prompt}
+
+⚠️ ÉTAPE 2/2 - GÉNÈRE UNIQUEMENT LES PAGES SECONDAIRES:
+- src/pages/ProductsPage.jsx (ou équivalent selon le type d'app)
+- src/pages/CartPage.jsx (si e-commerce)
+- Composants UI supplémentaires si nécessaire
+- 4-6 items de données pour ces pages
+
+NE RÉGÉNÈRE PAS les fichiers de config, App.jsx, HomePage, etc. - ils existent déjà!
+Utilise les mêmes imports React Router, les mêmes composants UI que l'étape 1.`,
+    anthropic,
+    15000 // Tokens réduits pour étape 2
+  )
+
+  console.log(`✅ Step 2 complete: ${step2Result.files.length} files`)
+
+  // Fusionner les résultats (étape 1 + étape 2)
+  const mergedFiles = [...step1Result.files]
+
+  // Ajouter les fichiers de l'étape 2 (en évitant les doublons)
+  for (const file of step2Result.files) {
+    const existingIndex = mergedFiles.findIndex(f => f.path === file.path)
+    if (existingIndex === -1) {
+      // Fichier n'existe pas, l'ajouter
+      mergedFiles.push(file)
+      console.log(`➕ Adding new file from step 2: ${file.path}`)
+    } else {
+      // Fichier existe déjà - garder celui de l'étape 1 (sauf pour App.jsx qu'on veut updater)
+      if (file.path === 'src/App.jsx') {
+        mergedFiles[existingIndex] = file // Remplacer App.jsx avec routes complètes
+        console.log(`🔄 Updated App.jsx with routes from step 2`)
+      } else {
+        console.log(`⏭️  Skipping duplicate file: ${file.path}`)
+      }
+    }
+  }
+
+  console.log(`✅ Total files generated: ${mergedFiles.length}`)
+
+  return {
+    files: mergedFiles,
+    hasDatabase: step1Result.hasDatabase || step2Result.hasDatabase,
+    databaseSchema: step1Result.databaseSchema || step2Result.databaseSchema
+  }
+}
+
+/**
+ * Fonction originale renommée - fait un seul appel à Claude
+ */
+async function generateReactProjectSingleCall(
+  prompt: string,
+  anthropic: any,
+  maxTokens: number = 25000
 ): Promise<ReactProjectStructure> {
 
   const systemPrompt = `Tu es un expert développeur React pour WAPIFY, une plateforme no-code pour utilisateurs NON-TECHNIQUES.
@@ -243,10 +323,10 @@ export default {
 
 ⚠️ CRITIQUE: TU DOIS utiliser ces templates EXACTEMENT! Ne change PAS les variables CSS!
 
-💎 EXIGENCES QUALITÉ (MICRO-APP MINIMALISTE):
+💎 EXIGENCES QUALITÉ (GÉNÉRATION EN 2 ÉTAPES):
 1. Application COMPLÈTE et FONCTIONNELLE (ZÉRO placeholders ou TODOs)
-2. 4-6 items de données mockées MAXIMUM (ultra minimal!)
-3. 2 pages CORE UNIQUEMENT (ex e-commerce: Home + Products - C'EST TOUT!)
+2. 6-8 items de données mockées par page (qualité > quantité)
+3. TOTAL: 3-4 pages (Home + 2-3 pages secondaires selon prompt)
 4. TOUS les boutons fonctionnels avec feedback visuel immédiat
 5. Animations simples mais efficaces (hover states, transitions basiques)
 6. Design system cohérent (espacements, couleurs, typographie)
@@ -256,8 +336,8 @@ export default {
 10. Formulaires avec validation basique (required, pattern)
 11. Accessibility de base (aria-labels essentiels, semantic HTML)
 12. Code propre, bien organisé, commenté en français
-13. ⚠️ PAS DE: Cart, Wishlist, Reviews, Profiles, Filters, About, Contact, Login
-14. ⚠️ FOCUS: 2 PAGES MAX - DÉMONSTRATION DU CONCEPT UNIQUEMENT
+13. ⚠️ PAS DE: Wishlist avancées, Reviews/Ratings complexes, User Profiles détaillés, Advanced Filters
+14. ⚠️ FOCUS: Fonctionnalités CORE - Chaque page doit être COMPLÈTE
 
 🗃️ BASE DE DONNÉES:
 - Si la demande nécessite une base de données → génère database/schema.sql
@@ -407,7 +487,7 @@ Réponds UNIQUEMENT avec un JSON valide contenant tous les fichiers nécessaires
     console.log('🤖 Calling AI to generate React project...')
     const stream = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 25000, // Optimisé pour apps minimalistes complètes
+      max_tokens: maxTokens, // Paramétrable selon l'étape (15k pour step1/step2)
       temperature: 0.7,
       stream: true, // Activer le streaming pour éviter le timeout de 10 minutes
       system: systemPrompt,
