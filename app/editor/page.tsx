@@ -1253,41 +1253,41 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
                   <h4 className="font-bold text-wapify-accent-dark mb-2">📋 Plan détecté</h4>
                   <div className="space-y-2 text-sm">
                     <div>
-                      <span className="font-semibold">Framework:</span> {generationPlan.framework.toUpperCase()}
+                      <span className="font-semibold">Framework:</span> {generationPlan?.framework?.toUpperCase() || 'N/A'}
                     </div>
                     <div>
-                      <span className="font-semibold">Style:</span> {generationPlan.style}
+                      <span className="font-semibold">Style:</span> {generationPlan?.style || 'N/A'}
                     </div>
                     <div>
-                      <span className="font-semibold">Template:</span> {generationPlan.template}
+                      <span className="font-semibold">Template:</span> {generationPlan?.template || 'N/A'}
                     </div>
-                    {generationPlan.colorTheme && (
+                    {generationPlan?.colorTheme && (
                       <div>
-                        <span className="font-semibold">Thème:</span> {generationPlan.colorTheme.name}
+                        <span className="font-semibold">Thème:</span> {generationPlan?.colorTheme?.name}
                         <div className="flex gap-1.5 mt-1.5">
                           <div
                             className="w-6 h-6 rounded border border-gray-300"
-                            style={{ backgroundColor: generationPlan.colorTheme.primary }}
-                            title={`Primary: ${generationPlan.colorTheme.primary}`}
+                            style={{ backgroundColor: generationPlan?.colorTheme?.primary }}
+                            title={`Primary: ${generationPlan?.colorTheme?.primary}`}
                           ></div>
                           <div
                             className="w-6 h-6 rounded border border-gray-300"
-                            style={{ backgroundColor: generationPlan.colorTheme.secondary }}
-                            title={`Secondary: ${generationPlan.colorTheme.secondary}`}
+                            style={{ backgroundColor: generationPlan?.colorTheme?.secondary }}
+                            title={`Secondary: ${generationPlan?.colorTheme?.secondary}`}
                           ></div>
                           <div
                             className="w-6 h-6 rounded border border-gray-300"
-                            style={{ backgroundColor: generationPlan.colorTheme.accent }}
-                            title={`Accent: ${generationPlan.colorTheme.accent}`}
+                            style={{ backgroundColor: generationPlan?.colorTheme?.accent }}
+                            title={`Accent: ${generationPlan?.colorTheme?.accent}`}
                           ></div>
                         </div>
                       </div>
                     )}
-                    {generationPlan.entities.length > 0 && (
+                    {(generationPlan?.entities?.length ?? 0) > 0 && (
                       <div>
                         <span className="font-semibold">Entités DB:</span>
                         <ul className="ml-4 mt-1">
-                          {generationPlan.entities.map((entity, idx) => (
+                          {generationPlan?.entities?.map((entity, idx) => (
                             <li key={idx} className="text-xs">• {entity.name} ({entity.fields.length} champs)</li>
                           ))}
                         </ul>
