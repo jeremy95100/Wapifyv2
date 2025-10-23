@@ -269,43 +269,46 @@ async function generateBaseComplete(
   console.log('⚙️ Generating base (config + UI + App)...')
 
   const ext = plan.techStack.fileExtension
-  const userMessage = `Parfait ! Maintenant, suis CE PLAN et génère la BASE COMPLÈTE du projet :
+  const userMessage = `Parfait ! Maintenant, suis CE PLAN et génère UNIQUEMENT la BASE MINIMALE :
 
-1. FICHIERS DE CONFIGURATION :
-   - package.json (avec libraries : ${plan.techStack.libraries.join(', ')})
-   - vite.config.${ext === 'tsx' ? 'ts' : 'js'}
-   - tailwind.config.js
-   - postcss.config.js
-   ${ext === 'tsx' ? '- tsconfig.json' : ''}
-   - index.html
-   - src/main.${ext}
-   - src/index.css (Tailwind + CSS variables shadcn/ui)
+1. FICHIERS DE CONFIGURATION (NE GÉNÈRE PAS le contenu complet, juste un placeholder) :
+   - package.json (JUSTE la structure avec libraries : ${plan.techStack.libraries.join(', ')})
+   - vite.config.${ext === 'tsx' ? 'ts' : 'js'} (JUSTE un placeholder, sera généré par ensureRequiredFiles)
+   - tailwind.config.js (placeholder)
+   - postcss.config.js (placeholder)
 
-2. TOUS LES COMPOSANTS UI (dans src/components/ui/) :
-${plan.components.ui.map(name => `   - ${name}.${ext}`).join('\n')}
+2. COMPOSANTS UI ESSENTIELS UNIQUEMENT (dans src/components/ui/) :
+   - Button.${ext} (composant complet)
+   - Card.${ext} (composant complet)
+   - Input.${ext} (composant complet)
 
 3. APP AVEC ROUTING (src/App.${ext}) :
    Configure React Router avec TOUTES ces routes :
 ${plan.routing.routes.map(r => `   - <Route path="${r.path}" element={<${r.component} />} />`).join('\n')}
 
-   N'oublie pas d'importer toutes les pages !
+   ⚠️ IMPORTANT : Les pages n'existent pas encore, crée juste des placeholders :
+   const HomePage = () => <div>Loading...</div>
+   const ProductsPage = () => <div>Loading...</div>
 
 4. COMPOSANTS BUSINESS (dans src/components/) :
-${plan.components.business.map(name => `   - ${name}.${ext}`).join('\n')}
+   - Header.${ext} (simple header avec logo et navigation)
+   - Footer.${ext} (simple footer)
 
 5. UTILITAIRES :
-   - src/lib/utils.${ext === 'tsx' ? 'ts' : 'js'} (fonction cn() pour merge de classes)
+   - src/lib/utils.${ext === 'tsx' ? 'ts' : 'js'} (fonction cn() seulement)
 
-IMPORTANT :
-- NE GÉNÈRE PAS ENCORE les pages (HomePage, etc.) - elles viendront après
-- Utilise exactement l'extension .${ext} pour tous les fichiers React
-- Design system shadcn/ui avec Tailwind (bg-background, text-foreground, etc.)
+RÈGLES CRITIQUES :
+- Composants UI : UNIQUEMENT Button, Card, Input (pas plus !)
+- Config files : JUSTE des placeholders (ensureRequiredFiles va générer les vrais)
+- App.tsx : Avec routes MAIS pages en placeholder
+- Header/Footer : TRÈS simples (10-20 lignes max chacun)
+- NE GÉNÈRE PAS : index.html, src/main.tsx, src/index.css (ensureRequiredFiles s'en charge)
 
-Réponds en JSON avec le format : { "files": [...] }`
+Réponds en JSON compact avec le format : { "files": [...] }`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 16000,
+    max_tokens: 12000,
     temperature: 0.7,
     stream: true,
     system: BASE_SYSTEM_PROMPT,
@@ -329,20 +332,28 @@ Réponds en JSON avec le format : { "files": [...] }`
   console.log('📝 Base response length:', responseText.length, 'characters')
 
   let files: ProjectFile[]
+  let jsonText = ''
   try {
-    const jsonText = extractJSON(responseText)
+    jsonText = extractJSON(responseText)
+    console.log('📦 Extracted JSON length:', jsonText.length, 'characters')
     const result = JSON.parse(jsonText)
     files = result.files || []
   } catch (parseError) {
     console.error('❌ JSON Parse Error:', parseError)
+    console.error('📝 Response preview (last 500 chars):', responseText.slice(-500))
+
     // Tentative de réparation
     try {
-      const jsonText = extractJSON(responseText)
+      if (!jsonText) jsonText = extractJSON(responseText)
+      console.log('🔧 Attempting JSON repair...')
       const repairedJson = attemptJsonRepair(jsonText)
+      console.log('🔧 Repaired JSON length:', repairedJson.length)
       const result = JSON.parse(repairedJson)
       files = result.files || []
-      console.log('✅ Repaired JSON parsed successfully')
+      console.log('✅ Repaired JSON parsed successfully!')
     } catch (repairError) {
+      console.error('❌ Repair also failed:', repairError)
+      console.error('📝 Last 200 chars of JSON:', jsonText.slice(-200))
       throw new Error(`Failed to parse base files JSON: ${parseError}`)
     }
   }
