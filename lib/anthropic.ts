@@ -636,17 +636,113 @@ export async function* generateReactProjectWithSteps(
 ): AsyncGenerator<{type: 'step' | 'plan' | 'substep' | 'modifications' | 'files' | 'complete' | 'chat_message', data: any}> {
   const { prompt } = options
 
-  // Étape 1: Analyse et planification
+  // Étape 1: Analyse intelligente de la demande
   yield {
     type: 'step',
     data: {
       step: 'Analyse de votre demande',
       status: 'in_progress',
-      description: 'Création du plan de projet React'
+      description: 'Réflexion sur votre demande...'
     }
   }
 
+  // Envoyer la section d'analyse
+  yield {
+    type: 'chat_message',
+    data: 'SECTION_START:Analyse de la Demande'
+  }
+
+  yield {
+    type: 'chat_message',
+    data: 'ANALYSIS_THINKING:Réflexion en cours...'
+  }
+
   const plan = await createGenerationPlan(prompt)
+
+  // Analyser intelligemment la demande avec l'AI
+  const analysisPrompt = `Analyse cette demande utilisateur et extrais les points clés de manière structurée et concise :
+
+"${prompt}"
+
+Retourne en JSON :
+{
+  "understanding": "Ce que l'utilisateur veut (1-2 phrases max)",
+  "keyFeatures": ["fonctionnalité 1", "fonctionnalité 2", "fonctionnalité 3"],
+  "design": "Style/Design souhaité (1 phrase)",
+  "structure": ["composant/page 1", "composant/page 2", "composant/page 3"]
+}`
+
+  const analysisResponse = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    temperature: 0.3,
+    messages: [{
+      role: 'user',
+      content: analysisPrompt
+    }]
+  })
+
+  let analysis: any = {}
+  try {
+    const firstBlock = analysisResponse.content[0]
+    const analysisText = firstBlock.type === 'text' ? firstBlock.text : ''
+    const jsonMatch = analysisText.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      analysis = JSON.parse(jsonMatch[0])
+    }
+  } catch (e) {
+    console.error('Failed to parse analysis:', e)
+    analysis = {
+      understanding: 'Je vais créer une application React selon vos besoins.',
+      keyFeatures: [],
+      design: 'Interface moderne et responsive',
+      structure: []
+    }
+  }
+
+  // Envoyer l'analyse structurée
+  yield {
+    type: 'chat_message',
+    data: `ANALYSIS_UNDERSTANDING:${analysis.understanding || 'Je vais créer une application React.'}`
+  }
+
+  if (analysis.keyFeatures && analysis.keyFeatures.length > 0) {
+    yield {
+      type: 'chat_message',
+      data: 'ANALYSIS_SECTION:Fonctionnalités clés :'
+    }
+    for (const feature of analysis.keyFeatures.slice(0, 5)) {
+      yield {
+        type: 'chat_message',
+        data: `SUBSTEP:• ${feature}`
+      }
+    }
+  }
+
+  if (analysis.design) {
+    yield {
+      type: 'chat_message',
+      data: `ANALYSIS_SECTION:Design : ${analysis.design}`
+    }
+  }
+
+  if (analysis.structure && analysis.structure.length > 0) {
+    yield {
+      type: 'chat_message',
+      data: 'ANALYSIS_SECTION:Structure :'
+    }
+    for (const item of analysis.structure.slice(0, 5)) {
+      yield {
+        type: 'chat_message',
+        data: `SUBSTEP:• ${item}`
+      }
+    }
+  }
+
+  yield {
+    type: 'chat_message',
+    data: 'SECTION_END'
+  }
 
   yield {
     type: 'plan',

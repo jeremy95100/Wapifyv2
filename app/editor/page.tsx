@@ -1154,7 +1154,19 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
                   sections.push({type: 'user', data: msg})
                 } else if (msg.content.startsWith('SECTION_START:')) {
                   const title = msg.content.replace('SECTION_START:', '')
-                  currentSection = {title, description: '', substeps: [], id: `section-${idx}`}
+                  currentSection = {title, description: '', substeps: [], thinking: '', id: `section-${idx}`}
+                } else if (msg.content.startsWith('ANALYSIS_THINKING:')) {
+                  if (currentSection) {
+                    currentSection.thinking = msg.content.replace('ANALYSIS_THINKING:', '')
+                  }
+                } else if (msg.content.startsWith('ANALYSIS_UNDERSTANDING:')) {
+                  if (currentSection) {
+                    currentSection.description = msg.content.replace('ANALYSIS_UNDERSTANDING:', '')
+                  }
+                } else if (msg.content.startsWith('ANALYSIS_SECTION:')) {
+                  if (currentSection) {
+                    currentSection.substeps.push(msg.content.replace('ANALYSIS_SECTION:', ''))
+                  }
                 } else if (msg.content.startsWith('PLAN_DESCRIPTION:')) {
                   if (currentSection) {
                     currentSection.description = msg.content.replace('PLAN_DESCRIPTION:', '')
@@ -1218,6 +1230,11 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
                               ▶
                             </span>
                             <h3 className="font-semibold text-gray-800">{data.title}</h3>
+                            {data.thinking && (
+                              <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                                💭 Réflexion
+                              </span>
+                            )}
                           </div>
                         </button>
 
