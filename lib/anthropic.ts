@@ -675,17 +675,12 @@ export async function* generateReactProjectWithSteps(
   // Messages de chat pour l'étape de création
   yield {
     type: 'chat_message',
-    data: '📋 Je crée le plan du projet...'
+    data: 'SECTION_START:Plan de l\'Application'
   }
 
   yield {
     type: 'chat_message',
-    data: '⚙️ Je génère la structure de base...'
-  }
-
-  yield {
-    type: 'chat_message',
-    data: '📄 Je crée les pages...'
+    data: 'PLAN_DESCRIPTION:Je vais créer une application React avec les fonctionnalités demandées.'
   }
 
   // Import du générateur React
@@ -707,9 +702,29 @@ export async function* generateReactProjectWithSteps(
     description: `${projectStructure.files.length} fichiers générés (${componentFiles} composants, ${hookFiles} hooks, ${styleFiles} styles)`
   })
 
+  // Envoyer les détails des fichiers créés
+  const pages = projectStructure.files.filter((f: any) => f.path.includes('/pages/'))
+  const components = projectStructure.files.filter((f: any) => f.path.includes('/components/'))
+
+  for (const page of pages) {
+    const pageName = page.path.split('/').pop()?.replace(/\.(tsx|jsx)$/, '')
+    yield {
+      type: 'chat_message',
+      data: `SUBSTEP:✓ ${pageName} créée`
+    }
+  }
+
+  for (const comp of components.filter((c: any) => c.path.includes('/ui/'))) {
+    const compName = comp.path.split('/').pop()?.replace(/\.(tsx|jsx)$/, '')
+    yield {
+      type: 'chat_message',
+      data: `SUBSTEP:✓ Composant ${compName}`
+    }
+  }
+
   yield {
     type: 'chat_message',
-    data: `✅ ${projectStructure.files.length} fichiers créés avec succès`
+    data: 'SECTION_END'
   }
 
   yield {
@@ -736,7 +751,12 @@ export async function* generateReactProjectWithSteps(
 
   yield {
     type: 'chat_message',
-    data: '🔍 Je vérifie le code généré...'
+    data: 'SECTION_START:Validation et Correction'
+  }
+
+  yield {
+    type: 'chat_message',
+    data: 'SUBSTEP:⋯ Analyse du code...'
   }
 
   // Appel de l'agent validateur (INDÉPENDANT)
@@ -747,7 +767,12 @@ export async function* generateReactProjectWithSteps(
 
   yield {
     type: 'chat_message',
-    data: '✅ Code vérifié et corrigé'
+    data: 'SUBSTEP:✓ Code analysé et corrigé'
+  }
+
+  yield {
+    type: 'chat_message',
+    data: 'SECTION_END'
   }
 
   yield {
@@ -858,6 +883,17 @@ export async function* generateReactProjectWithSteps(
       status: 'completed',
       description: 'Projet React prêt !'
     }
+  }
+
+  // Message final élégant
+  const pageNames = projectStructure.files
+    .filter((f: any) => f.path.includes('/pages/'))
+    .map((f: any) => f.path.split('/').pop()?.replace(/\.(tsx|jsx)$/, ''))
+    .join(', ')
+
+  yield {
+    type: 'chat_message',
+    data: `FINAL_MESSAGE:J'ai créé une application React complète avec ${projectStructure.files.length} fichiers (${pageNames}). L'application est prête à être compilée et déployée ! 🎉`
   }
 
   yield {
