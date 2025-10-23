@@ -303,7 +303,7 @@ ${plan.routing.routes.map(r => `   - <Route path="${r.path}" element={<${r.compo
 RÈGLES CRITIQUES :
 - Composants UI : UNIQUEMENT Button, Card, Input (pas plus !)
 - Config files : JUSTE des placeholders (ensureRequiredFiles va générer les vrais)
-- App.tsx : Avec routes MAIS pages en placeholder
+- App.tsx : Avec routes ET imports des pages (import HomePage from './pages/HomePage')
 - Header/Footer : TRÈS simples (10-20 lignes max chacun)
 - NE GÉNÈRE PAS : index.html, src/main.tsx, src/index.css (ensureRequiredFiles s'en charge)
 
