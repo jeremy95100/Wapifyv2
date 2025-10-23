@@ -307,6 +307,11 @@ RÈGLES CRITIQUES :
 - Header/Footer : TRÈS simples (10-20 lignes max chacun)
 - NE GÉNÈRE PAS : index.html, src/main.tsx, src/index.css (ensureRequiredFiles s'en charge)
 
+⚠️ PROPS INTERDITES :
+- NE PAS utiliser 'asChild' sur Button (pas supporté!)
+- Pour Link dans Button : <Button onClick={() => navigate('/path')}>
+- OU utiliser <Link><button className="..."></button></Link>
+
 Réponds en JSON compact avec le format : { "files": [...] }`
 
   const response = await anthropic.messages.create({
