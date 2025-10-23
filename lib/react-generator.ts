@@ -451,9 +451,9 @@ INFORMATIONS SUR CETTE PAGE :
 ${page.stateNeeded ? `- State management : ${page.stateNeeded.join(', ')}` : ''}
 
 COMPOSANTS UI DISPONIBLES (UNIQUEMENT CEUX-CI, N'EN IMPORTE PAS D'AUTRES !) :
-- import { Button } from '@/components/ui/Button'
-- import { Card } from '@/components/ui/Card'
-- import { Input } from '@/components/ui/Input'
+- import Button from '@/components/ui/Button'
+- import Card from '@/components/ui/Card'
+- import Input from '@/components/ui/Input'
 
 ⚠️ SI TU AS BESOIN D'AUTRES COMPOSANTS (Badge, Select, etc.) :
 - NE LES IMPORTE PAS (ils n'existent pas!)
