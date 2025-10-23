@@ -913,8 +913,7 @@ function generateTSConfig(): string {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src"]
 }`
 }
 
