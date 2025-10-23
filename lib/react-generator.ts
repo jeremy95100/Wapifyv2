@@ -657,9 +657,17 @@ function ensureRequiredFiles(files: ProjectFile[], plan: ProjectPlan): ProjectFi
     })
   }
 
-  // Vérifier vite.config
+  // Vérifier et FORCER le remplacement de vite.config (l'AI génère souvent un mauvais)
   const viteConfigPath = isTypeScript ? 'vite.config.ts' : 'vite.config.js'
-  if (!files.find(f => f.path.includes('vite.config'))) {
+  const existingViteConfigIndex = files.findIndex(f => f.path.includes('vite.config'))
+  if (existingViteConfigIndex >= 0) {
+    // Remplacer le fichier existant par le bon
+    files[existingViteConfigIndex] = {
+      path: viteConfigPath,
+      content: generateViteConfig(isTypeScript),
+      type: 'config'
+    }
+  } else {
     files.push({
       path: viteConfigPath,
       content: generateViteConfig(isTypeScript),
@@ -667,8 +675,15 @@ function ensureRequiredFiles(files: ProjectFile[], plan: ProjectPlan): ProjectFi
     })
   }
 
-  // Vérifier tailwind.config.js
-  if (!files.find(f => f.path === 'tailwind.config.js')) {
+  // Vérifier et FORCER tailwind.config.js
+  const existingTailwindIndex = files.findIndex(f => f.path.includes('tailwind.config'))
+  if (existingTailwindIndex >= 0) {
+    files[existingTailwindIndex] = {
+      path: 'tailwind.config.js',
+      content: generateTailwindConfig(),
+      type: 'config'
+    }
+  } else {
     files.push({
       path: 'tailwind.config.js',
       content: generateTailwindConfig(),
@@ -676,8 +691,15 @@ function ensureRequiredFiles(files: ProjectFile[], plan: ProjectPlan): ProjectFi
     })
   }
 
-  // Vérifier postcss.config.js
-  if (!files.find(f => f.path === 'postcss.config.js')) {
+  // Vérifier et FORCER postcss.config.js
+  const existingPostcssIndex = files.findIndex(f => f.path.includes('postcss.config'))
+  if (existingPostcssIndex >= 0) {
+    files[existingPostcssIndex] = {
+      path: 'postcss.config.js',
+      content: generatePostCSSConfig(),
+      type: 'config'
+    }
+  } else {
     files.push({
       path: 'postcss.config.js',
       content: generatePostCSSConfig(),
@@ -685,13 +707,22 @@ function ensureRequiredFiles(files: ProjectFile[], plan: ProjectPlan): ProjectFi
     })
   }
 
-  // Vérifier tsconfig.json (si TypeScript)
-  if (isTypeScript && !files.find(f => f.path === 'tsconfig.json')) {
-    files.push({
-      path: 'tsconfig.json',
-      content: generateTSConfig(),
-      type: 'config'
-    })
+  // Vérifier et FORCER tsconfig.json (si TypeScript)
+  if (isTypeScript) {
+    const existingTsconfigIndex = files.findIndex(f => f.path.includes('tsconfig.json'))
+    if (existingTsconfigIndex >= 0) {
+      files[existingTsconfigIndex] = {
+        path: 'tsconfig.json',
+        content: generateTSConfig(),
+        type: 'config'
+      }
+    } else {
+      files.push({
+        path: 'tsconfig.json',
+        content: generateTSConfig(),
+        type: 'config'
+      })
+    }
   }
 
   // Vérifier src/index.css
