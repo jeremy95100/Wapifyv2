@@ -259,6 +259,14 @@ FORMAT DE RÉPONSE (JSON uniquement) :
   ]
 }
 
+⚠️ RÈGLES JSON STRICTES (TRÈS IMPORTANT) :
+- Échappe TOUS les guillemets dans le code avec \\"
+- Échappe TOUS les backslashes avec \\\\
+- Échappe TOUS les retours à la ligne avec \\n
+- N'utilise PAS de template literals avec backticks dans les strings JSON
+- Vérifie que le JSON est VALIDE avant de répondre
+- Le "content" doit être une STRING échappée correctement
+
 Réponds UNIQUEMENT avec le JSON, rien d'autre.`
 
 /**
@@ -426,6 +434,14 @@ FORMAT DE RÉPONSE (JSON uniquement) :
     }
   ]
 }
+
+⚠️ RÈGLES JSON STRICTES (TRÈS IMPORTANT) :
+- Échappe TOUS les guillemets dans le code avec \\"
+- Échappe TOUS les backslashes avec \\\\
+- Échappe TOUS les retours à la ligne avec \\n
+- N'utilise PAS de template literals avec backticks dans les strings JSON
+- Vérifie que le JSON est VALIDE avant de répondre
+- Le "content" doit être une STRING échappée correctement
 
 Réponds UNIQUEMENT avec le JSON, rien d'autre.`
 
