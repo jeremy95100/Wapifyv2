@@ -79,9 +79,21 @@ export async function GET(request: NextRequest) {
       throw new Error(error.error || 'Failed to get build status')
     }
 
-    const result = await response.json()
+    const data = await response.json()
 
-    return NextResponse.json(result)
+    // Transform build server response to frontend format
+    // Build server returns: { state, result: { url }, failedReason }
+    // Frontend expects: { status, url, error }
+    const transformedResponse = {
+      jobId: data.jobId,
+      status: data.state, // "completed", "active", "failed", etc.
+      url: data.result?.url || null,
+      error: data.failedReason || null,
+      progress: data.progress,
+      finishedOn: data.finishedOn
+    }
+
+    return NextResponse.json(transformedResponse)
 
   } catch (error) {
     console.error('❌ Error getting build status:', error)
