@@ -281,9 +281,9 @@ async function generateBaseComplete(
    - postcss.config.js (placeholder)
 
 2. COMPOSANTS UI ESSENTIELS UNIQUEMENT (dans src/components/ui/) :
-   - Button.${ext} (composant complet)
-   - Card.${ext} (composant complet)
-   - Input.${ext} (composant complet)
+   - Button.${ext} (composant complet - NAMED EXPORT: export { Button })
+   - Card.${ext} (composant complet - NAMED EXPORT: export { Card })
+   - Input.${ext} (composant complet - NAMED EXPORT: export { Input })
 
 3. APP AVEC ROUTING (src/App.${ext}) :
    Configure React Router avec TOUTES ces routes :
@@ -451,9 +451,9 @@ INFORMATIONS SUR CETTE PAGE :
 ${page.stateNeeded ? `- State management : ${page.stateNeeded.join(', ')}` : ''}
 
 COMPOSANTS UI DISPONIBLES (UNIQUEMENT CEUX-CI, N'EN IMPORTE PAS D'AUTRES !) :
-- import Button from '@/components/ui/Button'
-- import Card from '@/components/ui/Card'
-- import Input from '@/components/ui/Input'
+- import { Button } from '@/components/ui/Button'
+- import { Card } from '@/components/ui/Card'
+- import { Input } from '@/components/ui/Input'
 
 ⚠️ SI TU AS BESOIN D'AUTRES COMPOSANTS (Badge, Select, etc.) :
 - NE LES IMPORTE PAS (ils n'existent pas!)
