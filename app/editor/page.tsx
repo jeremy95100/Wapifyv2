@@ -1154,21 +1154,44 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
               </div>
             )}
 
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                id={msg.id}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} transition-all duration-300 rounded-lg`}
-              >
-                <div className={`max-w-[85%] rounded-lg p-3 ${
-                  msg.role === 'user'
-                    ? 'bg-wapify-accent text-white'
-                    : 'bg-white border-2 border-wapify-border text-wapify-text'
-                }`}>
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+            {messages.map((msg, idx) => {
+              // Détecter si c'est un message de progression (commence par un emoji)
+              const isProgressMessage = msg.role === 'assistant' && /^[📋⚙️📄✅🔍🔨❌]/.test(msg.content)
+
+              return (
+                <div
+                  key={idx}
+                  id={msg.id}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}
+                >
+                  {msg.role === 'user' ? (
+                    <div className="max-w-[85%] rounded-lg p-3 bg-wapify-accent text-white shadow-sm">
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                  ) : isProgressMessage ? (
+                    // Message de progression - style élégant
+                    <div className="max-w-[85%] w-full">
+                      <div className="bg-gradient-to-r from-gray-50 to-white border-l-4 border-wapify-accent rounded-lg p-3 shadow-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{msg.content.match(/^[📋⚙️📄✅🔍🔨❌]/)?.[0]}</span>
+                          <p className="text-sm text-gray-700 font-medium flex-1">
+                            {msg.content.replace(/^[📋⚙️📄✅🔍🔨❌]\s*/, '')}
+                          </p>
+                          <span className="text-xs text-gray-400">
+                            {msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Message assistant normal
+                    <div className="max-w-[85%] rounded-lg p-3 bg-white border-2 border-wapify-border text-wapify-text shadow-sm">
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              )
+            })}
 
             {isGenerating && (
               <div className="flex justify-start">
@@ -1211,8 +1234,8 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
           </div>
         </div>
 
-        {/* Middle Panel - Generation Steps */}
-        {(isGenerating || generationPlan || steps.length > 0) && (
+        {/* Middle Panel - Generation Steps - DISABLED: Now using chat messages */}
+        {false && (isGenerating || generationPlan || steps.length > 0) && (
           <div className="w-80 bg-white border-r-2 border-wapify-border flex flex-col overflow-y-auto">
             <div className="p-4 border-b-2 border-wapify-border sticky top-0 bg-white z-10">
               <h3 className="text-lg font-bold text-wapify-text mb-1">
