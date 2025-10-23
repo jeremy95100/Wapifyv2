@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import JSZip from 'jszip'
 import { GenerationPlan, GenerationStep, ModificationDetail} from '../../lib/anthropic'
-import BuildProgress from '../../components/BuildProgress'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -542,6 +541,15 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
                 setGenerationPlan(event.data)
               } else if (event.type === 'modifications') {
                 setModifications(event.data)
+              } else if (event.type === 'chat_message') {
+                // Ajouter le message de génération directement dans le chat
+                const chatMessage: Message = {
+                  role: 'assistant',
+                  content: event.data,
+                  id: `msg-gen-${Date.now()}-${Math.random()}`,
+                  timestamp: new Date()
+                }
+                setMessages(prev => [...prev, chatMessage])
               } else if (event.type === 'step') {
                 setSteps(prev => {
                   const existingIndex = prev.findIndex(s => s.step === event.data.step)
@@ -680,6 +688,15 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
       console.log('🔨 Triggering build for', files.length, 'files')
       setBuildStatus('queued')
 
+      // Message de chat pour le build
+      const buildMessage: Message = {
+        role: 'assistant',
+        content: '🔨 Compilation avec Vite...',
+        id: `msg-build-${Date.now()}`,
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, buildMessage])
+
       const response = await fetch('/api/build', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -702,6 +719,15 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
       console.error('❌ Error triggering build:', error)
       setBuildStatus('failed')
       setError('Échec du démarrage du build')
+
+      // Message d'erreur dans le chat
+      const errorMessage: Message = {
+        role: 'assistant',
+        content: '❌ Erreur lors de la compilation',
+        id: `msg-build-error-${Date.now()}`,
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorMessage])
     }
   }
 
@@ -757,6 +783,15 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     console.log('📡 Using proxy URL:', proxyUrl)
     setBuildUrl(proxyUrl)
     setBuildStatus('completed')
+
+    // Message de succès dans le chat
+    const successMessage: Message = {
+      role: 'assistant',
+      content: '✅ Build réussi ! Votre application est prête.',
+      id: `msg-build-success-${Date.now()}`,
+      timestamp: new Date()
+    }
+    setMessages(prev => [...prev, successMessage])
   }
 
   // Callback en cas d'erreur de build
@@ -764,6 +799,15 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     console.error('❌ Build failed:', error)
     setBuildStatus('failed')
     setError(`Erreur de build: ${error}`)
+
+    // Message d'erreur détaillé dans le chat
+    const errorMessage: Message = {
+      role: 'assistant',
+      content: `❌ Erreur de build: ${error}`,
+      id: `msg-build-error-${Date.now()}`,
+      timestamp: new Date()
+    }
+    setMessages(prev => [...prev, errorMessage])
   }
 
   // Effet pour déclencher le build quand projectFiles change
@@ -774,6 +818,32 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
       triggerBuild(projectFiles, currentProjectId)
     }
   }, [projectFiles, isMultiFile, buildStatus, projectId])
+
+  // Polling du build status
+  useEffect(() => {
+    if (buildStatus === 'building' && buildJobId) {
+      const pollInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/build/status?jobId=${buildJobId}`)
+          if (response.ok) {
+            const data = await response.json()
+
+            if (data.status === 'completed' && data.url) {
+              handleBuildComplete(data.url)
+              clearInterval(pollInterval)
+            } else if (data.status === 'failed') {
+              handleBuildError(data.error || 'Build failed')
+              clearInterval(pollInterval)
+            }
+          }
+        } catch (error) {
+          console.error('Error polling build status:', error)
+        }
+      }, 2000) // Poll every 2 seconds
+
+      return () => clearInterval(pollInterval)
+    }
+  }, [buildStatus, buildJobId, handleBuildComplete, handleBuildError])
 
   const handleModification = async () => {
     if (!input.trim() || isGenerating || !generatedCode) return
@@ -1427,12 +1497,13 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
                     // Preview React avec Vite Build
                     <div className="w-full h-full relative bg-white">
                       {buildStatus === 'queued' || buildStatus === 'building' ? (
-                        // Afficher la progression du build
-                        <BuildProgress
-                          jobId={buildJobId}
-                          onComplete={handleBuildComplete}
-                          onError={handleBuildError}
-                        />
+                        // Afficher un loader pendant le build
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                            <p className="text-gray-600">Compilation en cours...</p>
+                          </div>
+                        </div>
                       ) : buildStatus === 'completed' && buildUrl ? (
                         // Afficher l'app compilée
                         <iframe

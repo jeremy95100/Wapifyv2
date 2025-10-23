@@ -1020,3 +1020,242 @@ ReactDOM.createRoot(document.getElementById('root')${isTypeScript ? '!' : ''}).r
   </React.StrictMode>
 )`
 }
+
+// ============================================
+// AGENT VALIDATEUR (INDÉPENDANT)
+// ============================================
+
+/**
+ * Interface pour les erreurs détectées
+ */
+interface DetectedError {
+  file: string
+  line?: number
+  type: 'asChild_prop' | 'missing_component' | 'missing_export' | 'other'
+  description: string
+}
+
+/**
+ * Prompt système pour l'agent validateur
+ */
+const VALIDATOR_SYSTEM_PROMPT = `Tu es un AGENT VALIDATEUR et CORRECTEUR de code React pour WAPIFY.
+
+Ta mission : Analyser un fichier généré et CORRIGER automatiquement les erreurs détectées.
+
+ERREURS COURANTES À CORRIGER :
+
+1. PROP 'asChild' SUR BUTTON (pas supportée) :
+   ❌ INCORRECT : <Button asChild><Link to="/path">Texte</Link></Button>
+   ✅ CORRECT : <Button onClick={() => navigate('/path')}>Texte</Button>
+   OU : <Link to="/path"><button className="px-4 py-2 bg-primary text-white rounded">Texte</button></Link>
+
+2. IMPORTS DE COMPOSANTS NON EXISTANTS :
+   ❌ INCORRECT : import { Badge, Select, Dialog } from '@/components/ui/...'
+   ✅ CORRECT : Remplacer par HTML + Tailwind
+   - Badge : <span className="bg-primary text-white px-2 py-1 rounded text-xs">Texte</span>
+   - Select : <select className="px-3 py-2 border rounded">...</select>
+   - Dialog : Utiliser conditional rendering avec div + overlay
+
+3. COMPOSANTS BUSINESS NON EXISTANTS :
+   ❌ INCORRECT : import ProductCard from '@/components/ProductCard'
+   ✅ CORRECT : Créer le composant inline dans la page ou utiliser Card
+
+4. EXPORTS MANQUANTS :
+   ❌ INCORRECT : Fichier sans export default
+   ✅ CORRECT : Ajouter 'export default ComponentName' à la fin
+
+RÈGLES DE CORRECTION :
+- CORRIGE UNIQUEMENT les erreurs détectées
+- NE MODIFIE PAS le reste du code fonctionnel
+- GARDE le style, la structure et la logique d'origine
+- Utilise UNIQUEMENT Button, Card, Input comme composants UI
+- Pour la navigation : import { useNavigate } from 'react-router-dom'
+
+FORMAT DE RÉPONSE :
+Retourne le fichier corrigé COMPLET en JSON :
+{
+  "corrected": true,
+  "content": "... code corrigé complet ..."
+}
+
+Si aucune correction nécessaire :
+{
+  "corrected": false,
+  "content": "... code original ..."
+}`
+
+/**
+ * Détecter les erreurs dans un fichier
+ */
+function detectErrors(file: ProjectFile): DetectedError[] {
+  const errors: DetectedError[] = []
+  const lines = file.content.split('\n')
+
+  // Détecter la prop asChild
+  lines.forEach((line, index) => {
+    if (line.includes('asChild')) {
+      errors.push({
+        file: file.path,
+        line: index + 1,
+        type: 'asChild_prop',
+        description: `Ligne ${index + 1}: utilise la prop 'asChild' qui n'est pas supportée sur Button`
+      })
+    }
+  })
+
+  // Détecter les imports de composants non existants
+  const forbiddenComponents = ['Badge', 'Select', 'Dialog', 'Tabs', 'Sheet', 'Popover', 'Dropdown', 'Accordion']
+  lines.forEach((line, index) => {
+    if (line.includes('import') && line.includes('@/components/ui/')) {
+      forbiddenComponents.forEach(comp => {
+        if (line.includes(comp)) {
+          errors.push({
+            file: file.path,
+            line: index + 1,
+            type: 'missing_component',
+            description: `Ligne ${index + 1}: importe ${comp} qui n'existe pas (utilise HTML+Tailwind à la place)`
+          })
+        }
+      })
+    }
+  })
+
+  // Détecter les composants business non existants
+  const forbiddenBusinessComponents = ['ProductCard', 'Newsletter', 'Hero', 'Testimonials', 'Features']
+  lines.forEach((line, index) => {
+    if (line.includes('import') && line.includes('@/components/')) {
+      forbiddenBusinessComponents.forEach(comp => {
+        if (line.includes(comp)) {
+          errors.push({
+            file: file.path,
+            line: index + 1,
+            type: 'missing_component',
+            description: `Ligne ${index + 1}: importe ${comp} qui n'existe pas (crée le composant inline dans la page)`
+          })
+        }
+      })
+    }
+  })
+
+  // Détecter export manquant (pour les composants/pages)
+  if (file.type === 'component' && !file.content.includes('export default')) {
+    errors.push({
+      file: file.path,
+      type: 'missing_export',
+      description: 'Fichier component sans export default'
+    })
+  }
+
+  return errors
+}
+
+/**
+ * Corriger un fichier avec l'AI
+ */
+async function fixFileWithAI(
+  file: ProjectFile,
+  errors: DetectedError[],
+  anthropic: any
+): Promise<string> {
+  console.log(`  🔧 Correction de ${file.path} (${errors.length} erreur(s))...`)
+
+  const errorDescriptions = errors.map(e => `- ${e.description}`).join('\n')
+
+  const userMessage = `FICHIER À CORRIGER : ${file.path}
+
+ERREURS DÉTECTÉES :
+${errorDescriptions}
+
+CODE ACTUEL :
+\`\`\`
+${file.content}
+\`\`\`
+
+CORRIGE ces erreurs en suivant les règles du système. Retourne le code corrigé complet en JSON.`
+
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 8000,
+    temperature: 0.3,
+    system: VALIDATOR_SYSTEM_PROMPT,
+    messages: [
+      {
+        role: 'user',
+        content: userMessage
+      }
+    ]
+  })
+
+  const responseText = response.content[0].text
+
+  try {
+    const jsonText = extractJSON(responseText)
+    const result = JSON.parse(jsonText)
+
+    if (result.corrected) {
+      console.log(`  ✅ ${file.path} corrigé`)
+    } else {
+      console.log(`  ℹ️  ${file.path} : aucune correction nécessaire`)
+    }
+
+    return result.content
+  } catch (parseError) {
+    console.error(`  ❌ Échec parsing correction pour ${file.path}:`, parseError)
+    // En cas d'échec, retourner le contenu original
+    return file.content
+  }
+}
+
+/**
+ * AGENT VALIDATEUR : Analyser et corriger tous les fichiers
+ * Cette fonction est INDÉPENDANTE du générateur
+ */
+export async function validateAndFixProject(
+  files: ProjectFile[],
+  anthropic: any
+): Promise<ProjectFile[]> {
+  console.log('\n🔍 ========================================')
+  console.log('🔍 AGENT VALIDATEUR - Analyse du projet')
+  console.log('🔍 ========================================\n')
+
+  const filesToCheck = files.filter(f =>
+    f.type === 'component' &&
+    (f.path.includes('/pages/') || f.path.includes('/components/'))
+  )
+
+  console.log(`📋 Fichiers à vérifier : ${filesToCheck.length}`)
+
+  let totalErrors = 0
+  let totalCorrected = 0
+
+  for (const file of filesToCheck) {
+    const errors = detectErrors(file)
+
+    if (errors.length > 0) {
+      totalErrors += errors.length
+      console.log(`\n⚠️  ${file.path} : ${errors.length} erreur(s) détectée(s)`)
+      errors.forEach(err => console.log(`   ${err.description}`))
+
+      // Corriger avec l'AI
+      try {
+        const correctedContent = await fixFileWithAI(file, errors, anthropic)
+        file.content = correctedContent
+        totalCorrected++
+      } catch (error) {
+        console.error(`   ❌ Échec correction de ${file.path}:`, error)
+      }
+
+      // Petit délai pour éviter rate limiting
+      await new Promise(resolve => setTimeout(resolve, 500))
+    } else {
+      console.log(`✅ ${file.path} : aucune erreur`)
+    }
+  }
+
+  console.log('\n🔍 ========================================')
+  console.log(`🔍 RÉSULTAT : ${totalErrors} erreur(s) détectée(s)`)
+  console.log(`🔍           ${totalCorrected} fichier(s) corrigé(s)`)
+  console.log('🔍 ========================================\n')
+
+  return files
+}

@@ -633,7 +633,7 @@ export async function* generateAppCodeWithSteps(
 // Fonction pour générer des projets React multi-fichiers avec étapes
 export async function* generateReactProjectWithSteps(
   options: GenerateOptions
-): AsyncGenerator<{type: 'step' | 'plan' | 'substep' | 'modifications' | 'files' | 'complete', data: any}> {
+): AsyncGenerator<{type: 'step' | 'plan' | 'substep' | 'modifications' | 'files' | 'complete' | 'chat_message', data: any}> {
   const { prompt } = options
 
   // Étape 1: Analyse et planification
@@ -662,18 +662,34 @@ export async function* generateReactProjectWithSteps(
     }
   }
 
-  // Étape 2: Génération de la structure de fichiers
+  // Étape 2: Génération de la structure de fichiers (AGENT CRÉATEUR)
   yield {
     type: 'step',
     data: {
       step: 'Génération de la structure',
       status: 'in_progress',
-      description: 'Création des composants et fichiers'
+      description: 'Agent créateur en action...'
     }
   }
 
+  // Messages de chat pour l'étape de création
+  yield {
+    type: 'chat_message',
+    data: '📋 Je crée le plan du projet...'
+  }
+
+  yield {
+    type: 'chat_message',
+    data: '⚙️ Je génère la structure de base...'
+  }
+
+  yield {
+    type: 'chat_message',
+    data: '📄 Je crée les pages...'
+  }
+
   // Import du générateur React
-  const { generateReactProject } = require('./react-generator')
+  const { generateReactProject, validateAndFixProject } = require('./react-generator')
 
   const projectStructure = await generateReactProject(prompt, anthropic)
 
@@ -692,6 +708,11 @@ export async function* generateReactProjectWithSteps(
   })
 
   yield {
+    type: 'chat_message',
+    data: `✅ ${projectStructure.files.length} fichiers créés avec succès`
+  }
+
+  yield {
     type: 'step',
     data: {
       step: 'Génération de la structure',
@@ -699,6 +720,54 @@ export async function* generateReactProjectWithSteps(
       description: `${projectStructure.files.length} fichiers créés`
     }
   }
+
+  // ⏸️ PAUSE 1 SECONDE entre création et validation
+  await new Promise(resolve => setTimeout(resolve, 1000))
+
+  // Étape 3: Validation et correction (AGENT VALIDATEUR)
+  yield {
+    type: 'step',
+    data: {
+      step: 'Validation du code',
+      status: 'in_progress',
+      description: 'Agent validateur en action...'
+    }
+  }
+
+  yield {
+    type: 'chat_message',
+    data: '🔍 Je vérifie le code généré...'
+  }
+
+  // Appel de l'agent validateur (INDÉPENDANT)
+  const validatedFiles = await validateAndFixProject(projectStructure.files, anthropic)
+
+  // Mettre à jour les fichiers avec les versions validées
+  projectStructure.files = validatedFiles
+
+  yield {
+    type: 'chat_message',
+    data: '✅ Code vérifié et corrigé'
+  }
+
+  yield {
+    type: 'step',
+    data: {
+      step: 'Validation du code',
+      status: 'completed',
+      description: 'Code validé et prêt'
+    }
+  }
+
+  modifications.push({
+    type: 'feature',
+    name: 'Validation automatique',
+    action: 'created',
+    description: 'Code analysé et corrigé automatiquement'
+  })
+
+  // ⏸️ PAUSE 1 SECONDE avant le build
+  await new Promise(resolve => setTimeout(resolve, 1000))
 
   // Étape 3: Configuration de la base de données (si nécessaire)
   if (projectStructure.hasDatabase) {
