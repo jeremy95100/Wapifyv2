@@ -814,7 +814,7 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     if (buildStatus === 'building' && buildJobId) {
       const pollInterval = setInterval(async () => {
         try {
-          const response = await fetch(`/api/build/status?jobId=${buildJobId}`)
+          const response = await fetch(`/api/build?jobId=${buildJobId}`)
           if (response.ok) {
             const data = await response.json()
 
