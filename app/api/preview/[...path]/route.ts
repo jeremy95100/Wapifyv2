@@ -61,17 +61,12 @@ export async function GET(
     if (contentType.includes('text/html') || filePath.endsWith('.html')) {
       const htmlText = new TextDecoder().decode(arrayBuffer)
 
-      // Replace asset paths with full proxy paths including buildId
-      // Handle both absolute (/assets/) and relative (./assets/) paths
+      // Replace relative asset paths with full proxy paths including buildId
+      // Vite with base: './' generates ./assets/, so we only need to replace relative paths
       // Example: ./assets/index-abc123.js → /api/preview/{projectId}/{buildId}/assets/index-abc123.js
       const proxyBasePath = `/api/preview/${projectId}/${buildId}`
       const rewrittenHtml = htmlText
-        .replace(/\.\/assets\//g, `${proxyBasePath}/assets/`)
-        .replace(/\/assets\//g, `${proxyBasePath}/assets/`)
-        .replace(/src="\.\/src\//g, `src="${proxyBasePath}/src/`)
-        .replace(/src="\/src\//g, `src="${proxyBasePath}/src/`)
-        .replace(/href="\.\/src\//g, `href="${proxyBasePath}/src/`)
-        .replace(/href="\/src\//g, `href="${proxyBasePath}/src/`)
+        .replace(/\.\//g, `${proxyBasePath}/`)
 
       // Convert Uint8Array to ArrayBuffer for NextResponse
       const uint8Array = new TextEncoder().encode(rewrittenHtml)
