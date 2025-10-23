@@ -636,113 +636,17 @@ export async function* generateReactProjectWithSteps(
 ): AsyncGenerator<{type: 'step' | 'plan' | 'substep' | 'modifications' | 'files' | 'complete' | 'chat_message', data: any}> {
   const { prompt } = options
 
-  // Étape 1: Analyse intelligente de la demande
+  // Étape 1: Planification
   yield {
     type: 'step',
     data: {
-      step: 'Analyse de votre demande',
+      step: 'Planification',
       status: 'in_progress',
-      description: 'Réflexion sur votre demande...'
+      description: 'Création du plan de projet'
     }
-  }
-
-  // Envoyer la section d'analyse
-  yield {
-    type: 'chat_message',
-    data: 'SECTION_START:Analyse de la Demande'
-  }
-
-  yield {
-    type: 'chat_message',
-    data: 'ANALYSIS_THINKING:Réflexion en cours...'
   }
 
   const plan = await createGenerationPlan(prompt)
-
-  // Analyser intelligemment la demande avec l'AI
-  const analysisPrompt = `Analyse cette demande utilisateur et extrais les points clés de manière structurée et concise :
-
-"${prompt}"
-
-Retourne en JSON :
-{
-  "understanding": "Ce que l'utilisateur veut (1-2 phrases max)",
-  "keyFeatures": ["fonctionnalité 1", "fonctionnalité 2", "fonctionnalité 3"],
-  "design": "Style/Design souhaité (1 phrase)",
-  "structure": ["composant/page 1", "composant/page 2", "composant/page 3"]
-}`
-
-  const analysisResponse = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 1000,
-    temperature: 0.3,
-    messages: [{
-      role: 'user',
-      content: analysisPrompt
-    }]
-  })
-
-  let analysis: any = {}
-  try {
-    const firstBlock = analysisResponse.content[0]
-    const analysisText = firstBlock.type === 'text' ? firstBlock.text : ''
-    const jsonMatch = analysisText.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      analysis = JSON.parse(jsonMatch[0])
-    }
-  } catch (e) {
-    console.error('Failed to parse analysis:', e)
-    analysis = {
-      understanding: 'Je vais créer une application React selon vos besoins.',
-      keyFeatures: [],
-      design: 'Interface moderne et responsive',
-      structure: []
-    }
-  }
-
-  // Envoyer l'analyse structurée
-  yield {
-    type: 'chat_message',
-    data: `ANALYSIS_UNDERSTANDING:${analysis.understanding || 'Je vais créer une application React.'}`
-  }
-
-  if (analysis.keyFeatures && analysis.keyFeatures.length > 0) {
-    yield {
-      type: 'chat_message',
-      data: 'ANALYSIS_SECTION:Fonctionnalités clés :'
-    }
-    for (const feature of analysis.keyFeatures.slice(0, 5)) {
-      yield {
-        type: 'chat_message',
-        data: `SUBSTEP:• ${feature}`
-      }
-    }
-  }
-
-  if (analysis.design) {
-    yield {
-      type: 'chat_message',
-      data: `ANALYSIS_SECTION:Design : ${analysis.design}`
-    }
-  }
-
-  if (analysis.structure && analysis.structure.length > 0) {
-    yield {
-      type: 'chat_message',
-      data: 'ANALYSIS_SECTION:Structure :'
-    }
-    for (const item of analysis.structure.slice(0, 5)) {
-      yield {
-        type: 'chat_message',
-        data: `SUBSTEP:• ${item}`
-      }
-    }
-  }
-
-  yield {
-    type: 'chat_message',
-    data: 'SECTION_END'
-  }
 
   yield {
     type: 'plan',
@@ -752,7 +656,7 @@ Retourne en JSON :
   yield {
     type: 'step',
     data: {
-      step: 'Analyse de votre demande',
+      step: 'Planification',
       status: 'completed',
       description: `React · ${plan.template} · ${plan.style}`
     }
@@ -832,64 +736,6 @@ Retourne en JSON :
     }
   }
 
-  // ⏸️ PAUSE 1 SECONDE entre création et validation
-  await new Promise(resolve => setTimeout(resolve, 1000))
-
-  // Étape 3: Validation et correction (AGENT VALIDATEUR)
-  yield {
-    type: 'step',
-    data: {
-      step: 'Validation du code',
-      status: 'in_progress',
-      description: 'Agent validateur en action...'
-    }
-  }
-
-  yield {
-    type: 'chat_message',
-    data: 'SECTION_START:Validation et Correction'
-  }
-
-  yield {
-    type: 'chat_message',
-    data: 'SUBSTEP:⋯ Analyse du code...'
-  }
-
-  // Appel de l'agent validateur (INDÉPENDANT)
-  const validatedFiles = await validateAndFixProject(projectStructure.files, anthropic)
-
-  // Mettre à jour les fichiers avec les versions validées
-  projectStructure.files = validatedFiles
-
-  yield {
-    type: 'chat_message',
-    data: 'SUBSTEP:✓ Code analysé et corrigé'
-  }
-
-  yield {
-    type: 'chat_message',
-    data: 'SECTION_END'
-  }
-
-  yield {
-    type: 'step',
-    data: {
-      step: 'Validation du code',
-      status: 'completed',
-      description: 'Code validé et prêt'
-    }
-  }
-
-  modifications.push({
-    type: 'feature',
-    name: 'Validation automatique',
-    action: 'created',
-    description: 'Code analysé et corrigé automatiquement'
-  })
-
-  // ⏸️ PAUSE 1 SECONDE avant le build
-  await new Promise(resolve => setTimeout(resolve, 1000))
-
   // Étape 3: Configuration de la base de données (si nécessaire)
   if (projectStructure.hasDatabase) {
     yield {
@@ -900,8 +746,6 @@ Retourne en JSON :
         description: 'Préparation du schéma SQL'
       }
     }
-
-    await new Promise(resolve => setTimeout(resolve, 800))
 
     modifications.push({
       type: 'feature',
@@ -929,8 +773,6 @@ Retourne en JSON :
       description: 'Préparation package.json et Vite'
     }
   }
-
-  await new Promise(resolve => setTimeout(resolve, 500))
 
   modifications.push({
     type: 'feature',
@@ -969,8 +811,6 @@ Retourne en JSON :
       description: 'Préparation du projet'
     }
   }
-
-  await new Promise(resolve => setTimeout(resolve, 300))
 
   yield {
     type: 'step',

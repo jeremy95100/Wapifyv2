@@ -584,11 +584,6 @@ export async function generateReactProject(
 
       const pageFiles = await generatePage(page, plan, anthropic, conversationHistory)
       allPageFiles.push(...pageFiles)
-
-      // Petit délai pour éviter rate limiting
-      if (i < plan.pages.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
     }
 
     // ====================================
