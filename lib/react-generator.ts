@@ -126,7 +126,10 @@ Le plan doit être un JSON structuré avec :
 
 RÈGLES IMPORTANTES :
 - Maximum 4 pages (Home + 2-3 secondaires)
-- Composants UI : minimum Button, Card, Input (obligatoires)
+- Composants UI : EXACTEMENT Button, Card, Input (RIEN D'AUTRE!)
+  ⚠️ NE PAS ajouter Badge, Select, Dialog, etc. - utiliser HTML+Tailwind à la place
+- Composants business : UNIQUEMENT Header et Footer (RIEN D'AUTRE!)
+  ⚠️ NE PAS ajouter ProductCard, Newsletter, etc. - créer inline dans les pages
 - TypeScript (.tsx) par défaut sauf si prompt suggère JavaScript
 - Données mockées : 6-8 items minimum par page
 - Pas de features avancées (auth complexe, paiement réel, etc.)
@@ -291,8 +294,8 @@ ${plan.routing.routes.map(r => `   - <Route path="${r.path}" element={<${r.compo
    const ProductsPage = () => <div>Loading...</div>
 
 4. COMPOSANTS BUSINESS (dans src/components/) :
-   - Header.${ext} (simple header avec logo et navigation)
-   - Footer.${ext} (simple footer)
+   - Header.${ext} (simple header avec logo et navigation - EXPORT DEFAULT!)
+   - Footer.${ext} (simple footer - EXPORT DEFAULT!)
 
 5. UTILITAIRES :
    - src/lib/utils.${ext === 'tsx' ? 'ts' : 'js'} (fonction cn() seulement)
@@ -442,11 +445,22 @@ INFORMATIONS SUR CETTE PAGE :
 - Données mockées nécessaires : ${page.dataNeeded.join(', ')}
 ${page.stateNeeded ? `- State management : ${page.stateNeeded.join(', ')}` : ''}
 
-COMPOSANTS UI DISPONIBLES (NE LES RECRÉE PAS, utilise-les) :
-${plan.components.ui.map(c => `import { ${c} } from '@/components/ui/${c}'`).join('\n')}
+COMPOSANTS UI DISPONIBLES (UNIQUEMENT CEUX-CI, N'EN IMPORTE PAS D'AUTRES !) :
+- import { Button } from '@/components/ui/Button'
+- import { Card } from '@/components/ui/Card'
+- import { Input } from '@/components/ui/Input'
+
+⚠️ SI TU AS BESOIN D'AUTRES COMPOSANTS (Badge, Select, etc.) :
+- NE LES IMPORTE PAS (ils n'existent pas!)
+- Utilise du HTML + Tailwind CSS à la place
+- Exemple Badge : <span className="bg-primary text-white px-2 py-1 rounded">Nouveau</span>
 
 COMPOSANTS BUSINESS DISPONIBLES :
-${plan.components.business.map(c => `import ${c} from '@/components/${c}'`).join('\n')}
+- import Header from '@/components/Header'
+- import Footer from '@/components/Footer'
+
+⚠️ NE PAS importer ProductCard, Newsletter, etc. - ils n'existent pas!
+- Crée les cards/composants directement dans la page
 
 AUTRES IMPORTS DISPONIBLES :
 - import { Link, useNavigate } from 'react-router-dom'
@@ -460,6 +474,7 @@ RÈGLES POUR CETTE PAGE :
 4. NE PAS importer de Context, hooks customs, ou services
 5. Page COMPLÈTE et FONCTIONNELLE (pas de placeholders)
 6. Design shadcn/ui avec Tailwind
+7. ⚠️ N'IMPORTE QUE Button, Card, Input, Header, Footer - rien d'autre!
 
 Réponds en JSON avec le format : { "files": [{ "path": "src/pages/${page.name}.${ext}", "content": "...", "type": "component" }] }`
 
