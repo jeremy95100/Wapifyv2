@@ -186,7 +186,10 @@ export default function EditorPage() {
       // Utiliser l'ID de l'utilisateur authentifié
       const userId = (session.user as any)?.id || session.user.email
 
-      if (!projectId) {
+      // Si pas de projectId OU si c'est un ID temporaire (proj-xxx), créer un nouveau projet
+      const isTemporaryId = projectId?.startsWith('proj-')
+
+      if (!projectId || isTemporaryId) {
         // Créer un nouveau projet
         const name = projectName || `Projet ${new Date().toLocaleDateString()}`
 
