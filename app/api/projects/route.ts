@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '../../../lib/supabase'
 import { uploadProjectFiles, ProjectFile } from '../../../lib/storage'
-import { createNeonDatabase, executeNeonSQL } from '../../../lib/neon'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -196,40 +195,8 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // 2. Si le projet a une base de données, créer Neon DB
-        if (hasDatabase && databaseSchema) {
-          console.log(`🔷 Creating Neon database for project: ${project.id}`)
-
-          const neonResult = await createNeonDatabase(project.id, name)
-
-          if (neonResult.success && neonResult.project) {
-            console.log(`✅ Neon database created: ${neonResult.project.id}`)
-
-            // Exécuter le schéma SQL
-            console.log(`📝 Executing SQL schema...`)
-            const sqlResult = await executeNeonSQL(
-              neonResult.project.connection_uri,
-              databaseSchema
-            )
-
-            if (sqlResult.success) {
-              console.log(`✅ SQL schema executed successfully`)
-            } else {
-              console.error(`❌ Failed to execute SQL:`, sqlResult.error)
-            }
-
-            // Mettre à jour le projet avec les infos Neon
-            await supabaseAdmin
-              .from('projects')
-              .update({
-                database_url: neonResult.project.connection_uri,
-                database_id: neonResult.project.id,
-              })
-              .eq('id', project.id)
-          } else {
-            console.error(`❌ Failed to create Neon database:`, neonResult.error)
-          }
-        }
+        // Note: Database creation is now handled by Railway worker
+        // when generation completes, not here during project creation
 
         // Récupérer le projet mis à jour
         const { data: updatedProject } = await supabaseAdmin
