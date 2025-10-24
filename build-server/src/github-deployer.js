@@ -268,7 +268,9 @@ export async function deployToGitHub(projectId, projectName, files) {
     ]
 
     // 2. Create repository
-    const repoName = `wapify-${projectId.substring(0, 8)}`
+    // Remove "proj-" prefix if present and take first 8 chars of the actual ID
+    const cleanId = projectId.replace(/^proj-/, '')
+    const repoName = `wapify-${cleanId.substring(0, 8)}`
     const repo = await createGitHubRepo(
       repoName,
       `Wapify: ${projectName}`,
