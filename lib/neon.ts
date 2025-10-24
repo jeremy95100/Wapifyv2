@@ -2,9 +2,8 @@
  * Neon Database Management
  * Gestion des branches Neon pour isolation des projets
  * Approche: 1 projet Neon principal + 1 branche par app générée
+ * Note: Uses HTTP API for SQL execution to support dynamic queries
  */
-
-import { neon } from '@neondatabase/serverless'
 
 const NEON_API_KEY = process.env.NEON_API_KEY!
 const NEON_PROJECT_ID = process.env.NEON_PROJECT_ID!
@@ -143,7 +142,8 @@ export async function createProjectBranch(projectId: string): Promise<{
 }
 
 /**
- * Crée les tables dans une branche Neon
+ * Crée les tables dans une branche Neon via HTTP API
+ * Note: Uses Neon HTTP API instead of serverless client to support dynamic SQL
  */
 export async function createTablesInBranch(
   connectionString: string,
@@ -151,15 +151,30 @@ export async function createTablesInBranch(
 ): Promise<void> {
   console.log(`🔨 Creating tables in Neon branch...`)
 
-  const sql = neon(connectionString)
   const createSQL = generateCreateTableSQL(schema)
-
-  // Exécuter le SQL
   const statements = createSQL.split(';').filter(s => s.trim())
 
+  // Execute SQL via Neon HTTP API (supports dynamic SQL)
   for (const statement of statements) {
-    if (statement.trim()) {
-      await sql(statement.trim())
+    const trimmed = statement.trim()
+    if (trimmed) {
+      const response = await fetch(`${NEON_API_BASE}/projects/${NEON_PROJECT_ID}/sql`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NEON_API_KEY}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          query: trimmed,
+          params: []
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.text()
+        throw new Error(`Failed to execute SQL: ${response.status} ${error}`)
+      }
     }
   }
 
