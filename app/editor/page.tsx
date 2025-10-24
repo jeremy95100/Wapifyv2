@@ -5,6 +5,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import JSZip from 'jszip'
+import Editor from '@monaco-editor/react'
 import { GenerationPlan, GenerationStep, ModificationDetail} from '../../lib/anthropic'
 
 interface Message {
@@ -131,10 +132,11 @@ export default function EditorPage() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [isMultiFile, setIsMultiFile] = useState(false)
   const [projectFiles, setProjectFiles] = useState<Array<{path: string, content: string, type?: string}>>([])
-  const [, setSelectedFile] = useState<string | null>(null)
   const [hasDatabase, setHasDatabase] = useState(false)
   const [databaseSchema, setDatabaseSchema] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'preview' | 'dashboard'>('preview')
+  const [activeTab, setActiveTab] = useState<'preview' | 'dashboard' | 'code'>('preview')
+  const [selectedFile, setSelectedFile] = useState<string | null>(null)
+  const [fileContent, setFileContent] = useState<string>('')
 
   // Build server states
   const [buildJobId, setBuildJobId] = useState<string | null>(null)
@@ -1357,12 +1359,147 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
               >
                 📊 Dashboard
               </button>
+              <button
+                onClick={() => setActiveTab('code')}
+                className={`px-6 py-3 rounded-t-lg font-semibold transition ${
+                  activeTab === 'code'
+                    ? 'bg-wapify-bg text-wapify-accent border-t-2 border-x-2 border-wapify-border'
+                    : 'bg-transparent text-wapify-text-secondary hover:text-wapify-text'
+                }`}
+              >
+                💻 Code
+              </button>
             </div>
           </div>
 
           {/* Tab Content */}
           <div className="flex-1 relative overflow-hidden">
-            {activeTab === 'preview' ? (
+            {activeTab === 'code' ? (
+              // CODE TAB - IDE
+              <div className="w-full h-full flex">
+                {/* File Tree */}
+                <div className="w-64 bg-gray-900 text-gray-300 overflow-auto border-r border-gray-700">
+                  <div className="p-2 border-b border-gray-700 text-xs font-semibold text-gray-400">
+                    EXPLORER
+                  </div>
+                  <div className="p-2">
+                    {projectFiles.length > 0 ? (
+                      <div className="space-y-1">
+                        {projectFiles.map((file) => (
+                          <button
+                            key={file.path}
+                            onClick={() => {
+                              setSelectedFile(file.path)
+                              setFileContent(file.content)
+                            }}
+                            className={`w-full text-left px-2 py-1 rounded text-sm hover:bg-gray-800 transition ${
+                              selectedFile === file.path ? 'bg-gray-800 text-white' : ''
+                            }`}
+                          >
+                            <span className="text-blue-400 mr-2">
+                              {file.path.endsWith('.tsx') || file.path.endsWith('.ts') ? '📘' :
+                               file.path.endsWith('.jsx') || file.path.endsWith('.js') ? '📜' :
+                               file.path.endsWith('.css') ? '🎨' :
+                               file.path.endsWith('.json') ? '📋' :
+                               file.path.endsWith('.html') ? '🌐' : '📄'}
+                            </span>
+                            {file.path}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500 text-sm">
+                        No files generated yet
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Editor */}
+                <div className="flex-1 flex flex-col">
+                  {selectedFile ? (
+                    <>
+                      <div className="px-4 py-2 bg-gray-800 text-gray-300 text-sm border-b border-gray-700 flex items-center justify-between">
+                        <span>{selectedFile}</span>
+                        <button
+                          onClick={async () => {
+                            if (!projectId) {
+                              alert('Please save the project first')
+                              return
+                            }
+
+                            try {
+                              // Update file in state
+                              const updatedFiles = projectFiles.map(f =>
+                                f.path === selectedFile ? { ...f, content: fileContent } : f
+                              )
+                              setProjectFiles(updatedFiles)
+
+                              // Save to server
+                              const userId = (session?.user as any)?.id || session?.user?.email
+                              const response = await fetch(`/api/projects/${projectId}/files`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  userId,
+                                  files: updatedFiles
+                                })
+                              })
+
+                              if (response.ok) {
+                                alert('✅ File saved successfully!')
+                                setLastSaved(new Date())
+
+                                // Trigger rebuild after save
+                                if (window.confirm('File saved! Do you want to rebuild the app to see changes?')) {
+                                  await rebuildProject(projectId)
+                                }
+                              } else {
+                                throw new Error('Failed to save file')
+                              }
+                            } catch (error) {
+                              alert('❌ Error saving file: ' + (error as Error).message)
+                            }
+                          }}
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold transition"
+                        >
+                          💾 Save
+                        </button>
+                      </div>
+                      <Editor
+                        height="100%"
+                        language={
+                          selectedFile.endsWith('.tsx') || selectedFile.endsWith('.ts') ? 'typescript' :
+                          selectedFile.endsWith('.jsx') || selectedFile.endsWith('.js') ? 'javascript' :
+                          selectedFile.endsWith('.css') ? 'css' :
+                          selectedFile.endsWith('.json') ? 'json' :
+                          selectedFile.endsWith('.html') ? 'html' : 'plaintext'
+                        }
+                        theme="vs-dark"
+                        value={fileContent}
+                        onChange={(value) => setFileContent(value || '')}
+                        options={{
+                          minimap: { enabled: true },
+                          fontSize: 14,
+                          lineNumbers: 'on',
+                          roundedSelection: false,
+                          scrollBeyondLastLine: false,
+                          readOnly: false,
+                          automaticLayout: true,
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-500">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">💻</div>
+                        <p>Select a file to start editing</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : activeTab === 'preview' ? (
               // PREVIEW TAB
               <>
                 {generatedCode ? (
