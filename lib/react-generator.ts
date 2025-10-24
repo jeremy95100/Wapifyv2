@@ -70,11 +70,24 @@ function extractJSON(text: string): string {
 }
 
 /**
- * Tente de réparer un JSON tronqué
+ * Tente de réparer un JSON tronqué ou mal échappé
  */
 function attemptJsonRepair(jsonText: string): string {
   let repaired = jsonText.trim()
 
+  console.log('🔧 Starting JSON repair...')
+  console.log('📏 Original length:', repaired.length)
+
+  // 1. Détecter les strings non fermées (cause #1 des erreurs)
+  // Chercher les patterns comme: "content": "...texte sans guillemet de fermeture
+  const unteriminatedStringMatch = repaired.match(/"content"\s*:\s*"[^"]*$/m)
+  if (unteriminatedStringMatch) {
+    console.log('🔧 Detected unterminated string, attempting to close it')
+    // Ajouter un guillemet de fermeture et continuer
+    repaired += '"'
+  }
+
+  // 2. Vérifier l'équilibre des accolades et crochets
   const openBraces = (repaired.match(/\{/g) || []).length
   const closeBraces = (repaired.match(/\}/g) || []).length
   const openBrackets = (repaired.match(/\[/g) || []).length
@@ -82,17 +95,25 @@ function attemptJsonRepair(jsonText: string): string {
 
   console.log('🔧 JSON structure:', { openBraces, closeBraces, openBrackets, closeBrackets })
 
-  // Fermer les tableaux ouverts
+  // 3. Fermer les tableaux ouverts
   for (let i = 0; i < openBrackets - closeBrackets; i++) {
     console.log('🔧 Adding missing ]')
     repaired += ']'
   }
 
-  // Fermer les objets ouverts
+  // 4. Fermer les objets ouverts
   for (let i = 0; i < openBraces - closeBraces; i++) {
     console.log('🔧 Adding missing }')
     repaired += '}'
   }
+
+  // 5. Si le JSON se termine par une virgule suivie d'une accolade, c'est probablement tronqué
+  if (repaired.match(/,\s*$/)) {
+    console.log('🔧 Removing trailing comma')
+    repaired = repaired.replace(/,\s*$/, '')
+  }
+
+  console.log('✅ Repair complete, new length:', repaired.length)
 
   return repaired
 }
@@ -276,12 +297,28 @@ FORMAT DE RÉPONSE (JSON uniquement) :
 }
 
 ⚠️ RÈGLES JSON STRICTES (TRÈS IMPORTANT) :
-- Échappe TOUS les guillemets dans le code avec \\"
-- Échappe TOUS les backslashes avec \\\\
-- Échappe TOUS les retours à la ligne avec \\n
-- N'utilise PAS de template literals avec backticks dans les strings JSON
-- Vérifie que le JSON est VALIDE avant de répondre
-- Le "content" doit être une STRING échappée correctement
+CHAQUE guillemet, backslash et retour à la ligne dans le code DOIT être échappé !
+
+Exemples d'échappement CORRECT :
+❌ INCORRECT : "content": "const text = "Hello""
+✅ CORRECT :   "content": "const text = \\"Hello\\""
+
+❌ INCORRECT : "content": "import React from 'react'
+export default App"
+✅ CORRECT :   "content": "import React from 'react'\\nexport default App"
+
+❌ INCORRECT : "content": "const path = "C:\\folder\\file""
+✅ CORRECT :   "content": "const path = \\"C:\\\\folder\\\\file\\""
+
+RÈGLES ABSOLUES :
+1. Tout guillemet " dans le code → \\"
+2. Tout backslash \\ dans le code → \\\\
+3. Tout retour à la ligne → \\n
+4. PAS de backticks dans les strings JSON
+5. Ferme TOUTES les strings avec "
+6. Vérifie que chaque { a son } et chaque [ a son ]
+
+Si le JSON n'est pas parfaitement valide, la génération ÉCHOUERA !
 
 Réponds UNIQUEMENT avec le JSON, rien d'autre.`
 
