@@ -6,6 +6,7 @@
 import { createClient } from '@supabase/supabase-js'
 
 const NEON_API_KEY = process.env.NEON_API_KEY!
+const NEON_ORG_ID = process.env.NEON_ORG_ID!
 const NEON_API_BASE = 'https://console.neon.tech/api/v2'
 
 const supabase = createClient(
@@ -27,6 +28,7 @@ async function createNeonProject(userId: string): Promise<string> {
     body: JSON.stringify({
       project: {
         name: `wapify-user-${userId}`,
+        org_id: NEON_ORG_ID,
         region_id: 'aws-us-east-2'
       }
     })
