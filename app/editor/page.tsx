@@ -493,11 +493,17 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     setModifications([])
 
     try {
-      // Use hybrid generation (sync with async fallback)
+      // Generate projectId if not exists
+      const currentProjectId = projectId || `proj-${Date.now()}-${Math.random().toString(36).substring(7)}`
+      if (!projectId) {
+        setProjectId(currentProjectId)
+      }
+
+      // Use async generation with real-time SSE streaming
       const result = await generateProject({
         prompt: promptText,
         conversationHistory: messages,
-        projectId: projectId || undefined,
+        projectId: currentProjectId,
         userId: (session?.user as any)?.id || session?.user?.email,
         onProgress: (progress) => {
           // Could update a progress bar here
