@@ -5,8 +5,8 @@ import { Redis } from 'ioredis'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// Connect to Railway Redis
-const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+// Connect to Railway Redis (use REDIS_PUBLIC_URL to avoid Railway integration override)
+const redisConnection = new Redis(process.env.REDIS_PUBLIC_URL || process.env.REDIS_URL || 'redis://localhost:6379', {
   maxRetriesPerRequest: null
 })
 

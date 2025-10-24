@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Queue } from 'bullmq'
 import { Redis } from 'ioredis'
 
-const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+const redisConnection = new Redis(process.env.REDIS_PUBLIC_URL || process.env.REDIS_URL || 'redis://localhost:6379', {
   maxRetriesPerRequest: null
 })
 
@@ -20,7 +20,7 @@ export async function GET(
   const encoder = new TextEncoder()
   const stream = new ReadableStream({
     async start(controller) {
-      const subscriber = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+      const subscriber = new Redis(process.env.REDIS_PUBLIC_URL || process.env.REDIS_URL || 'redis://localhost:6379', {
         maxRetriesPerRequest: null
       })
 
