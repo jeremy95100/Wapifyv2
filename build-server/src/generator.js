@@ -47,15 +47,17 @@ async function publishEvent(jobId, type, data) {
  * @param {Object} params
  * @param {string} params.prompt - Le prompt utilisateur
  * @param {string} params.jobId - ID du job pour PubSub
+ * @param {string} params.projectId - ID du projet Supabase (pour naming GitHub/Neon)
  * @param {string} params.userNeonProjectId - ID du projet Neon de l'utilisateur
  * @param {Array} params.conversationHistory - Historique de conversation
  * @param {Function} params.onProgress - Callback pour progression
  */
-export async function generateProject({ prompt, jobId, userNeonProjectId, conversationHistory = [], onProgress }) {
+export async function generateProject({ prompt, jobId, projectId, userNeonProjectId, conversationHistory = [], onProgress }) {
   try {
     console.log('🚀 Starting project generation...')
     console.log('📝 Prompt:', prompt.substring(0, 100) + '...')
     console.log('🆔 Job ID:', jobId)
+    console.log('🆔 Project ID:', projectId)
     if (userNeonProjectId) {
       console.log('🗄️  User Neon project:', userNeonProjectId)
     }
@@ -190,7 +192,6 @@ export async function generateProject({ prompt, jobId, userNeonProjectId, conver
         const { createProjectDatabase } = await import('./neon.js')
 
         // Créer la branche et les tables dans le projet Neon de l'utilisateur
-        const projectId = jobId // Utiliser jobId comme projectId
         dbInfo = await createProjectDatabase(userNeonProjectId, projectId, result.databaseSchema)
 
         console.log(`✅ Database created: ${dbInfo.branchId}`)
@@ -236,7 +237,7 @@ export async function generateProject({ prompt, jobId, userNeonProjectId, conver
         ? JSON.parse(result.files.find(f => f.path === 'package.json').content).name
         : 'wapify-project'
 
-      githubInfo = await deployToGitHub(jobId, projectName, result.files)
+      githubInfo = await deployToGitHub(projectId, projectName, result.files)
 
       console.log(`✅ GitHub deployment complete: ${githubInfo.repoUrl}`)
 

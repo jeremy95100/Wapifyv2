@@ -132,6 +132,7 @@ export async function setupQueue() {
           prompt,
           conversationHistory,
           jobId: job.id, // Pass jobId for Redis PubSub events
+          projectId, // Pass projectId for GitHub/Neon naming
           userNeonProjectId, // Pass user's Neon project ID
           onProgress: async (progress) => {
             await job.updateProgress(progress)
