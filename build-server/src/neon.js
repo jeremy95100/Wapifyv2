@@ -108,20 +108,33 @@ export async function createProjectBranch(projectId) {
   }
 
   const data = await response.json()
-
-  // LOG COMPLETE RESPONSE TO DEBUG
-  console.log('=== NEON API RESPONSE (FULL) ===')
-  console.log(JSON.stringify(data, null, 2))
-  console.log('=== END NEON API RESPONSE ===')
-
   const branch = data.branch
   const endpoint = data.endpoints[0]
 
-  // Build connection string
-  const connectionString = `postgresql://${endpoint.host}/${branch.name}?sslmode=require`
-
   console.log(`Neon branch created: ${branch.id}`)
-  console.log(`Connection string built: ${connectionString}`)
+  console.log(`Endpoint created: ${endpoint.id}`)
+
+  // Get connection string with credentials via connection_uris API
+  const uriResponse = await fetch(
+    `${NEON_API_BASE}/projects/${NEON_PROJECT_ID}/connection_uri?branch_id=${branch.id}&endpoint_id=${endpoint.id}&database_name=neondb&role_name=neondb_owner`,
+    {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${NEON_API_KEY}`,
+        'Accept': 'application/json'
+      }
+    }
+  )
+
+  if (!uriResponse.ok) {
+    const error = await uriResponse.text()
+    throw new Error(`Failed to get connection URI: ${uriResponse.status} ${error}`)
+  }
+
+  const uriData = await uriResponse.json()
+  const connectionString = uriData.uri
+
+  console.log(`Connection string retrieved with credentials`)
 
   return {
     branchId: branch.id,
