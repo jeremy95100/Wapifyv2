@@ -124,10 +124,11 @@ export async function setupQueue() {
         // Update progress
         await job.updateProgress(10)
 
-        // Generate the project
+        // Generate the project with jobId for real-time events
         const result = await generateProject({
           prompt,
           conversationHistory,
+          jobId: job.id, // Pass jobId for Redis PubSub events
           onProgress: async (progress) => {
             await job.updateProgress(progress)
           }
