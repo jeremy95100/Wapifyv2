@@ -1120,8 +1120,13 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
           <div key={node.path}>
             <button
               onClick={() => toggleFolder(node.path)}
-              className="w-full text-left px-2 py-1 rounded text-sm hover:bg-gray-800 transition flex items-center"
-              style={{ paddingLeft: `${depth * 12 + 8}px` }}
+              className="w-full text-left px-2 py-1 text-sm transition flex items-center"
+              style={{
+                paddingLeft: `${depth * 12 + 8}px`,
+                color: '#CCCCCC'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2A2D2E'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
               <span className="mr-1 text-xs">
                 {isExpanded ? '▼' : '▶'}
@@ -1129,7 +1134,7 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
               <span className="mr-2">
                 {isExpanded ? '📂' : '📁'}
               </span>
-              <span className="text-gray-300">{node.name}</span>
+              <span>{node.name}</span>
             </button>
             {isExpanded && node.children && (
               <div>
@@ -1139,6 +1144,7 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
           </div>
         )
       } else {
+        const isSelected = selectedFile === node.path
         return (
           <button
             key={node.path}
@@ -1146,10 +1152,18 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
               setSelectedFile(node.path)
               setFileContent(node.content || '')
             }}
-            className={`w-full text-left px-2 py-1 rounded text-sm hover:bg-gray-800 transition flex items-center ${
-              selectedFile === node.path ? 'bg-gray-800 text-white' : 'text-gray-300'
-            }`}
-            style={{ paddingLeft: `${depth * 12 + 24}px` }}
+            className="w-full text-left px-2 py-1 text-sm transition flex items-center"
+            style={{
+              paddingLeft: `${depth * 12 + 24}px`,
+              backgroundColor: isSelected ? '#37373D' : 'transparent',
+              color: isSelected ? '#FFFFFF' : '#CCCCCC'
+            }}
+            onMouseEnter={(e) => {
+              if (!isSelected) e.currentTarget.style.backgroundColor = '#2A2D2E'
+            }}
+            onMouseLeave={(e) => {
+              if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent'
+            }}
           >
             <span className="mr-2">
               {getFileIcon(node.name)}
@@ -1492,8 +1506,8 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
               // CODE TAB - IDE
               <div className="w-full h-full flex">
                 {/* File Tree */}
-                <div className="w-64 bg-gray-900 text-gray-300 overflow-auto border-r border-gray-700">
-                  <div className="p-2 border-b border-gray-700 text-xs font-semibold text-gray-400">
+                <div className="w-64 overflow-auto border-r" style={{ backgroundColor: '#252526', color: '#CCCCCC', borderColor: '#808080' }}>
+                  <div className="p-2 border-b text-xs font-semibold" style={{ borderColor: '#808080', color: '#858585' }}>
                     EXPLORER
                   </div>
                   <div className="p-2">
@@ -1513,7 +1527,7 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
                 <div className="flex-1 flex flex-col">
                   {selectedFile ? (
                     <>
-                      <div className="px-4 py-2 bg-gray-800 text-gray-300 text-sm border-b border-gray-700 flex items-center justify-between">
+                      <div className="px-4 py-2 text-sm border-b flex items-center justify-between" style={{ backgroundColor: '#3C3C3C', color: '#CCCCCC', borderColor: '#808080' }}>
                         <span>{selectedFile}</span>
                         <button
                           onClick={async () => {
@@ -1572,14 +1586,44 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
                         theme="vs-dark"
                         value={fileContent}
                         onChange={(value) => setFileContent(value || '')}
+                        beforeMount={(monaco) => {
+                          monaco.editor.defineTheme('vscode-dark-plus', {
+                            base: 'vs-dark',
+                            inherit: true,
+                            rules: [
+                              { token: 'comment', foreground: '6A9955' },
+                              { token: 'keyword', foreground: '569CD6' },
+                              { token: 'string', foreground: 'CE9178' },
+                              { token: 'number', foreground: 'B5CEA8' },
+                              { token: 'variable', foreground: '9CDCFE' },
+                              { token: 'function', foreground: 'DCDCAA' },
+                              { token: 'type', foreground: '4EC9B0' },
+                            ],
+                            colors: {
+                              'editor.background': '#1E1E1E',
+                              'editor.foreground': '#D4D4D4',
+                              'editorCursor.foreground': '#AEAFAD',
+                              'editor.lineHighlightBackground': '#333333',
+                              'editor.selectionBackground': '#264F78',
+                              'editorLineNumber.foreground': '#858585',
+                              'editorLineNumber.activeForeground': '#C6C6C6',
+                            }
+                          })
+                          monaco.editor.setTheme('vscode-dark-plus')
+                        }}
                         options={{
                           minimap: { enabled: true },
                           fontSize: 14,
+                          fontFamily: 'Consolas, "Courier New", monospace',
+                          lineHeight: 22,
                           lineNumbers: 'on',
                           roundedSelection: false,
                           scrollBeyondLastLine: false,
                           readOnly: false,
                           automaticLayout: true,
+                          cursorBlinking: 'blink',
+                          cursorStyle: 'line',
+                          matchBrackets: 'always',
                         }}
                       />
                     </>
