@@ -1,10 +1,9 @@
 /**
  * Neon Database Management for Build Server
- * Branch-based isolation for generated projects
+ * Architecture: 1 Neon Project per User, 1 Branch per Generated App
  */
 
 const NEON_API_KEY = process.env.NEON_API_KEY
-const NEON_PROJECT_ID = process.env.NEON_PROJECT_ID
 const NEON_API_BASE = 'https://console.neon.tech/api/v2'
 
 /**
@@ -71,17 +70,61 @@ export function generateCreateTableSQL(schema) {
 }
 
 /**
- * Create a Neon branch for a project
+ * Create a Neon project for a user
+ * Returns the project ID to be stored in user metadata
  */
-export async function createProjectBranch(projectId) {
-  console.log(`Creating Neon branch for project ${projectId}...`)
+export async function createUserNeonProject(userId) {
+  console.log(`Creating Neon project for user ${userId}...`)
 
-  if (!NEON_API_KEY || !NEON_PROJECT_ID) {
-    throw new Error('NEON_API_KEY and NEON_PROJECT_ID must be set in environment variables')
+  if (!NEON_API_KEY) {
+    throw new Error('NEON_API_KEY must be set in environment variables')
   }
 
   const response = await fetch(
-    `${NEON_API_BASE}/projects/${NEON_PROJECT_ID}/branches`,
+    `${NEON_API_BASE}/projects`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NEON_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        project: {
+          name: `wapify-user-${userId}`,
+          region_id: 'aws-us-east-2'
+        }
+      })
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Failed to create Neon project: ${response.status} ${error}`)
+  }
+
+  const data = await response.json()
+  const project = data.project
+
+  console.log(`Neon project created: ${project.id}`)
+
+  return {
+    projectId: project.id
+  }
+}
+
+/**
+ * Create a Neon branch for a project in a user's Neon project
+ */
+export async function createProjectBranch(userNeonProjectId, projectId) {
+  console.log(`Creating Neon branch for project ${projectId} in Neon project ${userNeonProjectId}...`)
+
+  if (!NEON_API_KEY) {
+    throw new Error('NEON_API_KEY must be set in environment variables')
+  }
+
+  const response = await fetch(
+    `${NEON_API_BASE}/projects/${userNeonProjectId}/branches`,
     {
       method: 'POST',
       headers: {
@@ -116,7 +159,7 @@ export async function createProjectBranch(projectId) {
 
   // Get connection string with credentials via connection_uris API
   const uriResponse = await fetch(
-    `${NEON_API_BASE}/projects/${NEON_PROJECT_ID}/connection_uri?branch_id=${branch.id}&endpoint_id=${endpoint.id}&database_name=neondb&role_name=neondb_owner`,
+    `${NEON_API_BASE}/projects/${userNeonProjectId}/connection_uri?branch_id=${branch.id}&endpoint_id=${endpoint.id}&database_name=neondb&role_name=neondb_owner`,
     {
       method: 'GET',
       headers: {
@@ -185,11 +228,11 @@ export async function createTablesInBranch(connectionString, schema) {
 /**
  * Main function: Create complete DB for a project
  */
-export async function createProjectDatabase(projectId, schema) {
-  console.log(`\nCreating database for project ${projectId}`)
+export async function createProjectDatabase(userNeonProjectId, projectId, schema) {
+  console.log(`\nCreating database for project ${projectId} in user's Neon project ${userNeonProjectId}`)
 
-  // 1. Create branch
-  const { branchId, connectionString } = await createProjectBranch(projectId)
+  // 1. Create branch in user's Neon project
+  const { branchId, connectionString } = await createProjectBranch(userNeonProjectId, projectId)
 
   // 2. Create tables
   await createTablesInBranch(connectionString, schema)

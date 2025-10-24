@@ -115,10 +115,13 @@ export async function setupQueue() {
   generateWorker = new Worker(
     'wapify-generates',
     async (job) => {
-      const { prompt, conversationHistory, userId, projectId } = job.data
+      const { prompt, conversationHistory, userId, projectId, userNeonProjectId } = job.data
 
       console.log(`\n🎨 Starting generation for project: ${projectId}`)
       console.log(`📝 Prompt: ${prompt.substring(0, 50)}...`)
+      if (userNeonProjectId) {
+        console.log(`🗄️  User Neon project: ${userNeonProjectId}`)
+      }
 
       try {
         // Update progress
@@ -129,6 +132,7 @@ export async function setupQueue() {
           prompt,
           conversationHistory,
           jobId: job.id, // Pass jobId for Redis PubSub events
+          userNeonProjectId, // Pass user's Neon project ID
           onProgress: async (progress) => {
             await job.updateProgress(progress)
           }

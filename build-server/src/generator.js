@@ -7,6 +7,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { Redis } from 'ioredis'
 import { generateReactProject } from './react-generator.ts'
+import { generateExpressAPI } from './api-generator.js'
 
 // Initialiser Anthropic
 const anthropic = new Anthropic({
@@ -45,14 +46,18 @@ async function publishEvent(jobId, type, data) {
  * @param {Object} params
  * @param {string} params.prompt - Le prompt utilisateur
  * @param {string} params.jobId - ID du job pour PubSub
+ * @param {string} params.userNeonProjectId - ID du projet Neon de l'utilisateur
  * @param {Array} params.conversationHistory - Historique de conversation
  * @param {Function} params.onProgress - Callback pour progression
  */
-export async function generateProject({ prompt, jobId, conversationHistory = [], onProgress }) {
+export async function generateProject({ prompt, jobId, userNeonProjectId, conversationHistory = [], onProgress }) {
   try {
     console.log('🚀 Starting project generation...')
     console.log('📝 Prompt:', prompt.substring(0, 100) + '...')
     console.log('🆔 Job ID:', jobId)
+    if (userNeonProjectId) {
+      console.log('🗄️  User Neon project:', userNeonProjectId)
+    }
 
     // Événement de démarrage
     await publishEvent(jobId, 'step', {
@@ -134,9 +139,38 @@ export async function generateProject({ prompt, jobId, conversationHistory = [],
     console.log(`📄 Pages: ${filesByType.pages.length}`)
     console.log(`🧩 Components: ${filesByType.components.length}`)
 
+    // Étape 2.5 : Générer l'API backend si base de données requise
+    let apiFiles = []
+    if (result.hasDatabase && result.databaseSchema) {
+      console.log('🔧 Generating Express API backend...')
+
+      await publishEvent(jobId, 'substep', {
+        step: 2,
+        description: 'Génération du backend Express...'
+      })
+
+      try {
+        apiFiles = generateExpressAPI(result.databaseSchema)
+        result.files.push(...apiFiles)
+
+        console.log(`✅ API generated: ${apiFiles.length} files`)
+
+        await publishEvent(jobId, 'substep', {
+          step: 2,
+          description: `✓ Backend API généré (${apiFiles.length} fichiers)`
+        })
+      } catch (error) {
+        console.error('❌ Failed to generate API:', error)
+        await publishEvent(jobId, 'warning', {
+          message: 'API generation failed',
+          error: error.message
+        })
+      }
+    }
+
     // Étape 3 : Créer la base de données si nécessaire
     let dbInfo = null
-    if (result.hasDatabase && result.databaseSchema) {
+    if (result.hasDatabase && result.databaseSchema && userNeonProjectId) {
       console.log('🗄️  Database required, creating Neon branch...')
 
       await publishEvent(jobId, 'step', {
@@ -154,9 +188,9 @@ export async function generateProject({ prompt, jobId, conversationHistory = [],
         // Import de la fonction Neon
         const { createProjectDatabase } = await import('./neon.js')
 
-        // Créer la branche et les tables
+        // Créer la branche et les tables dans le projet Neon de l'utilisateur
         const projectId = jobId // Utiliser jobId comme projectId
-        dbInfo = await createProjectDatabase(projectId, result.databaseSchema)
+        dbInfo = await createProjectDatabase(userNeonProjectId, projectId, result.databaseSchema)
 
         console.log(`✅ Database created: ${dbInfo.branchId}`)
 
@@ -173,6 +207,11 @@ export async function generateProject({ prompt, jobId, conversationHistory = [],
           error: error.message
         })
       }
+    } else if (result.hasDatabase && result.databaseSchema && !userNeonProjectId) {
+      console.warn('⚠️  Database required but no user Neon project ID provided')
+      await publishEvent(jobId, 'warning', {
+        message: 'Database required but user has no Neon project'
+      })
     }
 
     if (onProgress) await onProgress(100)
