@@ -42,3 +42,20 @@ WAPIFY_CREDENTIALS.md
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# debug and test files
+debug-project/
+test-app-output/
+downloaded-project/
+*.backup*
+SESSION-NOTES.md
+check-project.js
+deploy-test-project.js
+download-file.js
+download-full-project.mjs
+fix-*.js
+get-project-prompt.mjs
+list-all-project-files.js
+test-local-generation.js
+trigger-rebuild.js
+upload-test-to-wapify.js

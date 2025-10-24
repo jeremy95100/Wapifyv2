@@ -137,6 +137,7 @@ export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<'preview' | 'dashboard' | 'code'>('preview')
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [fileContent, setFileContent] = useState<string>('')
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['src', 'public']))
 
   // Build server states
   const [buildJobId, setBuildJobId] = useState<string | null>(null)
@@ -1047,6 +1048,119 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     )
   }
 
+  // Helper functions for file tree
+  interface FileNode {
+    name: string
+    path: string
+    type: 'file' | 'folder'
+    children?: FileNode[]
+    content?: string
+  }
+
+  const buildFileTree = (files: Array<{path: string, content: string}>): FileNode[] => {
+    const root: FileNode[] = []
+
+    files.forEach(file => {
+      const parts = file.path.split('/')
+      let currentLevel = root
+
+      parts.forEach((part, index) => {
+        const isFile = index === parts.length - 1
+        const existingNode = currentLevel.find(node => node.name === part)
+
+        if (existingNode) {
+          if (!isFile && existingNode.children) {
+            currentLevel = existingNode.children
+          }
+        } else {
+          const newNode: FileNode = {
+            name: part,
+            path: parts.slice(0, index + 1).join('/'),
+            type: isFile ? 'file' : 'folder',
+            children: isFile ? undefined : [],
+            content: isFile ? file.content : undefined
+          }
+          currentLevel.push(newNode)
+          if (!isFile && newNode.children) {
+            currentLevel = newNode.children
+          }
+        }
+      })
+    })
+
+    return root
+  }
+
+  const toggleFolder = (folderPath: string) => {
+    setExpandedFolders(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(folderPath)) {
+        newSet.delete(folderPath)
+      } else {
+        newSet.add(folderPath)
+      }
+      return newSet
+    })
+  }
+
+  const getFileIcon = (fileName: string) => {
+    if (fileName.endsWith('.tsx') || fileName.endsWith('.ts')) return '📘'
+    if (fileName.endsWith('.jsx') || fileName.endsWith('.js')) return '📜'
+    if (fileName.endsWith('.css')) return '🎨'
+    if (fileName.endsWith('.json')) return '📋'
+    if (fileName.endsWith('.html')) return '🌐'
+    return '📄'
+  }
+
+  const renderFileTree = (nodes: FileNode[], depth: number = 0): React.ReactElement[] => {
+    return nodes.map((node) => {
+      if (node.type === 'folder') {
+        const isExpanded = expandedFolders.has(node.path)
+        return (
+          <div key={node.path}>
+            <button
+              onClick={() => toggleFolder(node.path)}
+              className="w-full text-left px-2 py-1 rounded text-sm hover:bg-gray-800 transition flex items-center"
+              style={{ paddingLeft: `${depth * 12 + 8}px` }}
+            >
+              <span className="mr-1 text-xs">
+                {isExpanded ? '▼' : '▶'}
+              </span>
+              <span className="mr-2">
+                {isExpanded ? '📂' : '📁'}
+              </span>
+              <span className="text-gray-300">{node.name}</span>
+            </button>
+            {isExpanded && node.children && (
+              <div>
+                {renderFileTree(node.children, depth + 1)}
+              </div>
+            )}
+          </div>
+        )
+      } else {
+        return (
+          <button
+            key={node.path}
+            onClick={() => {
+              setSelectedFile(node.path)
+              setFileContent(node.content || '')
+            }}
+            className={`w-full text-left px-2 py-1 rounded text-sm hover:bg-gray-800 transition flex items-center ${
+              selectedFile === node.path ? 'bg-gray-800 text-white' : 'text-gray-300'
+            }`}
+            style={{ paddingLeft: `${depth * 12 + 24}px` }}
+          >
+            <span className="mr-2">
+              {getFileIcon(node.name)}
+            </span>
+            {node.name}
+          </button>
+        )
+      }
+    })
+  }
+
   // Ne rien afficher si pas de session
   if (!session) {
     return null
@@ -1384,28 +1498,8 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
                   </div>
                   <div className="p-2">
                     {projectFiles.length > 0 ? (
-                      <div className="space-y-1">
-                        {projectFiles.map((file) => (
-                          <button
-                            key={file.path}
-                            onClick={() => {
-                              setSelectedFile(file.path)
-                              setFileContent(file.content)
-                            }}
-                            className={`w-full text-left px-2 py-1 rounded text-sm hover:bg-gray-800 transition ${
-                              selectedFile === file.path ? 'bg-gray-800 text-white' : ''
-                            }`}
-                          >
-                            <span className="text-blue-400 mr-2">
-                              {file.path.endsWith('.tsx') || file.path.endsWith('.ts') ? '📘' :
-                               file.path.endsWith('.jsx') || file.path.endsWith('.js') ? '📜' :
-                               file.path.endsWith('.css') ? '🎨' :
-                               file.path.endsWith('.json') ? '📋' :
-                               file.path.endsWith('.html') ? '🌐' : '📄'}
-                            </span>
-                            {file.path}
-                          </button>
-                        ))}
+                      <div>
+                        {renderFileTree(buildFileTree(projectFiles))}
                       </div>
                     ) : (
                       <div className="text-center py-8 text-gray-500 text-sm">
