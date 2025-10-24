@@ -1,13 +1,14 @@
 import { Queue, Worker } from 'bullmq'
 import { Redis } from 'ioredis'
 import { buildProject } from './builder.js'
+import { generateProject } from './generator.js'
 
 // Redis connection
 const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
   maxRetriesPerRequest: null
 })
 
-// Create queue
+// Build queue
 export const buildQueue = new Queue('wapify-builds', {
   connection: redisConnection,
   defaultJobOptions: {
@@ -26,13 +27,34 @@ export const buildQueue = new Queue('wapify-builds', {
   }
 })
 
-// Worker to process builds
-let worker
+// Generate queue (new)
+export const generateQueue = new Queue('wapify-generates', {
+  connection: redisConnection,
+  defaultJobOptions: {
+    attempts: 2,
+    backoff: {
+      type: 'exponential',
+      delay: 10000
+    },
+    removeOnComplete: {
+      age: 3600, // Keep completed jobs for 1 hour
+      count: 100
+    },
+    removeOnFail: {
+      age: 86400 // Keep failed jobs for 24 hours
+    }
+  }
+})
+
+// Workers
+let buildWorker
+let generateWorker
 
 export async function setupQueue() {
-  console.log('🔧 Setting up build queue...')
+  console.log('🔧 Setting up queues...')
 
-  worker = new Worker(
+  // Build worker
+  buildWorker = new Worker(
     'wapify-builds',
     async (job) => {
       const { projectId, files, projectName } = job.data
@@ -74,27 +96,86 @@ export async function setupQueue() {
     }
   )
 
-  // Event listeners
-  worker.on('completed', (job) => {
-    console.log(`✅ Job ${job.id} completed for ${job.data.projectId}`)
+  // Event listeners for build worker
+  buildWorker.on('completed', (job) => {
+    console.log(`✅ Build job ${job.id} completed for ${job.data.projectId}`)
   })
 
-  worker.on('failed', (job, err) => {
-    console.error(`❌ Job ${job?.id} failed:`, err.message)
+  buildWorker.on('failed', (job, err) => {
+    console.error(`❌ Build job ${job?.id} failed:`, err.message)
   })
 
-  worker.on('error', (err) => {
-    console.error('❌ Worker error:', err)
+  buildWorker.on('error', (err) => {
+    console.error('❌ Build worker error:', err)
   })
 
   console.log('✅ Build queue ready (concurrency: 5)')
+
+  // Generate worker
+  generateWorker = new Worker(
+    'wapify-generates',
+    async (job) => {
+      const { prompt, conversationHistory, userId, projectId } = job.data
+
+      console.log(`\n🎨 Starting generation for project: ${projectId}`)
+      console.log(`📝 Prompt: ${prompt.substring(0, 50)}...`)
+
+      try {
+        // Update progress
+        await job.updateProgress(10)
+
+        // Generate the project
+        const result = await generateProject({
+          prompt,
+          conversationHistory,
+          onProgress: async (progress) => {
+            await job.updateProgress(progress)
+          }
+        })
+
+        console.log(`✅ Generation completed for ${projectId}`)
+        console.log(`📁 Files generated: ${result.filesCount}`)
+
+        return result
+
+      } catch (error) {
+        console.error(`❌ Generation failed for ${projectId}:`, error)
+        throw error
+      }
+    },
+    {
+      connection: redisConnection,
+      concurrency: 3, // Process max 3 generations in parallel (slower than builds)
+      limiter: {
+        max: 5, // Max 5 jobs
+        duration: 60000 // per 60 seconds
+      }
+    }
+  )
+
+  // Event listeners for generate worker
+  generateWorker.on('completed', (job) => {
+    console.log(`✅ Generate job ${job.id} completed`)
+  })
+
+  generateWorker.on('failed', (job, err) => {
+    console.error(`❌ Generate job ${job?.id} failed:`, err.message)
+  })
+
+  generateWorker.on('error', (err) => {
+    console.error('❌ Generate worker error:', err)
+  })
+
+  console.log('✅ Generate queue ready (concurrency: 3)')
 }
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('🛑 Shutting down gracefully...')
-  await worker?.close()
+  await buildWorker?.close()
+  await generateWorker?.close()
   await buildQueue.close()
+  await generateQueue.close()
   await redisConnection.quit()
   process.exit(0)
 })
