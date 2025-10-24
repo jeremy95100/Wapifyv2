@@ -6,7 +6,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { Redis } from 'ioredis'
-import { generateReactProject } from '../../lib/react-generator.js'
+import { generateReactProject } from './react-generator.js'
 
 // Initialiser Anthropic
 const anthropic = new Anthropic({

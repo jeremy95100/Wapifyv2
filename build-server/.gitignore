@@ -4,3 +4,4 @@ builds/
 dist/
 *.log
 .DS_Store
+src/react-generator.js
