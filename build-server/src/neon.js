@@ -53,7 +53,20 @@ export function generateCreateTableSQL(schema) {
         const isColumnReference = /^[a-z_]+$/.test(defaultValue) && !['true', 'false', 'null', 'current_timestamp', 'now()'].includes(defaultValue.toLowerCase())
 
         if (!isColumnReference) {
-          columnDef += ` DEFAULT ${col.default}`
+          // Check if it's already quoted or a function/keyword
+          const needsQuotes =
+            !defaultValue.match(/^'.*'$/) && // Already single-quoted
+            !defaultValue.match(/^\d+(\.\d+)?$/) && // Number
+            !defaultValue.match(/^(true|false|null)$/i) && // Boolean/null
+            !defaultValue.match(/^(now|current_timestamp|gen_random_uuid)\(\)$/i) // Functions
+
+          if (needsQuotes) {
+            // Escape single quotes and wrap in quotes
+            const escaped = defaultValue.replace(/'/g, "''")
+            columnDef += ` DEFAULT '${escaped}'`
+          } else {
+            columnDef += ` DEFAULT ${col.default}`
+          }
         }
       }
 
