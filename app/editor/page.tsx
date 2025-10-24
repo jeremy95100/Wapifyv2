@@ -152,6 +152,7 @@ export default function EditorPage() {
   const hasInitialized = useRef(false)
   const lastProgressUpdateTime = useRef<number>(Date.now())
   const stuckMessageTimer = useRef<NodeJS.Timeout | null>(null)
+  const hasSavedGeneration = useRef(false) // Track if current generation has been saved
 
   // Redirection si non authentifié
   useEffect(() => {
@@ -276,13 +277,14 @@ export default function EditorPage() {
   // Sauvegarde automatique quand les fichiers sont modifiés (multi-file)
   useEffect(() => {
     // Attendre que la génération soit terminée
-    if (!isGenerating && isMultiFile && projectFiles.length > 0 && messages.length > 0) {
+    if (!isGenerating && isMultiFile && projectFiles.length > 0 && messages.length > 0 && !hasSavedGeneration.current) {
       const lastUserMessage = messages.filter(m => m.role === 'user').slice(-1)[0]
-      if (lastUserMessage && !projectId) {
-        // Seulement pour les nouveaux projets (pas de projectId encore)
-        console.log('💾 Déclenchement sauvegarde auto pour nouveau projet avec', projectFiles.length, 'fichiers')
+      if (lastUserMessage) {
+        // Sauvegarder pour tous les projets (nouveaux et existants)
+        console.log('💾 Déclenchement sauvegarde auto pour projet avec', projectFiles.length, 'fichiers')
         console.log('📁 Fichiers à sauvegarder:', projectFiles.map(f => f.path))
         saveProject('', lastUserMessage.content)
+        hasSavedGeneration.current = true
       }
     }
   }, [isGenerating, projectFiles, messages, saveProject, isMultiFile, projectId])
@@ -491,6 +493,7 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     setSubSteps([])
     setGenerationPlan(null)
     setModifications([])
+    hasSavedGeneration.current = false // Reset save tracker for new generation
 
     try {
       // Generate projectId if not exists
