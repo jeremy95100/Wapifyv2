@@ -576,10 +576,8 @@ TOUS les boutons, formulaires et interactions DOIVENT être VRAIMENT fonctionnel
 ✅ REQUIS : Tout doit fonctionner comme une vraie app, même sans backend
 
 - Icônes de lucide-react : RÈGLE CRITIQUE - TOUTE icône utilisée dans le code DOIT être importée !
-  ⚠️ FORMAT D'IMPORT OBLIGATOIRE :
-  ```
+  ⚠️ FORMAT D'IMPORT OBLIGATOIRE (exemple) :
   import { Home, User, Settings, Menu, X, Search, Plus, Trash, Edit } from 'lucide-react'
-  ```
   - Si tu utilises <BarChart /> dans le code, tu DOIS avoir : import { BarChart } from 'lucide-react'
   - Si tu utilises <Settings />, tu DOIS avoir : import { Settings } from 'lucide-react'
   - VÉRIFIE que TOUTES les icônes utilisées sont dans l'import (ligne par ligne)
