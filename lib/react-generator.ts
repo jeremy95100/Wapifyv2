@@ -588,6 +588,30 @@ TOUS les boutons, formulaires et interactions DOIVENT être VRAIMENT fonctionnel
    - NE JAMAIS hardcoder l'URL de l'API en dur (ni localhost, ni production)
    - La variable VITE_API_URL sera définie automatiquement après le déploiement Railway
 
+⚠️⚠️⚠️ ERREUR SPREAD OPERATOR (TS2698) - RÈGLE ABSOLUE ⚠️⚠️⚠️
+AVANT d'utiliser l'opérateur spread (...), demande-toi: "Est-ce un OBJET ou une PRIMITIVE?"
+
+❌ INTERDIT - Spread sur primitives (string, number, boolean):
+  const user = { name: "John", email: "john@example.com", age: 25 }
+  const settings = { theme: "dark", language: "fr", notifications: true }
+
+  { ...user.email }          // ❌ ERREUR! email est un string
+  { ...user.name }           // ❌ ERREUR! name est un string
+  { ...user.age }            // ❌ ERREUR! age est un number
+  { ...settings.theme }      // ❌ ERREUR! theme est un string
+  { ...settings.notifications } // ❌ ERREUR! notifications est un boolean
+
+✅ CORRECT - Spread sur objets uniquement:
+  { ...user }                // ✅ OK! user est un objet
+  { ...settings }            // ✅ OK! settings est un objet
+  { email: user.email }      // ✅ OK! Copie directe de la valeur
+  { theme: settings.theme }  // ✅ OK! Copie directe de la valeur
+  { ...user, email: newEmail } // ✅ OK! Spread objet + override
+
+RÈGLE SIMPLE: Si tu vois .propriété avant le spread, c'est INTERDIT!
+  ...X.y  → ❌ TOUJOURS FAUX (y est une primitive)
+  ...X    → ✅ Vérifier que X est un objet
+
 - Icônes de lucide-react : RÈGLE CRITIQUE - TOUTE icône utilisée dans le code DOIT être importée !
   ⚠️ FORMAT D'IMPORT OBLIGATOIRE (exemple) :
   import { Home, User, Settings, Menu, X, Search, Plus, Trash, Edit } from 'lucide-react'
@@ -611,17 +635,7 @@ TOUS les boutons, formulaires et interactions DOIVENT être VRAIMENT fonctionnel
 - Vérifie qu'il n'y a AUCUNE faute de frappe dans les noms de variables/propriétés
 - Le code DOIT compiler sans erreur TypeScript (si .tsx)
 - Double-vérifie la cohérence des noms avant de générer le JSON
-
-⚠️ ERREUR SPREAD OPERATOR (TS2698) - RÈGLE CRITIQUE :
-NE JAMAIS faire spread (...) sur une valeur primitive (string, number, boolean):
-❌ INTERDIT : { ...user.email } si email est un string
-❌ INTERDIT : { ...settings.theme } si theme est un string
-❌ INTERDIT : { ...count } si count est un number
-✅ CORRECT : { ...user } si user est un objet
-✅ CORRECT : { ...settings, theme: newTheme }
-✅ CORRECT : { email: user.email }
-
-Avant d'utiliser spread (...X), vérifie que X est un OBJET, pas une primitive!
+- RAPPEL: L'opérateur spread (...) ne fonctionne QUE sur des objets (voir règle détaillée ci-dessus)
 
 FORMAT DE RÉPONSE (JSON uniquement) :
 {
