@@ -596,12 +596,23 @@ TOUS les boutons, formulaires et interactions DOIVENT être VRAIMENT fonctionnel
 - Design shadcn/ui avec Tailwind
 - Pas de placeholders ou TODOs
 
-⚠️ RÈGLES TYPESCRIPT/JAVASCRIPT STRICTES :
+⚠️ RÈGLES TYPESCRIPT/JAVASCRIPT STRICTES (CRITIQUE) :
 - Assure-toi que TOUS les noms de propriétés sont utilisés de manière COHÉRENTE
 - Si tu définis const settings = { activeSessions: 3 }, utilise TOUJOURS settings.activeSessions
 - Vérifie qu'il n'y a AUCUNE faute de frappe dans les noms de variables/propriétés
 - Le code DOIT compiler sans erreur TypeScript (si .tsx)
 - Double-vérifie la cohérence des noms avant de générer le JSON
+
+⚠️ ERREUR SPREAD OPERATOR (TS2698) - RÈGLE CRITIQUE :
+NE JAMAIS faire spread (...) sur une valeur primitive (string, number, boolean):
+❌ INTERDIT : { ...user.email } si email est un string
+❌ INTERDIT : { ...settings.theme } si theme est un string
+❌ INTERDIT : { ...count } si count est un number
+✅ CORRECT : { ...user } si user est un objet
+✅ CORRECT : { ...settings, theme: newTheme }
+✅ CORRECT : { email: user.email }
+
+Avant d'utiliser spread (...X), vérifie que X est un OBJET, pas une primitive!
 
 FORMAT DE RÉPONSE (JSON uniquement) :
 {
