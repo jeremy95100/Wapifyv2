@@ -575,8 +575,17 @@ TOUS les boutons, formulaires et interactions DOIVENT être VRAIMENT fonctionnel
 ❌ INTERDIT : Boutons sans onClick, formulaires sans onSubmit, données non modifiables
 ✅ REQUIS : Tout doit fonctionner comme une vraie app, même sans backend
 
-- Icônes de lucide-react : UNIQUEMENT des icônes qui EXISTENT vraiment (Home, User, Settings, Menu, X, Search, Plus, Trash, Edit, Eye, Heart, Star, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, Mail, Phone, MapPin, Calendar, Clock, Download, Upload, Check, AlertCircle, Info, Bell, LogOut, LogIn, FileText, Image, Video, Music, Package, ShoppingCart, DollarSign, TrendingUp, TrendingDown, BarChart, PieChart, Activity, Users, Building, Book, Bookmark, Tag, Filter, Layout, Grid, List, Lock, Unlock, Shield, Database, Server, Globe, Wifi, Code, Terminal, Cpu, HardDrive, etc.)
-  ⚠️ NE JAMAIS inventer des noms d'icônes - vérifie qu'elles existent dans lucide-react
+- Icônes de lucide-react : RÈGLE CRITIQUE - TOUTE icône utilisée dans le code DOIT être importée !
+  ⚠️ FORMAT D'IMPORT OBLIGATOIRE :
+  ```
+  import { Home, User, Settings, Menu, X, Search, Plus, Trash, Edit } from 'lucide-react'
+  ```
+  - Si tu utilises <BarChart /> dans le code, tu DOIS avoir : import { BarChart } from 'lucide-react'
+  - Si tu utilises <Settings />, tu DOIS avoir : import { Settings } from 'lucide-react'
+  - VÉRIFIE que TOUTES les icônes utilisées sont dans l'import (ligne par ligne)
+  - Icônes disponibles : Home, User, Settings, Menu, X, Search, Plus, Trash, Edit, Eye, Heart, Star, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, Mail, Phone, MapPin, Calendar, Clock, Download, Upload, Check, AlertCircle, Info, Bell, LogOut, LogIn, FileText, Image, Video, Music, Package, ShoppingCart, DollarSign, TrendingUp, TrendingDown, BarChart, PieChart, Activity, Users, Building, Book, Bookmark, Tag, Filter, Layout, Grid, List, Lock, Unlock, Shield, Database, Server, Globe, Wifi, Code, Terminal, Cpu, HardDrive
+  ⚠️ ERREUR CRITIQUE : Utiliser une icône sans l'importer → build TypeScript échoue
+  ⚠️ AVANT DE GÉNÉRER : Fais la liste de TOUTES les icônes utilisées et ajoute-les à l'import
 - APOSTROPHES : Utilise UNIQUEMENT des apostrophes ASCII standard (') dans tout le code
   ⚠️ NE JAMAIS utiliser d'apostrophes typographiques (' ou ') - elles causent des erreurs TypeScript
   Exemples CORRECTS : "jusqu'à", "L'Oréal", "n'êtes pas" (avec ')
@@ -733,7 +742,10 @@ Réponds en JSON : { "siteName": "...", "hasDatabase": false, "databaseSchema": 
   }
 
   // S'assurer que tous les fichiers requis existent
-  const allFiles = ensureRequiredFiles(parsed.files, minimalPlan)
+  let allFiles = ensureRequiredFiles(parsed.files, minimalPlan)
+
+  // Valider et corriger les imports d'icônes manquants
+  allFiles = fixMissingIconImports(allFiles)
 
   console.log(`✅ Base generated: ${allFiles.length} files`)
 
@@ -742,6 +754,114 @@ Réponds en JSON : { "siteName": "...", "hasDatabase": false, "databaseSchema": 
     hasDatabase: parsed.hasDatabase || false,
     databaseSchema: parsed.databaseSchema
   }
+}
+
+/**
+ * Réparer les imports d'icônes manquants dans tous les fichiers
+ */
+function fixMissingIconImports(files: ProjectFile[]): ProjectFile[] {
+  console.log('\n🔍 Checking for missing icon imports...')
+
+  // Liste complète des icônes lucide-react disponibles
+  const availableIcons = [
+    'Home', 'User', 'Settings', 'Menu', 'X', 'Search', 'Plus', 'Trash', 'Edit', 'Eye',
+    'Heart', 'Star', 'ChevronDown', 'ChevronUp', 'ChevronLeft', 'ChevronRight',
+    'ArrowLeft', 'ArrowRight', 'Mail', 'Phone', 'MapPin', 'Calendar', 'Clock',
+    'Download', 'Upload', 'Check', 'AlertCircle', 'Info', 'Bell', 'LogOut', 'LogIn',
+    'FileText', 'Image', 'Video', 'Music', 'Package', 'ShoppingCart', 'DollarSign',
+    'TrendingUp', 'TrendingDown', 'BarChart', 'PieChart', 'Activity', 'Users',
+    'Building', 'Book', 'Bookmark', 'Tag', 'Filter', 'Layout', 'Grid', 'List',
+    'Lock', 'Unlock', 'Shield', 'Database', 'Server', 'Globe', 'Wifi', 'Code',
+    'Terminal', 'Cpu', 'HardDrive'
+  ]
+
+  let totalFixed = 0
+
+  files.forEach(file => {
+    // Ne vérifier que les fichiers TypeScript/JavaScript
+    if (!file.path.match(/\.(tsx?|jsx?)$/)) return
+
+    const content = file.content
+    const lines = content.split('\n')
+
+    // Trouver les icônes utilisées dans le code
+    const usedIcons = new Set<string>()
+    lines.forEach(line => {
+      // Chercher les patterns comme <IconName /> ou <IconName>
+      const iconMatches = line.matchAll(/<([A-Z][a-zA-Z0-9]+)\s*[/>]/g)
+      for (const match of iconMatches) {
+        const iconName = match[1]
+        // Vérifier si c'est une icône lucide-react valide
+        if (availableIcons.includes(iconName)) {
+          usedIcons.add(iconName)
+        }
+      }
+    })
+
+    if (usedIcons.size === 0) return
+
+    // Trouver la ligne d'import de lucide-react
+    const lucideImportIndex = lines.findIndex(line =>
+      line.includes("from 'lucide-react'") || line.includes('from "lucide-react"')
+    )
+
+    if (lucideImportIndex === -1 && usedIcons.size > 0) {
+      // Pas d'import lucide-react trouvé, mais des icônes sont utilisées
+      // Ajouter l'import après les autres imports React
+      const lastImportIndex = lines.findIndex((line, i) =>
+        line.startsWith('import') && (lines[i + 1] === '' || !lines[i + 1]?.startsWith('import'))
+      )
+
+      const importLine = `import { ${Array.from(usedIcons).sort().join(', ')} } from 'lucide-react'`
+
+      if (lastImportIndex >= 0) {
+        lines.splice(lastImportIndex + 1, 0, importLine)
+        console.log(`  ✅ Added lucide-react import to ${file.path} (${usedIcons.size} icons)`)
+        totalFixed++
+      } else {
+        // Ajouter au début du fichier
+        lines.unshift(importLine)
+        console.log(`  ✅ Added lucide-react import to ${file.path} (${usedIcons.size} icons)`)
+        totalFixed++
+      }
+
+      file.content = lines.join('\n')
+    } else if (lucideImportIndex >= 0) {
+      // Import existe, vérifier s'il contient toutes les icônes utilisées
+      const importLine = lines[lucideImportIndex]
+
+      // Extraire les icônes déjà importées
+      const importMatch = importLine.match(/import\s*\{([^}]+)\}\s*from\s*['"]lucide-react['"]/)
+      if (importMatch) {
+        const importedIcons = importMatch[1]
+          .split(',')
+          .map(s => s.trim())
+          .filter(s => s.length > 0)
+
+        const importedSet = new Set(importedIcons)
+        const missingIcons = Array.from(usedIcons).filter(icon => !importedSet.has(icon))
+
+        if (missingIcons.length > 0) {
+          // Ajouter les icônes manquantes
+          const allIcons = [...importedIcons, ...missingIcons].sort()
+          const newImportLine = `import { ${allIcons.join(', ')} } from 'lucide-react'`
+          lines[lucideImportIndex] = newImportLine
+
+          console.log(`  ✅ Fixed ${file.path}: added ${missingIcons.join(', ')}`)
+          totalFixed++
+          file.content = lines.join('\n')
+        }
+      }
+    }
+  })
+
+  if (totalFixed > 0) {
+    console.log(`✅ Fixed ${totalFixed} file(s) with missing icon imports\n`)
+  } else {
+    console.log(`✅ All icon imports are correct\n`)
+  }
+
+  return files
 }
 
 /**
