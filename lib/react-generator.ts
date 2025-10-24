@@ -520,8 +520,23 @@ RÈGLES CRITIQUES :
 - Analyse le prompt et décide automatiquement :
   * Combien de pages (3-4 max)
   * Quelles features pour chaque page
-  * Si une base de données est nécessaire
+  * Si une base de données est nécessaire (voir règles DB ci-dessous)
   * TypeScript (.tsx) ou JavaScript (.jsx)
+
+⚠️ DÉTECTION AUTOMATIQUE DE BASE DE DONNÉES :
+Active hasDatabase: true et génère un schema SI l'app nécessite :
+  - E-commerce (produits, commandes, panier, clients)
+  - Blog/CMS (articles, auteurs, commentaires, catégories)
+  - Réservation/Booking (créneaux, rendez-vous, événements)
+  - Gestion de tâches avec persistance (todo lists, projets)
+  - Authentification avec profils utilisateurs personnalisés
+  - Tout système CRUD qui nécessite la persistance de données
+
+Garde hasDatabase: false pour :
+  - Sites vitrine/landing pages
+  - Portfolios statiques
+  - Calculateurs/outils simples
+  - Apps avec uniquement des données mockées temporaires
 - Génère TOUT en une seule réponse JSON
 - Composants UI : UNIQUEMENT Button, Card, Input - NAMED EXPORTS
 - CardContent children: Toujours utiliser children?: React.ReactNode (pour accepter plusieurs enfants)
@@ -551,8 +566,30 @@ RÈGLES CRITIQUES :
 FORMAT DE RÉPONSE (JSON uniquement) :
 {
   "siteName": "Nom de l'app",
-  "hasDatabase": false,
-  "databaseSchema": null,
+  "hasDatabase": true,  // true si l'app nécessite une DB, false sinon
+  "databaseSchema": {   // null si hasDatabase: false
+    "tables": [
+      {
+        "name": "products",
+        "columns": [
+          { "name": "id", "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+          { "name": "name", "type": "text", "nullable": false },
+          { "name": "price", "type": "decimal", "nullable": false },
+          { "name": "description", "type": "text", "nullable": true },
+          { "name": "created_at", "type": "timestamp", "default": "now()" }
+        ]
+      },
+      {
+        "name": "orders",
+        "columns": [
+          { "name": "id", "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+          { "name": "product_id", "type": "uuid", "references": "products.id", "nullable": false },
+          { "name": "quantity", "type": "integer", "nullable": false },
+          { "name": "created_at", "type": "timestamp", "default": "now()" }
+        ]
+      }
+    ]
+  },
   "files": [
     {
       "path": "package.json",
@@ -566,6 +603,13 @@ FORMAT DE RÉPONSE (JSON uniquement) :
     }
   ]
 }
+
+⚠️ RÈGLES SCHEMA DATABASE :
+- Types Supabase valides : uuid, text, integer, decimal, boolean, timestamp, date, jsonb
+- Toujours inclure id (uuid, primaryKey, default: gen_random_uuid())
+- Toujours inclure created_at (timestamp, default: now())
+- Relations : utilise "references": "table.column" pour les foreign keys
+- Nomme les tables au pluriel (products, orders, users, posts, etc.)
 
 ⚠️ RÈGLES JSON STRICTES (TRÈS IMPORTANT) :
 CHAQUE guillemet, backslash et retour à la ligne dans le code DOIT être échappé !
