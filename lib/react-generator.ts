@@ -546,6 +546,35 @@ Garde hasDatabase: false pour :
 - Données mockées DANS les pages (6-8 items min)
 - State local avec useState (pas de Context)
 - Navigation avec Link de react-router-dom
+
+⚠️ RÈGLES FONCTIONNALITÉ - CODE 100% FONCTIONNEL OBLIGATOIRE :
+TOUS les boutons, formulaires et interactions DOIVENT être VRAIMENT fonctionnels :
+1. BOUTONS D'ACTION :
+   - Bouton "Ajouter" → DOIT ouvrir un formulaire (modal ou section)
+   - Bouton "Modifier" → DOIT permettre de modifier vraiment les données
+   - Bouton "Supprimer" → DOIT supprimer vraiment l'élément (avec confirmation)
+   - Bouton "Sauvegarder" → DOIT sauvegarder dans le state
+
+2. FORMULAIRES :
+   - TOUS les formulaires doivent avoir des inputs contrôlés (value + onChange)
+   - onSubmit doit ajouter/modifier les données dans le state
+   - Validation basique (champs requis)
+   - Reset du formulaire après soumission
+
+3. GESTION D'ÉTAT :
+   - Les données mockées doivent être dans un useState, PAS en const
+   - Utilise VRAIMENT useState pour rendre les données modifiables
+   - Exemple : const [items, setItems] = useState(mockData)
+   - Les ajouts/modifications/suppressions doivent modifier ce state
+
+4. INTERACTIONS :
+   - Chaque bouton DOIT avoir un onClick avec une vraie fonction
+   - Les recherches/filtres doivent VRAIMENT fonctionner
+   - Les modals/dialogs doivent s'ouvrir et se fermer
+
+❌ INTERDIT : Boutons sans onClick, formulaires sans onSubmit, données non modifiables
+✅ REQUIS : Tout doit fonctionner comme une vraie app, même sans backend
+
 - Icônes de lucide-react : UNIQUEMENT des icônes qui EXISTENT vraiment (Home, User, Settings, Menu, X, Search, Plus, Trash, Edit, Eye, Heart, Star, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, Mail, Phone, MapPin, Calendar, Clock, Download, Upload, Check, AlertCircle, Info, Bell, LogOut, LogIn, FileText, Image, Video, Music, Package, ShoppingCart, DollarSign, TrendingUp, TrendingDown, BarChart, PieChart, Activity, Users, Building, Book, Bookmark, Tag, Filter, Layout, Grid, List, Lock, Unlock, Shield, Database, Server, Globe, Wifi, Code, Terminal, Cpu, HardDrive, etc.)
   ⚠️ NE JAMAIS inventer des noms d'icônes - vérifie qu'elles existent dans lucide-react
 - APOSTROPHES : Utilise UNIQUEMENT des apostrophes ASCII standard (') dans tout le code
