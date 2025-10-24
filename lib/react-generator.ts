@@ -533,6 +533,10 @@ RÈGLES CRITIQUES :
 - Navigation avec Link de react-router-dom
 - Icônes de lucide-react : UNIQUEMENT des icônes qui EXISTENT vraiment (Home, User, Settings, Menu, X, Search, Plus, Trash, Edit, Eye, Heart, Star, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, Mail, Phone, MapPin, Calendar, Clock, Download, Upload, Check, AlertCircle, Info, Bell, LogOut, LogIn, FileText, Image, Video, Music, Package, ShoppingCart, DollarSign, TrendingUp, TrendingDown, BarChart, PieChart, Activity, Users, Building, Book, Bookmark, Tag, Filter, Layout, Grid, List, Lock, Unlock, Shield, Database, Server, Globe, Wifi, Code, Terminal, Cpu, HardDrive, etc.)
   ⚠️ NE JAMAIS inventer des noms d'icônes - vérifie qu'elles existent dans lucide-react
+- APOSTROPHES : Utilise UNIQUEMENT des apostrophes ASCII standard (') dans tout le code
+  ⚠️ NE JAMAIS utiliser d'apostrophes typographiques (' ou ') - elles causent des erreurs TypeScript
+  Exemples CORRECTS : "jusqu'à", "L'Oréal", "n'êtes pas" (avec ')
+  Exemples INCORRECTS : "jusqu'à", "L'Oréal", "n'êtes pas" (avec ' ou ')
 - NE PAS utiliser asChild, NE PAS créer d'autres composants (ProductCard, etc.)
 - Design shadcn/ui avec Tailwind
 - Pas de placeholders ou TODOs
