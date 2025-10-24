@@ -108,6 +108,12 @@ export async function createProjectBranch(projectId) {
   }
 
   const data = await response.json()
+
+  // LOG COMPLETE RESPONSE TO DEBUG
+  console.log('=== NEON API RESPONSE (FULL) ===')
+  console.log(JSON.stringify(data, null, 2))
+  console.log('=== END NEON API RESPONSE ===')
+
   const branch = data.branch
   const endpoint = data.endpoints[0]
 
@@ -115,6 +121,7 @@ export async function createProjectBranch(projectId) {
   const connectionString = `postgresql://${endpoint.host}/${branch.name}?sslmode=require`
 
   console.log(`Neon branch created: ${branch.id}`)
+  console.log(`Connection string built: ${connectionString}`)
 
   return {
     branchId: branch.id,
