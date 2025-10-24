@@ -16,6 +16,8 @@ interface GenerateResult {
   files: any[]
   hasDatabase: boolean
   databaseSchema?: string
+  dbBranchId?: string
+  dbConnectionString?: string
   isMultiFile: boolean
   framework: string
 }
