@@ -25,6 +25,22 @@ export async function GET(
       })
 
       let isCompleted = false
+      let isClosed = false
+
+      // Helper pour fermer proprement la connexion Redis
+      const closeSubscriber = async () => {
+        if (isClosed) return
+        isClosed = true
+
+        try {
+          if (subscriber.status === 'ready') {
+            await subscriber.unsubscribe('job:' + id)
+            await subscriber.quit()
+          }
+        } catch (error) {
+          console.error('Error closing subscriber:', error)
+        }
+      }
 
       try {
         await subscriber.subscribe('job:' + id)
@@ -44,10 +60,9 @@ export async function GET(
             if (event.type === 'complete' || event.type === 'error') {
               isCompleted = true
               console.log('Job completed, closing stream:', id)
-              
+
               setTimeout(async () => {
-                await subscriber.unsubscribe('job:' + id)
-                await subscriber.quit()
+                await closeSubscriber()
                 controller.close()
               }, 500)
             }
@@ -69,8 +84,7 @@ export async function GET(
               const errorMsg = 'data: ' + JSON.stringify({ type: 'error', data: { message: 'Job not found' } }) + '\n\n'
               controller.enqueue(encoder.encode(errorMsg))
               clearInterval(statusCheckInterval)
-              await subscriber.unsubscribe('job:' + id)
-              await subscriber.quit()
+              await closeSubscriber()
               controller.close()
               return
             }
@@ -83,8 +97,7 @@ export async function GET(
               controller.enqueue(encoder.encode(completeMsg))
               isCompleted = true
               clearInterval(statusCheckInterval)
-              await subscriber.unsubscribe('job:' + id)
-              await subscriber.quit()
+              await closeSubscriber()
               controller.close()
             }
 
@@ -94,8 +107,7 @@ export async function GET(
               controller.enqueue(encoder.encode(errorMsg))
               isCompleted = true
               clearInterval(statusCheckInterval)
-              await subscriber.unsubscribe('job:' + id)
-              await subscriber.quit()
+              await closeSubscriber()
               controller.close()
             }
           } catch (error) {
@@ -106,8 +118,7 @@ export async function GET(
         request.signal.addEventListener('abort', async () => {
           console.log('Client disconnected from job:', id)
           clearInterval(statusCheckInterval)
-          await subscriber.unsubscribe('job:' + id)
-          await subscriber.quit()
+          await closeSubscriber()
           controller.close()
         })
 
@@ -116,7 +127,7 @@ export async function GET(
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         const errorMsg = 'data: ' + JSON.stringify({ type: 'error', data: { message: errorMessage } }) + '\n\n'
         controller.enqueue(encoder.encode(errorMsg))
-        await subscriber.quit()
+        await closeSubscriber()
         controller.close()
       }
     }
