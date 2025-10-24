@@ -52,23 +52,23 @@ export async function getUserNeonProjectId(userId: string): Promise<string> {
     throw new Error('userId is required')
   }
 
-  // Get user's first project to check if they have a Neon project ID
+  // Get any project from this user to check if they have a Neon project ID
   const { data: projects, error } = await supabase
     .from('projects')
     .select('user_neon_project_id')
     .eq('user_id', userId)
+    .not('user_neon_project_id', 'is', null)
     .limit(1)
-    .single()
 
-  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
+  if (error) {
     console.error('Error fetching user projects:', error)
     throw new Error('Failed to fetch user projects')
   }
 
   // If user has a Neon project ID, return it
-  if (projects?.user_neon_project_id) {
-    console.log(`User ${userId} already has Neon project: ${projects.user_neon_project_id}`)
-    return projects.user_neon_project_id
+  if (projects && projects.length > 0 && projects[0].user_neon_project_id) {
+    console.log(`User ${userId} already has Neon project: ${projects[0].user_neon_project_id}`)
+    return projects[0].user_neon_project_id
   }
 
   // Create new Neon project for user
