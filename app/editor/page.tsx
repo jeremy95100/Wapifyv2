@@ -7,6 +7,7 @@ import Link from 'next/link'
 import JSZip from 'jszip'
 import Editor from '@monaco-editor/react'
 import { GenerationPlan, GenerationStep, ModificationDetail} from '../../lib/anthropic'
+import { generateProject } from '../../lib/generate-client'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -492,163 +493,95 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
     setModifications([])
 
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: promptText,
-          conversationHistory: messages
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error('Erreur de génération')
-      }
-
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
-
-      if (!reader) {
-        throw new Error('Pas de stream disponible')
-      }
-
-      let accumulatedCode = ''
-      let buffer = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6)
-            try {
-              const event = JSON.parse(data)
-
-              if (event.type === 'plan') {
-                setGenerationPlan(event.data)
-              } else if (event.type === 'modifications') {
-                setModifications(event.data)
-              } else if (event.type === 'chat_message') {
-                // Ajouter le message de génération directement dans le chat
-                const chatMessage: Message = {
-                  role: 'assistant',
-                  content: event.data,
-                  id: `msg-gen-${Date.now()}-${Math.random()}`,
-                  timestamp: new Date()
-                }
-                setMessages(prev => [...prev, chatMessage])
-              } else if (event.type === 'step') {
-                setSteps(prev => {
-                  const existingIndex = prev.findIndex(s => s.step === event.data.step)
-                  if (existingIndex >= 0) {
-                    const newSteps = [...prev]
-                    newSteps[existingIndex] = event.data
-                    return newSteps
-                  }
-                  return [...prev, event.data]
-                })
-              } else if (event.type === 'substep') {
-                // Réinitialiser le timer de blocage quand il y a une mise à jour
-                lastProgressUpdateTime.current = Date.now()
-                setShowStuckMessage(false)
-
-                // Nettoyer l'ancien timer
-                if (stuckMessageTimer.current) {
-                  clearTimeout(stuckMessageTimer.current)
-                }
-
-                // Lancer un nouveau timer de 5 secondes
-                stuckMessageTimer.current = setTimeout(() => {
-                  setShowStuckMessage(true)
-                }, 5000)
-
-                setSubSteps(prev => {
-                  const existingIndex = prev.findIndex(s => s.step === event.data.step)
-                  if (existingIndex >= 0) {
-                    const newSubSteps = [...prev]
-                    newSubSteps[existingIndex] = event.data
-                    return newSubSteps
-                  }
-                  return [...prev, event.data]
-                })
-              } else if (event.type === 'code') {
-                // Ne plus mettre à jour en temps réel pour éviter l'affichage du markdown
-                accumulatedCode += event.data
-              } else if (event.type === 'final_code') {
-                // Utiliser le code final nettoyé
-                console.log('📦 Final code received, length:', event.data.length)
-                console.log('📦 First 200 chars:', event.data.substring(0, 200))
-                setGeneratedCode(event.data)
-              } else if (event.type === 'complete') {
-                // Gérer les projets multi-fichiers React ou single-file HTML
-                if (event.data.isMultiFile) {
-                  console.log('✅ Complete event - React multi-file project')
-                  console.log('📁 Files:', event.data.files.length)
-                  setIsMultiFile(true)
-                  setProjectFiles(event.data.files)
-                  setHasDatabase(event.data.hasDatabase || false)
-                  setDatabaseSchema(event.data.databaseSchema || null)
-
-                  // Trouver et afficher le fichier App.jsx ou main.jsx par défaut
-                  const defaultFile = event.data.files.find((f: any) =>
-                    f.path === 'src/App.jsx' || f.path === 'src/main.jsx'
-                  ) || event.data.files[0]
-
-                  if (defaultFile) {
-                    setSelectedFile(defaultFile.path)
-                    setGeneratedCode(defaultFile.content)
-                  }
-                } else if (event.data.code) {
-                  // Single-file HTML project
-                  console.log('✅ Complete event with code, length:', event.data.code.length)
-                  console.log('✅ First 200 chars:', event.data.code.substring(0, 200))
-                  setIsMultiFile(false)
-                  setGeneratedCode(event.data.code)
-                }
-
-                // Résumé console
-                console.log('%c🎉 Génération terminée !', 'font-size: 16px; font-weight: bold; color: #4CAF50;')
-                console.log('%c📦 Résumé de l\'application créée:', 'font-weight: bold; color: #2196F3;')
-                if (generationPlan) {
-                  console.log(`  • Framework: ${generationPlan.framework.toUpperCase()}`)
-                  console.log(`  • Style: ${generationPlan.style}`)
-                  console.log(`  • Template: ${generationPlan.template}`)
-                  if (generationPlan.colorTheme) {
-                    console.log(`  • Thème: ${generationPlan.colorTheme.name} (${generationPlan.colorTheme.primary})`)
-                  }
-                  if (generationPlan.entities.length > 0) {
-                    console.log(`  • Entités BD: ${generationPlan.entities.map(e => e.name).join(', ')}`)
-                  }
-                  if (generationPlan.features.length > 0) {
-                    console.log(`  • Features: ${generationPlan.features.slice(0, 3).join(', ')}`)
-                  }
-                }
-                console.log(`  • Lignes de code: ${event.data.code ? Math.round(event.data.code.length / 50) : '?'}`)
-                console.log('%c💬 N\'hésitez pas à demander des modifications !', 'font-style: italic; color: #FF9800;')
-
-                // Ajouter la réponse de l'assistant
-                const assistantMessage: Message = {
-                  role: 'assistant',
-                  content: 'Application générée avec succès ! Vous pouvez la voir dans la preview et demander des modifications.',
-                  id: `msg-${Date.now()}`,
-                  timestamp: new Date()
-                }
-                setMessages(prev => [...prev, assistantMessage])
-              } else if (event.type === 'error') {
-                throw new Error(event.data.message)
-              }
-            } catch (e) {
-              console.error('Error parsing event:', e)
+      // Use hybrid generation (sync with async fallback)
+      const result = await generateProject({
+        prompt: promptText,
+        conversationHistory: messages,
+        projectId: projectId || undefined,
+        userId: (session?.user as any)?.id || session?.user?.email,
+        onProgress: (progress) => {
+          // Could update a progress bar here
+          console.log(`Generation progress: ${progress}%`)
+        },
+        onEvent: (event) => {
+          // Handle SSE events from sync generation
+          if (event.type === 'plan') {
+            setGenerationPlan(event.data)
+          } else if (event.type === 'modifications') {
+            setModifications(event.data)
+          } else if (event.type === 'chat_message') {
+            const chatMessage: Message = {
+              role: 'assistant',
+              content: event.data,
+              id: `msg-gen-${Date.now()}-${Math.random()}`,
+              timestamp: new Date()
             }
+            setMessages(prev => [...prev, chatMessage])
+          } else if (event.type === 'step') {
+            setSteps(prev => {
+              const existingIndex = prev.findIndex(s => s.step === event.data.step)
+              if (existingIndex >= 0) {
+                const newSteps = [...prev]
+                newSteps[existingIndex] = event.data
+                return newSteps
+              }
+              return [...prev, event.data]
+            })
+          } else if (event.type === 'substep') {
+            lastProgressUpdateTime.current = Date.now()
+            setShowStuckMessage(false)
+            if (stuckMessageTimer.current) {
+              clearTimeout(stuckMessageTimer.current)
+            }
+            stuckMessageTimer.current = setTimeout(() => {
+              setShowStuckMessage(true)
+            }, 5000)
+            setSubSteps(prev => {
+              const existingIndex = prev.findIndex(s => s.step === event.data.step)
+              if (existingIndex >= 0) {
+                const newSubSteps = [...prev]
+                newSubSteps[existingIndex] = event.data
+                return newSubSteps
+              }
+              return [...prev, event.data]
+            })
           }
         }
+      })
+
+      // Process result
+      if (result.isMultiFile) {
+        console.log('✅ Generation complete - React multi-file project')
+        console.log('📁 Files:', result.files.length)
+        setIsMultiFile(true)
+        setProjectFiles(result.files)
+        setHasDatabase(result.hasDatabase || false)
+        setDatabaseSchema(result.databaseSchema || null)
+
+        const defaultFile = result.files.find((f: any) =>
+          f.path === 'src/App.jsx' || f.path === 'src/App.tsx' || f.path === 'src/main.jsx'
+        ) || result.files[0]
+
+        if (defaultFile) {
+          setSelectedFile(defaultFile.path)
+          setGeneratedCode(defaultFile.content)
+        }
+      } else {
+        // Legacy single-file support (should not happen anymore)
+        console.log('✅ Single-file HTML (legacy)')
+        setIsMultiFile(false)
+        setGeneratedCode(result.files[0]?.content || '')
       }
+
+      // Success message
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: 'Application générée avec succès ! Vous pouvez la voir dans la preview et demander des modifications.',
+        id: `msg-${Date.now()}`,
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, assistantMessage])
+
     } catch (err) {
       console.error('Generation error:', err)
       setError(err instanceof Error ? err.message : 'Erreur de génération')
