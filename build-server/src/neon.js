@@ -1,6 +1,6 @@
 /**
  * Neon Database Management for Build Server
- * Gestion des branches Neon pour isolation des projets
+ * Branch-based isolation for generated projects
  */
 
 const NEON_API_KEY = process.env.NEON_API_KEY
@@ -8,7 +8,7 @@ const NEON_PROJECT_ID = process.env.NEON_PROJECT_ID
 const NEON_API_BASE = 'https://console.neon.tech/api/v2'
 
 /**
- * Convertit le type JSON en type PostgreSQL
+ * Convert JSON type to PostgreSQL type
  */
 function mapTypeToPostgreSQL(type) {
   const typeMap = {
@@ -25,12 +25,12 @@ function mapTypeToPostgreSQL(type) {
 }
 
 /**
- * Génère le SQL CREATE TABLE depuis le schema JSON
+ * Generate SQL CREATE TABLE from JSON schema
  */
 export function generateCreateTableSQL(schema) {
   const sqlStatements = []
 
-  // Créer les tables
+  // Create tables
   for (const table of schema.tables) {
     const columns = []
 
@@ -56,7 +56,7 @@ export function generateCreateTableSQL(schema) {
     sqlStatements.push(createTableSQL)
   }
 
-  // Ajouter les foreign keys
+  // Add foreign keys
   for (const table of schema.tables) {
     for (const col of table.columns) {
       if (col.references) {
@@ -71,10 +71,10 @@ export function generateCreateTableSQL(schema) {
 }
 
 /**
- * Crée une branche Neon pour un projet
+ * Create a Neon branch for a project
  */
 export async function createProjectBranch(projectId) {
-  console.log(`=æ Creating Neon branch for project ${projectId}...`)
+  console.log(`Creating Neon branch for project ${projectId}...`)
 
   if (!NEON_API_KEY || !NEON_PROJECT_ID) {
     throw new Error('NEON_API_KEY and NEON_PROJECT_ID must be set in environment variables')
@@ -111,10 +111,10 @@ export async function createProjectBranch(projectId) {
   const branch = data.branch
   const endpoint = data.endpoints[0]
 
-  // Construire la connection string
+  // Build connection string
   const connectionString = `postgresql://${endpoint.host}/${branch.name}?sslmode=require`
 
-  console.log(` Neon branch created: ${branch.id}`)
+  console.log(`Neon branch created: ${branch.id}`)
 
   return {
     branchId: branch.id,
@@ -123,24 +123,24 @@ export async function createProjectBranch(projectId) {
 }
 
 /**
- * Crée les tables dans une branche Neon en utilisant l'API SQL
+ * Create tables in a Neon branch using SQL API
  */
 export async function createTablesInBranch(connectionString, schema) {
-  console.log(`=( Creating tables in Neon branch...`)
+  console.log(`Creating tables in Neon branch...`)
 
   const createSQL = generateCreateTableSQL(schema)
 
-  // Parse connection string pour obtenir les paramètres
+  // Parse connection string to get parameters
   const url = new URL(connectionString)
   const host = url.hostname
   const database = url.pathname.slice(1) // Remove leading /
 
-  // Exécuter le SQL via l'API Neon
+  // Execute SQL via Neon API
   const statements = createSQL.split(';').filter(s => s.trim())
 
   for (const statement of statements) {
     if (statement.trim()) {
-      // Utiliser l'API Neon SQL pour exécuter les requêtes
+      // Use Neon SQL API to execute queries
       const sqlResponse = await fetch(`${NEON_API_BASE}/projects/${NEON_PROJECT_ID}/sql`, {
         method: 'POST',
         headers: {
@@ -162,22 +162,22 @@ export async function createTablesInBranch(connectionString, schema) {
     }
   }
 
-  console.log(` Tables created successfully`)
+  console.log(`Tables created successfully`)
 }
 
 /**
- * Fonction principale : Crée une DB complète pour un projet
+ * Main function: Create complete DB for a project
  */
 export async function createProjectDatabase(projectId, schema) {
-  console.log(`\n=€ Creating database for project ${projectId}`)
+  console.log(`\nCreating database for project ${projectId}`)
 
-  // 1. Créer la branche
+  // 1. Create branch
   const { branchId, connectionString } = await createProjectBranch(projectId)
 
-  // 2. Créer les tables
+  // 2. Create tables
   await createTablesInBranch(connectionString, schema)
 
-  console.log(` Database ready for project ${projectId}\n`)
+  console.log(`Database ready for project ${projectId}\n`)
 
   return { branchId, connectionString }
 }
