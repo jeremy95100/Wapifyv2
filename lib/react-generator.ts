@@ -297,9 +297,10 @@ async function generateBaseComplete(
    Configure React Router avec TOUTES ces routes :
 ${plan.routing.routes.map(r => `   - <Route path="${r.path}" element={<${r.component} />} />`).join('\n')}
 
-   ⚠️ IMPORTANT : Les pages n'existent pas encore, crée juste des placeholders :
-   const HomePage = () => <div>Loading...</div>
-   const ProductsPage = () => <div>Loading...</div>
+   ⚠️ IMPORTANT : Importe les pages depuis src/pages/ :
+${plan.routing.routes.map(r => `   import ${r.component} from './pages/${r.component}'`).join('\n')}
+
+   Les pages seront générées dans les prochaines étapes.
 
 4. COMPOSANTS BUSINESS (dans src/components/) :
    - Header.${ext} (simple header avec logo et navigation - EXPORT DEFAULT!)
