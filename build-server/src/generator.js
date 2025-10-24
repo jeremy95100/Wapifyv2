@@ -8,7 +8,8 @@ import Anthropic from '@anthropic-ai/sdk'
 import { Redis } from 'ioredis'
 import { generateReactProject } from './react-generator.ts'
 import { generateExpressAPI } from './api-generator.js'
-import { deployToGitHub } from './github-deployer.js'
+import { deployToGitHub, addAPIEnvironmentFile } from './github-deployer.js'
+import { deployAPIToRailway } from './railway.js'
 
 // Initialiser Anthropic
 const anthropic = new Anthropic({
@@ -254,6 +255,57 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
       })
     }
 
+    // Étape 5 : Déployer l'API backend sur Railway (si database requise)
+    let railwayInfo = null
+    if (result.hasDatabase && dbInfo?.connectionString && githubInfo?.repoFullName) {
+      try {
+        console.log('🚂 Deploying API to Railway...')
+
+        await publishEvent(jobId, 'step', {
+          step: 5,
+          description: 'Déploiement du backend sur Railway...',
+          status: 'in_progress'
+        })
+
+        await publishEvent(jobId, 'substep', {
+          step: 5,
+          description: 'Création du service Railway'
+        })
+
+        railwayInfo = await deployAPIToRailway(
+          githubInfo.repoFullName,
+          projectId,
+          dbInfo.connectionString
+        )
+
+        console.log(`✅ Railway deployment complete: ${railwayInfo.apiUrl}`)
+
+        await publishEvent(jobId, 'substep', {
+          step: 5,
+          description: `✓ API déployée sur Railway`
+        })
+
+        // Ajouter l'URL de l'API au repo GitHub pour le frontend
+        await publishEvent(jobId, 'substep', {
+          step: 5,
+          description: 'Configuration du frontend avec l\'URL de l\'API'
+        })
+
+        await addAPIEnvironmentFile(githubInfo.repoFullName, railwayInfo.apiUrl)
+
+        console.log(`✅ Frontend configured with API URL`)
+
+      } catch (error) {
+        console.error('❌ Failed to deploy to Railway:', error)
+        await publishEvent(jobId, 'warning', {
+          message: 'Railway deployment failed',
+          error: error.message
+        })
+      }
+    } else if (result.hasDatabase && (!dbInfo || !githubInfo)) {
+      console.warn('⚠️  API deployment skipped: database or GitHub deployment failed')
+    }
+
     if (onProgress) await onProgress(100)
 
     // Événement de complétion
@@ -267,6 +319,8 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
       githubRepo: githubInfo?.repoUrl,
       githubRepoFullName: githubInfo?.repoFullName,
       githubCloneUrl: githubInfo?.cloneUrl,
+      railwayService: railwayInfo?.serviceName,
+      railwayApiUrl: railwayInfo?.apiUrl,
       filesCount: result.files.length,
       summary: {
         pages: filesByType.pages.length,
@@ -274,7 +328,8 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
         configs: filesByType.config.length,
         totalFiles: result.files.length,
         database: result.hasDatabase ? `${result.databaseSchema.tables.length} tables` : 'none',
-        github: githubInfo?.repoUrl || 'failed'
+        github: githubInfo?.repoUrl || 'failed',
+        railway: railwayInfo?.apiUrl || 'none'
       }
     })
 
@@ -289,6 +344,8 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
       githubRepo: githubInfo?.repoUrl,
       githubRepoFullName: githubInfo?.repoFullName,
       githubCloneUrl: githubInfo?.cloneUrl,
+      railwayService: railwayInfo?.serviceName,
+      railwayApiUrl: railwayInfo?.apiUrl,
       filesCount: result.files.length
     }
 

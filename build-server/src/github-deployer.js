@@ -314,6 +314,29 @@ Co-Authored-By: Claude <noreply@anthropic.com>`
 }
 
 /**
+ * Add API URL environment variable to repository
+ * Called after Railway deployment completes
+ */
+export async function addAPIEnvironmentFile(repoFullName, apiUrl, branch = 'main') {
+  console.log(`🔧 Adding API URL to ${repoFullName}...`)
+
+  const envContent = `# API Configuration
+# Auto-generated after Railway deployment
+VITE_API_URL=${apiUrl}
+`
+
+  await createOrUpdateFile(
+    repoFullName,
+    '.env.production',
+    envContent,
+    'Add API URL environment variable',
+    branch
+  )
+
+  console.log(`✅ API URL added to repository`)
+}
+
+/**
  * Get repository information
  */
 export async function getRepoInfo(repoFullName) {

@@ -579,6 +579,15 @@ TOUS les boutons, formulaires et interactions DOIVENT être VRAIMENT fonctionnel
 ❌ INTERDIT : Boutons sans onClick, formulaires sans onSubmit, données non modifiables
 ✅ REQUIS : Tout doit fonctionner comme une vraie app, même sans backend
 
+5. APPELS API (si database requise) :
+   - TOUJOURS utiliser : const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+   - Format d'appel : fetch(\`\${API_URL}/api/tasks\`, {...})
+   - Exemple complet :
+     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+     const response = await fetch(\`\${API_URL}/api/tasks\`)
+   - NE JAMAIS hardcoder l'URL de l'API en dur (ni localhost, ni production)
+   - La variable VITE_API_URL sera définie automatiquement après le déploiement Railway
+
 - Icônes de lucide-react : RÈGLE CRITIQUE - TOUTE icône utilisée dans le code DOIT être importée !
   ⚠️ FORMAT D'IMPORT OBLIGATOIRE (exemple) :
   import { Home, User, Settings, Menu, X, Search, Plus, Trash, Edit } from 'lucide-react'
