@@ -785,8 +785,9 @@ function fixMissingIconImports(files: ProjectFile[]): ProjectFile[] {
     // Trouver les icônes utilisées dans le code
     const usedIcons = new Set<string>()
     lines.forEach(line => {
-      // Chercher les patterns comme <IconName /> ou <IconName>
-      const iconMatches = line.matchAll(/<([A-Z][a-zA-Z0-9]+)\s*[/>]/g)
+      // Chercher les patterns comme <IconName />, <IconName>, <IconName className="...">
+      // Regex améliorée pour capturer TOUS les composants JSX, même avec props
+      const iconMatches = line.matchAll(/<([A-Z][a-zA-Z0-9]+)(?:\s|>|\/)/g)
       for (const match of iconMatches) {
         const iconName = match[1]
         // Vérifier si c'est une icône lucide-react valide
