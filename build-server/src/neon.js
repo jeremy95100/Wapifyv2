@@ -123,46 +123,43 @@ export async function createProjectBranch(projectId) {
 }
 
 /**
- * Create tables in a Neon branch using SQL API
+ * Create tables in a Neon branch using connection string directly
+ * Uses @neondatabase/serverless which works in Node.js environment
  */
 export async function createTablesInBranch(connectionString, schema) {
   console.log(`Creating tables in Neon branch...`)
 
   const createSQL = generateCreateTableSQL(schema)
 
-  // Parse connection string to get parameters
-  const url = new URL(connectionString)
-  const host = url.hostname
-  const database = url.pathname.slice(1) // Remove leading /
+  // Use node-postgres to execute SQL since we're in Node.js environment
+  const { Client } = await import('pg')
 
-  // Execute SQL via Neon API
-  const statements = createSQL.split(';').filter(s => s.trim())
+  const client = new Client({
+    connectionString,
+    ssl: { rejectUnauthorized: false }
+  })
 
-  for (const statement of statements) {
-    if (statement.trim()) {
-      // Use Neon SQL API to execute queries
-      const sqlResponse = await fetch(`${NEON_API_BASE}/projects/${NEON_PROJECT_ID}/sql`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${NEON_API_KEY}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          query: statement.trim(),
-          params: []
-        })
-      })
+  try {
+    await client.connect()
+    console.log('Connected to Neon database')
 
-      if (!sqlResponse.ok) {
-        const error = await sqlResponse.text()
-        console.error(`Failed to execute SQL: ${error}`)
-        throw new Error(`Failed to execute SQL: ${sqlResponse.status} ${error}`)
+    // Execute SQL statements
+    const statements = createSQL.split(';').filter(s => s.trim())
+
+    for (const statement of statements) {
+      if (statement.trim()) {
+        console.log(`Executing SQL: ${statement.trim().substring(0, 100)}...`)
+        await client.query(statement.trim())
       }
     }
-  }
 
-  console.log(`Tables created successfully`)
+    console.log(`Tables created successfully`)
+  } catch (error) {
+    console.error('Error executing SQL:', error)
+    throw error
+  } finally {
+    await client.end()
+  }
 }
 
 /**
