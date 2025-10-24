@@ -1,38 +1,17 @@
 /**
- * Neon Database Management
+ * Neon Database Management for Build Server
  * Gestion des branches Neon pour isolation des projets
- * Approche: 1 projet Neon principal + 1 branche par app g√©n√©r√©e
  */
 
-import { neon } from '@neondatabase/serverless'
-
-const NEON_API_KEY = process.env.NEON_API_KEY!
-const NEON_PROJECT_ID = process.env.NEON_PROJECT_ID!
+const NEON_API_KEY = process.env.NEON_API_KEY
+const NEON_PROJECT_ID = process.env.NEON_PROJECT_ID
 const NEON_API_BASE = 'https://console.neon.tech/api/v2'
-
-interface DatabaseColumn {
-  name: string
-  type: string
-  primaryKey?: boolean
-  nullable?: boolean
-  default?: string
-  references?: string // format: "table.column"
-}
-
-interface DatabaseTable {
-  name: string
-  columns: DatabaseColumn[]
-}
-
-export interface DatabaseSchema {
-  tables: DatabaseTable[]
-}
 
 /**
  * Convertit le type JSON en type PostgreSQL
  */
-function mapTypeToPostgreSQL(type: string): string {
-  const typeMap: Record<string, string> = {
+function mapTypeToPostgreSQL(type) {
+  const typeMap = {
     uuid: 'UUID',
     text: 'TEXT',
     integer: 'INTEGER',
@@ -46,14 +25,14 @@ function mapTypeToPostgreSQL(type: string): string {
 }
 
 /**
- * G√©n√®re le SQL CREATE TABLE depuis le schema JSON
+ * GÈnËre le SQL CREATE TABLE depuis le schema JSON
  */
-export function generateCreateTableSQL(schema: DatabaseSchema): string {
-  const sqlStatements: string[] = []
+export function generateCreateTableSQL(schema) {
+  const sqlStatements = []
 
-  // Cr√©er les tables
+  // CrÈer les tables
   for (const table of schema.tables) {
-    const columns: string[] = []
+    const columns = []
 
     for (const col of table.columns) {
       let columnDef = `"${col.name}" ${mapTypeToPostgreSQL(col.type)}`
@@ -77,7 +56,7 @@ export function generateCreateTableSQL(schema: DatabaseSchema): string {
     sqlStatements.push(createTableSQL)
   }
 
-  // Ajouter les foreign keys (dans un second temps pour √©viter les d√©pendances circulaires)
+  // Ajouter les foreign keys
   for (const table of schema.tables) {
     for (const col of table.columns) {
       if (col.references) {
@@ -92,13 +71,14 @@ export function generateCreateTableSQL(schema: DatabaseSchema): string {
 }
 
 /**
- * Cr√©e une branche Neon pour un projet
+ * CrÈe une branche Neon pour un projet
  */
-export async function createProjectBranch(projectId: string): Promise<{
-  branchId: string
-  connectionString: string
-}> {
-  console.log(`üì¶ Creating Neon branch for project ${projectId}...`)
+export async function createProjectBranch(projectId) {
+  console.log(`=Ê Creating Neon branch for project ${projectId}...`)
+
+  if (!NEON_API_KEY || !NEON_PROJECT_ID) {
+    throw new Error('NEON_API_KEY and NEON_PROJECT_ID must be set in environment variables')
+  }
 
   const response = await fetch(
     `${NEON_API_BASE}/projects/${NEON_PROJECT_ID}/branches`,
@@ -134,7 +114,7 @@ export async function createProjectBranch(projectId: string): Promise<{
   // Construire la connection string
   const connectionString = `postgresql://${endpoint.host}/${branch.name}?sslmode=require`
 
-  console.log(`‚úÖ Neon branch created: ${branch.id}`)
+  console.log(` Neon branch created: ${branch.id}`)
 
   return {
     branchId: branch.id,
@@ -143,73 +123,61 @@ export async function createProjectBranch(projectId: string): Promise<{
 }
 
 /**
- * Cr√©e les tables dans une branche Neon
+ * CrÈe les tables dans une branche Neon en utilisant l'API SQL
  */
-export async function createTablesInBranch(
-  connectionString: string,
-  schema: DatabaseSchema
-): Promise<void> {
-  console.log(`üî® Creating tables in Neon branch...`)
+export async function createTablesInBranch(connectionString, schema) {
+  console.log(`=( Creating tables in Neon branch...`)
 
-  const sql = neon(connectionString)
   const createSQL = generateCreateTableSQL(schema)
 
-  // Ex√©cuter le SQL
+  // Parse connection string pour obtenir les paramËtres
+  const url = new URL(connectionString)
+  const host = url.hostname
+  const database = url.pathname.slice(1) // Remove leading /
+
+  // ExÈcuter le SQL via l'API Neon
   const statements = createSQL.split(';').filter(s => s.trim())
 
   for (const statement of statements) {
     if (statement.trim()) {
-      await sql(statement.trim())
-    }
-  }
+      // Utiliser l'API Neon SQL pour exÈcuter les requÍtes
+      const sqlResponse = await fetch(`${NEON_API_BASE}/projects/${NEON_PROJECT_ID}/sql`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NEON_API_KEY}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          query: statement.trim(),
+          params: []
+        })
+      })
 
-  console.log(`‚úÖ Tables created successfully`)
-}
-
-/**
- * Supprime une branche Neon (pour cleanup)
- */
-export async function deleteProjectBranch(branchId: string): Promise<void> {
-  console.log(`üóëÔ∏è  Deleting Neon branch ${branchId}...`)
-
-  const response = await fetch(
-    `${NEON_API_BASE}/projects/${NEON_PROJECT_ID}/branches/${branchId}`,
-    {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${NEON_API_KEY}`,
-        'Accept': 'application/json'
+      if (!sqlResponse.ok) {
+        const error = await sqlResponse.text()
+        console.error(`Failed to execute SQL: ${error}`)
+        throw new Error(`Failed to execute SQL: ${sqlResponse.status} ${error}`)
       }
     }
-  )
-
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`Failed to delete Neon branch: ${response.status} ${error}`)
   }
 
-  console.log(`‚úÖ Neon branch deleted`)
+  console.log(` Tables created successfully`)
 }
 
 /**
- * Fonction principale : Cr√©e une DB compl√®te pour un projet
+ * Fonction principale : CrÈe une DB complËte pour un projet
  */
-export async function createProjectDatabase(
-  projectId: string,
-  schema: DatabaseSchema
-): Promise<{
-  branchId: string
-  connectionString: string
-}> {
-  console.log(`\nüöÄ Creating database for project ${projectId}`)
+export async function createProjectDatabase(projectId, schema) {
+  console.log(`\n=Ä Creating database for project ${projectId}`)
 
-  // 1. Cr√©er la branche
+  // 1. CrÈer la branche
   const { branchId, connectionString } = await createProjectBranch(projectId)
 
-  // 2. Cr√©er les tables
+  // 2. CrÈer les tables
   await createTablesInBranch(connectionString, schema)
 
-  console.log(`‚úÖ Database ready for project ${projectId}\n`)
+  console.log(` Database ready for project ${projectId}\n`)
 
   return { branchId, connectionString }
 }

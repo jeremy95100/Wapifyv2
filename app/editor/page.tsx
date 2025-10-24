@@ -135,6 +135,8 @@ export default function EditorPage() {
   const [projectFiles, setProjectFiles] = useState<Array<{path: string, content: string, type?: string}>>([])
   const [hasDatabase, setHasDatabase] = useState(false)
   const [databaseSchema, setDatabaseSchema] = useState<string | null>(null)
+  const [dbBranchId, setDbBranchId] = useState<string | null>(null)
+  const [dbConnectionString, setDbConnectionString] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'preview' | 'dashboard' | 'code'>('preview')
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [fileContent, setFileContent] = useState<string>('')
@@ -241,6 +243,8 @@ export default function EditorPage() {
           requestBody.files = projectFiles
           requestBody.hasDatabase = hasDatabase
           requestBody.databaseSchema = databaseSchema
+          if (dbBranchId) requestBody.dbBranchId = dbBranchId
+          if (dbConnectionString) requestBody.dbConnectionString = dbConnectionString
         } else {
           requestBody.code = code
         }
@@ -261,7 +265,7 @@ export default function EditorPage() {
     } finally {
       setIsSaving(false)
     }
-  }, [projectId, projectName, session, isMultiFile, projectFiles, hasDatabase, databaseSchema])
+  }, [projectId, projectName, session, isMultiFile, projectFiles, hasDatabase, databaseSchema, dbBranchId, dbConnectionString])
 
   useEffect(() => {
     scrollToBottom()
@@ -569,6 +573,14 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
         setProjectFiles(result.files)
         setHasDatabase(result.hasDatabase || false)
         setDatabaseSchema(result.databaseSchema || null)
+        if (result.dbBranchId) {
+          setDbBranchId(result.dbBranchId)
+          console.log('🗄️  Database branch created:', result.dbBranchId)
+        }
+        if (result.dbConnectionString) {
+          setDbConnectionString(result.dbConnectionString)
+          console.log('🔗 Database connection ready')
+        }
 
         const defaultFile = result.files.find((f: any) =>
           f.path === 'src/App.jsx' || f.path === 'src/App.tsx' || f.path === 'src/main.jsx'

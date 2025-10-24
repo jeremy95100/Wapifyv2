@@ -134,6 +134,47 @@ export async function generateProject({ prompt, jobId, conversationHistory = [],
     console.log(`📄 Pages: ${filesByType.pages.length}`)
     console.log(`🧩 Components: ${filesByType.components.length}`)
 
+    // Étape 3 : Créer la base de données si nécessaire
+    let dbInfo = null
+    if (result.hasDatabase && result.databaseSchema) {
+      console.log('🗄️  Database required, creating Neon branch...')
+
+      await publishEvent(jobId, 'step', {
+        step: 3,
+        description: 'Création de la base de données...',
+        status: 'in_progress'
+      })
+
+      await publishEvent(jobId, 'substep', {
+        step: 3,
+        description: 'Création d\'une branche Neon dédiée'
+      })
+
+      try {
+        // Import de la fonction Neon
+        const { createProjectDatabase } = await import('./neon.js')
+
+        // Créer la branche et les tables
+        const projectId = jobId // Utiliser jobId comme projectId
+        dbInfo = await createProjectDatabase(projectId, result.databaseSchema)
+
+        console.log(`✅ Database created: ${dbInfo.branchId}`)
+
+        await publishEvent(jobId, 'substep', {
+          step: 3,
+          description: `✓ Base de données créée (${result.databaseSchema.tables.length} tables)`
+        })
+
+      } catch (error) {
+        console.error('❌ Failed to create database:', error)
+        // Ne pas bloquer si la DB échoue, juste logger
+        await publishEvent(jobId, 'warning', {
+          message: 'Database creation failed',
+          error: error.message
+        })
+      }
+    }
+
     if (onProgress) await onProgress(100)
 
     // Événement de complétion
@@ -142,12 +183,15 @@ export async function generateProject({ prompt, jobId, conversationHistory = [],
       files: result.files,
       hasDatabase: result.hasDatabase,
       databaseSchema: result.databaseSchema,
+      dbBranchId: dbInfo?.branchId,
+      dbConnectionString: dbInfo?.connectionString,
       filesCount: result.files.length,
       summary: {
         pages: filesByType.pages.length,
         components: filesByType.components.length,
         configs: filesByType.config.length,
-        totalFiles: result.files.length
+        totalFiles: result.files.length,
+        database: result.hasDatabase ? `${result.databaseSchema.tables.length} tables` : 'none'
       }
     })
 
@@ -157,6 +201,8 @@ export async function generateProject({ prompt, jobId, conversationHistory = [],
       files: result.files,
       hasDatabase: result.hasDatabase,
       databaseSchema: result.databaseSchema,
+      dbBranchId: dbInfo?.branchId,
+      dbConnectionString: dbInfo?.connectionString,
       filesCount: result.files.length
     }
 

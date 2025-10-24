@@ -260,7 +260,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const { projectId, code, status, deployedUrl, files } = body
+    const { projectId, code, status, deployedUrl, files, dbBranchId, dbConnectionString, databaseSchema } = body
 
     if (!projectId) {
       return NextResponse.json(
@@ -303,6 +303,9 @@ export async function PATCH(request: NextRequest) {
     if (code !== undefined) updateData.code = code
     if (status !== undefined) updateData.status = status
     if (deployedUrl !== undefined) updateData.deployed_url = deployedUrl
+    if (dbBranchId !== undefined) updateData.db_branch_id = dbBranchId
+    if (dbConnectionString !== undefined) updateData.db_connection_string = dbConnectionString
+    if (databaseSchema !== undefined) updateData.database_schema = databaseSchema
 
     // Mettre à jour le projet
     const { data: project, error } = await supabaseAdmin
