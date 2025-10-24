@@ -119,6 +119,11 @@ function attemptJsonRepair(jsonText: string): string {
 }
 
 /**
+ * ANCIENNES FONCTIONS (2 ÉTAPES) - NON UTILISÉES
+ * Conservées pour référence ou rollback si nécessaire
+ */
+
+/**
  * Prompt système pour la génération du plan
  */
 const PLAN_SYSTEM_PROMPT = `Tu es un expert architecte logiciel pour WAPIFY.
@@ -470,38 +475,194 @@ export async function generateReactProject(
   prompt: string,
   anthropic: any
 ): Promise<ReactProjectStructure> {
-  console.log('🚀 Starting simplified 2-step generation process...')
-
-  // Historique de conversation simplifié
-  const conversationHistory: ConversationMessage[] = []
+  console.log('🚀 Starting single-call generation process...')
 
   try {
     // ====================================
-    // ÉTAPE 1 : GÉNÉRER LE PLAN
+    // GÉNÉRATION DIRECTE EN 1 SEUL APPEL
     // ====================================
-    console.log('\n📋 Step 1/2: Generating project plan...')
-    const plan = await generateProjectPlan(prompt, anthropic, conversationHistory)
-
-    // ====================================
-    // ÉTAPE 2 : GÉNÉRER TOUT LE PROJET
-    // ====================================
-    console.log('\n🏗️  Step 2/2: Generating complete project...')
-    const allFiles = await generateCompleteProject(plan, anthropic)
+    console.log('\n🏗️  Generating complete project in one call...')
+    const result = await generateProjectDirectly(prompt, anthropic)
 
     console.log('\n✅ Generation complete!')
-    console.log(`   Total files: ${allFiles.length}`)
-    console.log(`   Pages: ${plan.pages.length}`)
-    console.log(`   UI Components: ${plan.components.ui.length}`)
+    console.log(`   Total files: ${result.files.length}`)
 
-    return {
-      files: allFiles,
-      hasDatabase: plan.techStack.hasDatabase,
-      databaseSchema: plan.databaseSchema
-    }
+    return result
 
   } catch (error) {
     console.error('❌ Error in generation process:', error)
     throw error
+  }
+}
+
+/**
+ * NOUVEAU : Génération directe en 1 seul appel (sans étape plan)
+ */
+async function generateProjectDirectly(
+  prompt: string,
+  anthropic: any
+): Promise<ReactProjectStructure> {
+  console.log('📝 Analyzing prompt and generating project...')
+
+  const DIRECT_SYSTEM_PROMPT = `Tu es un expert développeur React pour WAPIFY.
+
+Ta mission : Analyser un prompt utilisateur et générer DIRECTEMENT un projet React complet en une seule réponse.
+
+Tu DOIS générer TOUS LES FICHIERS en UNE SEULE RÉPONSE JSON :
+1. Fichiers de configuration (package.json, vite.config, tailwind.config, postcss.config, tsconfig si TypeScript)
+2. TOUS les composants UI (Button, Card, Input avec NAMED EXPORTS)
+3. App.tsx avec React Router et imports corrects des pages
+4. Composants business (Header, Footer avec DEFAULT EXPORTS)
+5. TOUTES les pages du projet (3-4 pages max)
+6. Fichiers utils et CSS
+
+RÈGLES CRITIQUES :
+- Analyse le prompt et décide automatiquement :
+  * Combien de pages (3-4 max)
+  * Quelles features pour chaque page
+  * Si une base de données est nécessaire
+  * TypeScript (.tsx) ou JavaScript (.jsx)
+- Génère TOUT en une seule réponse JSON
+- Composants UI : UNIQUEMENT Button, Card, Input - NAMED EXPORTS
+- CardContent children: Toujours utiliser children?: React.ReactNode (pour accepter plusieurs enfants)
+- Header/Footer : DEFAULT EXPORTS (export default Header)
+- Pages : DEFAULT EXPORTS (export default HomePage)
+- App.tsx doit importer les vraies pages depuis src/pages/
+- Données mockées DANS les pages (6-8 items min)
+- State local avec useState (pas de Context)
+- Navigation avec Link de react-router-dom
+- Icônes de lucide-react
+- NE PAS utiliser asChild, NE PAS créer d'autres composants (ProductCard, etc.)
+- Design shadcn/ui avec Tailwind
+- Pas de placeholders ou TODOs
+
+⚠️ RÈGLES TYPESCRIPT/JAVASCRIPT STRICTES :
+- Assure-toi que TOUS les noms de propriétés sont utilisés de manière COHÉRENTE
+- Si tu définis const settings = { activeSessions: 3 }, utilise TOUJOURS settings.activeSessions
+- Vérifie qu'il n'y a AUCUNE faute de frappe dans les noms de variables/propriétés
+- Le code DOIT compiler sans erreur TypeScript (si .tsx)
+- Double-vérifie la cohérence des noms avant de générer le JSON
+
+FORMAT DE RÉPONSE (JSON uniquement) :
+{
+  "siteName": "Nom de l'app",
+  "hasDatabase": false,
+  "databaseSchema": null,
+  "files": [
+    {
+      "path": "package.json",
+      "content": "...",
+      "type": "config"
+    },
+    {
+      "path": "src/pages/HomePage.tsx",
+      "content": "...",
+      "type": "component"
+    }
+  ]
+}
+
+⚠️ RÈGLES JSON STRICTES (TRÈS IMPORTANT) :
+CHAQUE guillemet, backslash et retour à la ligne dans le code DOIT être échappé !
+
+Exemples d'échappement CORRECT :
+❌ INCORRECT : "content": "const text = "Hello""
+✅ CORRECT :   "content": "const text = \\"Hello\\""
+
+❌ INCORRECT : "content": "import React from 'react'
+export default App"
+✅ CORRECT :   "content": "import React from 'react'\\nexport default App"
+
+❌ INCORRECT : "content": "const path = "C:\\folder\\file""
+✅ CORRECT :   "content": "const path = \\"C:\\\\folder\\\\file\\""
+
+RÈGLES ABSOLUES :
+1. Tout guillemet " dans le code → \\"
+2. Tout backslash \\ dans le code → \\\\
+3. Tout retour à la ligne → \\n
+4. PAS de backticks dans les strings JSON
+5. Ferme TOUTES les strings avec "
+6. Vérifie que chaque { a son } et chaque [ a son ]
+
+Si le JSON n'est pas parfaitement valide, la génération ÉCHOUERA !
+
+Réponds UNIQUEMENT avec le JSON, rien d'autre.`
+
+  const userMessage = `Génère un projet React complet basé sur cette description :
+
+${prompt}
+
+Instructions :
+- Analyse le prompt et détermine le nombre de pages nécessaires (3-4 max)
+- Crée des features appropriées pour chaque page
+- Utilise TypeScript (.tsx) par défaut
+- Génère des données mockées réalistes (6-8 items minimum)
+- Design professionnel avec shadcn/ui et Tailwind CSS
+- Navigation fluide avec React Router
+
+Réponds en JSON : { "siteName": "...", "hasDatabase": false, "databaseSchema": null, "files": [...] }`
+
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 32000,
+    temperature: 0.7,
+    stream: true,
+    system: DIRECT_SYSTEM_PROMPT,
+    messages: [
+      {
+        role: 'user',
+        content: userMessage
+      }
+    ]
+  })
+
+  // Collecter la réponse streamée
+  let fullResponse = ''
+  for await (const chunk of response) {
+    if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+      fullResponse += chunk.delta.text
+    }
+  }
+
+  console.log('📝 Base response length:', fullResponse.length, 'characters')
+
+  // Extraire et parser le JSON
+  const jsonText = extractJSON(fullResponse)
+  console.log('📦 Extracted JSON length:', jsonText.length, 'characters')
+
+  let parsed: any
+  try {
+    parsed = JSON.parse(jsonText)
+  } catch (parseError) {
+    console.error('❌ JSON Parse Error:', parseError)
+    throw new Error('Failed to parse JSON response from Claude')
+  }
+
+  console.log('✅ JSON parsed successfully')
+
+  // Créer un plan minimal pour ensureRequiredFiles
+  const minimalPlan: ProjectPlan = {
+    siteName: parsed.siteName || 'Wapify App',
+    techStack: {
+      fileExtension: parsed.files.some((f: any) => f.path.endsWith('.tsx')) ? 'tsx' : 'jsx',
+      libraries: ['react', 'react-router-dom', 'tailwind'],
+      hasDatabase: parsed.hasDatabase || false
+    },
+    pages: [],
+    components: { ui: ['Button', 'Card', 'Input'], business: ['Header', 'Footer'] },
+    routing: { routes: [] },
+    databaseSchema: parsed.databaseSchema
+  }
+
+  // S'assurer que tous les fichiers requis existent
+  const allFiles = ensureRequiredFiles(parsed.files, minimalPlan)
+
+  console.log(`✅ Base generated: ${allFiles.length} files`)
+
+  return {
+    files: allFiles,
+    hasDatabase: parsed.hasDatabase || false,
+    databaseSchema: parsed.databaseSchema
   }
 }
 
