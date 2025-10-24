@@ -729,6 +729,41 @@ Réponds en JSON : { "siteName": "...", "hasDatabase": false, "databaseSchema": 
 
   console.log('✅ JSON parsed successfully')
 
+  // VALIDATION FORCÉE: Détection automatique de database requirement
+  const promptLower = prompt.toLowerCase()
+  const requiresDatabaseKeywords = ['todo', 'task', 'tâche', 'gestion', 'crud', 'blog', 'cms', 'commerce', 'shop', 'cart', 'panier', 'booking', 'reservation', 'réservation']
+  const shouldHaveDatabase = requiresDatabaseKeywords.some(keyword => promptLower.includes(keyword))
+
+  if (shouldHaveDatabase && !parsed.hasDatabase) {
+    console.warn('⚠️  Claude generated without database but prompt requires it. Forcing hasDatabase: true')
+    parsed.hasDatabase = true
+
+    // Générer un schema basique si manquant
+    if (!parsed.databaseSchema) {
+      console.log('📦 Generating default database schema based on prompt...')
+
+      // Schema basique pour todo list
+      if (promptLower.includes('todo') || promptLower.includes('task') || promptLower.includes('tâche')) {
+        parsed.databaseSchema = {
+          tables: [
+            {
+              name: 'tasks',
+              columns: [
+                { name: 'id', type: 'uuid', primaryKey: true, default: 'gen_random_uuid()' },
+                { name: 'title', type: 'text', nullable: false },
+                { name: 'description', type: 'text', nullable: true },
+                { name: 'completed', type: 'boolean', default: 'false' },
+                { name: 'priority', type: 'text', default: "'medium'" },
+                { name: 'created_at', type: 'timestamp', default: 'now()' },
+                { name: 'updated_at', type: 'timestamp', default: 'now()' }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+
   // Créer un plan minimal pour ensureRequiredFiles
   const minimalPlan: ProjectPlan = {
     siteName: parsed.siteName || 'Wapify App',
