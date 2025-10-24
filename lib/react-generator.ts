@@ -227,26 +227,37 @@ Réponds UNIQUEMENT avec le JSON du plan, rien d'autre.`
 }
 
 /**
- * Prompt système pour la génération de la base
+ * Prompt système pour la génération complète du projet
  */
-const BASE_SYSTEM_PROMPT = `Tu es un expert développeur React pour WAPIFY.
+const COMPLETE_SYSTEM_PROMPT = `Tu es un expert développeur React pour WAPIFY.
 
-Tu vas générer la BASE COMPLÈTE d'une application React en suivant un PLAN précis.
+Tu vas générer UN PROJET REACT COMPLET en suivant un PLAN précis.
 
-Tu DOIS générer :
+Tu DOIS générer TOUS LES FICHIERS en UNE SEULE RÉPONSE :
 1. Fichiers de configuration (package.json, vite.config, tailwind.config, postcss.config, tsconfig si TypeScript)
-2. TOUS les composants UI listés dans le plan
-3. App avec React Router et TOUTES les routes
-4. Composants business (Header, Footer, etc.)
-5. Fichiers utils et CSS
+2. TOUS les composants UI (Button, Card, Input avec NAMED EXPORTS)
+3. App.tsx avec React Router et imports corrects des pages
+4. Composants business (Header, Footer avec DEFAULT EXPORTS)
+5. TOUTES les pages du projet (src/pages/*.tsx)
+6. Fichiers utils et CSS
 
 RÈGLES CRITIQUES :
+- Génère TOUT en une seule réponse JSON
 - Suis le plan À LA LETTRE
-- Utilise l'extension de fichier spécifiée dans le plan (.tsx ou .jsx)
-- Génère TOUS les composants UI listés (ne pas oublier Input!)
-- Configure TOUTES les routes dans App
+- Utilise l'extension de fichier spécifiée (.tsx ou .jsx)
+- App.tsx doit importer les vraies pages depuis src/pages/
+- Composants UI : NAMED EXPORTS (export { Button })
+- Header/Footer : DEFAULT EXPORTS (export default Header)
+- Pages : DEFAULT EXPORTS (export default HomePage)
 - Tailwind CSS avec design system shadcn/ui
 - Pas de placeholders ou TODOs
+
+⚠️ RÈGLES TYPESCRIPT/JAVASCRIPT STRICTES (TRÈS IMPORTANT) :
+- Assure-toi que TOUS les noms de propriétés sont utilisés de manière COHÉRENTE
+- Si tu définis const settings = { activeSessions: 3 }, utilise TOUJOURS settings.activeSessions (PAS activeSession)
+- Vérifie qu'il n'y a AUCUNE faute de frappe dans les noms de variables/propriétés
+- Le code DOIT compiler sans erreur TypeScript (si .tsx)
+- Double-vérifie la cohérence des noms avant de générer le JSON
 
 FORMAT DE RÉPONSE (JSON uniquement) :
 {
@@ -255,6 +266,11 @@ FORMAT DE RÉPONSE (JSON uniquement) :
       "path": "package.json",
       "content": "...",
       "type": "config"
+    },
+    {
+      "path": "src/pages/HomePage.tsx",
+      "content": "...",
+      "type": "component"
     }
   ]
 }
@@ -270,67 +286,84 @@ FORMAT DE RÉPONSE (JSON uniquement) :
 Réponds UNIQUEMENT avec le JSON, rien d'autre.`
 
 /**
- * ÉTAPE 1 : Générer la base complète (config + UI + App)
+ * GÉNÉRATION UNIFIÉE : Tout le projet en une seule fois
  */
-async function generateBaseComplete(
+async function generateCompleteProject(
   plan: ProjectPlan,
-  anthropic: any,
-  conversationHistory: ConversationMessage[]
+  anthropic: any
 ): Promise<ProjectFile[]> {
-  console.log('⚙️ Generating base (config + UI + App)...')
+  console.log('🚀 Generating complete project in one go...')
 
   const ext = plan.techStack.fileExtension
-  const userMessage = `Parfait ! Maintenant, suis CE PLAN et génère UNIQUEMENT la BASE MINIMALE :
 
-1. FICHIERS DE CONFIGURATION (NE GÉNÈRE PAS le contenu complet, juste un placeholder) :
-   - package.json (JUSTE la structure avec libraries : ${plan.techStack.libraries.join(', ')})
-   - vite.config.${ext === 'tsx' ? 'ts' : 'js'} (JUSTE un placeholder, sera généré par ensureRequiredFiles)
+  // Construire la description détaillée de chaque page
+  const pagesDescription = plan.pages.map(page => `
+📄 ${page.name} (${page.path}) :
+   - Description : ${page.description}
+   - Features : ${page.features.join(', ')}
+   - Données mockées : ${page.dataNeeded.join(', ')}
+   ${page.stateNeeded ? `- State : ${page.stateNeeded.join(', ')}` : ''}`).join('\n')
+
+  const userMessage = `Génère le projet React COMPLET en suivant ce plan :
+
+📋 PROJET : ${plan.siteName}
+📦 Tech Stack : ${ext === 'tsx' ? 'TypeScript' : 'JavaScript'} + ${plan.techStack.libraries.join(', ')}
+
+🗂️ FICHIERS À GÉNÉRER :
+
+1. CONFIG (placeholders, ensureRequiredFiles générera les vrais) :
+   - package.json (structure minimale avec les libraries)
+   - vite.config.${ext === 'tsx' ? 'ts' : 'js'} (placeholder)
    - tailwind.config.js (placeholder)
    - postcss.config.js (placeholder)
 
-2. COMPOSANTS UI ESSENTIELS UNIQUEMENT (dans src/components/ui/) :
-   - Button.${ext} (composant complet - NAMED EXPORT: export { Button })
-   - Card.${ext} (composant complet - NAMED EXPORT: export { Card })
-   - Input.${ext} (composant complet - NAMED EXPORT: export { Input })
+2. COMPOSANTS UI (src/components/ui/) - NAMED EXPORTS :
+   - Button.${ext} (export { Button })
+   - Card.${ext} (export { Card, CardHeader, CardTitle, CardContent })
+   - Input.${ext} (export { Input })
 
-3. APP AVEC ROUTING (src/App.${ext}) :
-   Configure React Router avec TOUTES ces routes :
-${plan.routing.routes.map(r => `   - <Route path="${r.path}" element={<${r.component} />} />`).join('\n')}
-
-   ⚠️ IMPORTANT : Importe les pages depuis src/pages/ :
+3. APP (src/App.${ext}) :
+   Imports des pages :
 ${plan.routing.routes.map(r => `   import ${r.component} from './pages/${r.component}'`).join('\n')}
 
-   Les pages seront générées dans les prochaines étapes.
+   Routes :
+${plan.routing.routes.map(r => `   <Route path="${r.path}" element={<${r.component} />} />`).join('\n')}
 
-4. COMPOSANTS BUSINESS (dans src/components/) :
-   - Header.${ext} (simple header avec logo et navigation - EXPORT DEFAULT!)
-   - Footer.${ext} (simple footer - EXPORT DEFAULT!)
+4. COMPOSANTS BUSINESS (src/components/) - DEFAULT EXPORTS :
+   - Header.${ext} (navigation simple + logo)
+   - Footer.${ext} (footer simple)
 
-5. UTILITAIRES :
-   - src/lib/utils.${ext === 'tsx' ? 'ts' : 'js'} (fonction cn() seulement)
+5. PAGES (src/pages/) - DEFAULT EXPORTS :
+${pagesDescription}
 
-RÈGLES CRITIQUES :
-- Composants UI : UNIQUEMENT Button, Card, Input (pas plus !)
-- Config files : JUSTE des placeholders (ensureRequiredFiles va générer les vrais)
-- App.tsx : Avec routes ET imports des pages (import HomePage from './pages/HomePage')
-- Header/Footer : TRÈS simples (10-20 lignes max chacun)
-- NE GÉNÈRE PAS : index.html, src/main.tsx, src/index.css (ensureRequiredFiles s'en charge)
+6. UTILS :
+   - src/lib/utils.${ext === 'tsx' ? 'ts' : 'js'} (fonction cn() uniquement)
 
-⚠️ PROPS INTERDITES :
-- NE PAS utiliser 'asChild' sur Button (pas supporté!)
-- Pour Link dans Button : <Button onClick={() => navigate('/path')}>
-- OU utiliser <Link><button className="..."></button></Link>
+⚠️ RÈGLES STRICTES :
+- Composants UI : UNIQUEMENT Button, Card, Input - NAMED EXPORTS
+- Header/Footer : DEFAULT EXPORTS (export default Header)
+- Pages : DEFAULT EXPORTS (export default HomePage)
+- Données mockées DANS les pages (6-8 items min)
+- State local avec useState (pas de Context)
+- Navigation avec Link de react-router-dom
+- Icônes de lucide-react
+- NE PAS utiliser asChild, NE PAS créer d'autres composants (ProductCard, etc.)
+- Design shadcn/ui avec Tailwind
 
-Réponds en JSON compact avec le format : { "files": [...] }`
+🚨 COHÉRENCE TYPESCRIPT (CRITIQUE) :
+- Vérifie qu'il n'y a AUCUNE faute de frappe (ex: activeSessions vs activeSession)
+- Si un objet a { count: 5 }, utilise toujours obj.count (pas obj.counts)
+- Le code DOIT compiler sans erreur TypeScript
+
+Réponds en JSON : { "files": [...] }`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 12000,
+    max_tokens: 16000,
     temperature: 0.7,
     stream: true,
-    system: BASE_SYSTEM_PROMPT,
+    system: COMPLETE_SYSTEM_PROMPT,
     messages: [
-      ...conversationHistory,
       {
         role: 'user',
         content: userMessage
@@ -387,226 +420,34 @@ Réponds en JSON compact avec le format : { "files": [...] }`
   // S'assurer que tous les fichiers requis existent
   files = ensureRequiredFiles(files, plan)
 
-  // Ajouter à l'historique (résumé pour économiser tokens)
-  conversationHistory.push({
-    role: 'user',
-    content: 'Génère la base complète du projet'
-  })
-  conversationHistory.push({
-    role: 'assistant',
-    content: `✅ Base générée avec succès :
-- ${files.length} fichiers
-- Composants UI : ${plan.components.ui.join(', ')}
-- App.${ext} avec ${plan.routing.routes.length} routes : ${plan.routing.routes.map(r => r.path).join(', ')}
-- Header, Footer et utils configurés`
-  })
-
-  return files
-}
-
-/**
- * Prompt système pour la génération des pages
- */
-const PAGE_SYSTEM_PROMPT = `Tu es un expert développeur React pour WAPIFY.
-
-Tu vas générer UNE PAGE spécifique d'une application React en suivant un PLAN.
-
-RÈGLES CRITIQUES :
-- Génère UNIQUEMENT la page demandée (un seul fichier)
-- Utilise UNIQUEMENT les composants UI qui existent déjà (listés dans le prompt)
-- NE RECRÉE PAS les composants UI
-- Données mockées DANS la page (const products = [...])
-- État local avec useState (PAS de Context)
-- Navigation avec <Link> de react-router-dom
-- Design cohérent avec shadcn/ui (bg-background, text-foreground, etc.)
-- 6-8 items de données mockées minimum
-
-SI tu as besoin d'un composant UI non listé :
-- Utilise du HTML + Tailwind à la place
-- Ou crée un composant inline dans la page
-
-FORMAT DE RÉPONSE (JSON uniquement) :
-{
-  "files": [
-    {
-      "path": "src/pages/HomePage.tsx",
-      "content": "...",
-      "type": "component"
-    }
-  ]
-}
-
-⚠️ RÈGLES JSON STRICTES (TRÈS IMPORTANT) :
-- Échappe TOUS les guillemets dans le code avec \\"
-- Échappe TOUS les backslashes avec \\\\
-- Échappe TOUS les retours à la ligne avec \\n
-- N'utilise PAS de template literals avec backticks dans les strings JSON
-- Vérifie que le JSON est VALIDE avant de répondre
-- Le "content" doit être une STRING échappée correctement
-
-Réponds UNIQUEMENT avec le JSON, rien d'autre.`
-
-/**
- * ÉTAPE 2+ : Générer une page
- */
-async function generatePage(
-  page: ProjectPlan['pages'][0],
-  plan: ProjectPlan,
-  anthropic: any,
-  conversationHistory: ConversationMessage[]
-): Promise<ProjectFile[]> {
-  console.log(`📄 Generating ${page.name}...`)
-
-  const ext = plan.techStack.fileExtension
-  const userMessage = `Parfait ! Maintenant génère UNIQUEMENT la page : ${page.name}
-
-INFORMATIONS SUR CETTE PAGE :
-- Path : ${page.path}
-- Description : ${page.description}
-- Features à implémenter : ${page.features.join(', ')}
-- Données mockées nécessaires : ${page.dataNeeded.join(', ')}
-${page.stateNeeded ? `- State management : ${page.stateNeeded.join(', ')}` : ''}
-
-COMPOSANTS UI DISPONIBLES (UNIQUEMENT CEUX-CI, N'EN IMPORTE PAS D'AUTRES !) :
-- import { Button } from '@/components/ui/Button'
-- import { Card } from '@/components/ui/Card'
-- import { Input } from '@/components/ui/Input'
-
-⚠️ SI TU AS BESOIN D'AUTRES COMPOSANTS (Badge, Select, etc.) :
-- NE LES IMPORTE PAS (ils n'existent pas!)
-- Utilise du HTML + Tailwind CSS à la place
-- Exemple Badge : <span className="bg-primary text-white px-2 py-1 rounded">Nouveau</span>
-
-COMPOSANTS BUSINESS DISPONIBLES :
-- import Header from '@/components/Header'
-- import Footer from '@/components/Footer'
-
-⚠️ NE PAS importer ProductCard, Newsletter, etc. - ils n'existent pas!
-- Crée les cards/composants directement dans la page
-
-AUTRES IMPORTS DISPONIBLES :
-- import { Link, useNavigate } from 'react-router-dom'
-- import { useState, useEffect } from 'react'
-- Icônes de lucide-react (ex: import { Star, Heart, ShoppingCart } from 'lucide-react')
-
-RÈGLES POUR CETTE PAGE :
-1. Fichier : src/pages/${page.name}.${ext}
-2. Données mockées DANS le fichier (const products = [...])
-3. State local avec useState (exemple: const [cart, setCart] = useState([]))
-4. NE PAS importer de Context, hooks customs, ou services
-5. Page COMPLÈTE et FONCTIONNELLE (pas de placeholders)
-6. Design shadcn/ui avec Tailwind
-7. ⚠️ N'IMPORTE QUE Button, Card, Input, Header, Footer - rien d'autre!
-
-Réponds en JSON avec le format : { "files": [{ "path": "src/pages/${page.name}.${ext}", "content": "...", "type": "component" }] }`
-
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 10000,
-    temperature: 0.7,
-    stream: true,
-    system: PAGE_SYSTEM_PROMPT,
-    messages: [
-      ...conversationHistory,
-      {
-        role: 'user',
-        content: userMessage
-      }
-    ]
-  })
-
-  // Collecter la réponse depuis le stream
-  let responseText = ''
-  for await (const event of response) {
-    if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-      responseText += event.delta.text
-    }
-  }
-
-  console.log(`📝 ${page.name} response length:`, responseText.length, 'characters')
-
-  let files: ProjectFile[]
-  try {
-    const jsonText = extractJSON(responseText)
-    const result = JSON.parse(jsonText)
-    files = result.files || []
-  } catch (parseError) {
-    console.error('❌ JSON Parse Error:', parseError)
-    // Tentative de réparation
-    try {
-      const jsonText = extractJSON(responseText)
-      const repairedJson = attemptJsonRepair(jsonText)
-      const result = JSON.parse(repairedJson)
-      files = result.files || []
-      console.log('✅ Repaired JSON parsed successfully')
-    } catch (repairError) {
-      throw new Error(`Failed to parse ${page.name} JSON: ${parseError}`)
-    }
-  }
-
-  console.log(`✅ ${page.name} generated: ${files.length} file(s)`)
-
-  // Ajouter le type automatiquement si manquant
-  files.forEach(file => {
-    if (!file.type) {
-      file.type = 'component'
-    }
-  })
-
-  // Ajouter à l'historique (résumé)
-  conversationHistory.push({
-    role: 'user',
-    content: `Génère la page ${page.name}`
-  })
-  conversationHistory.push({
-    role: 'assistant',
-    content: `✅ ${page.name} générée avec succès avec les features : ${page.features.join(', ')}`
-  })
-
   return files
 }
 
 /**
  * FONCTION PRINCIPALE : Générer le projet React complet
- * NOUVELLE APPROCHE : Plan → Base → Pages (avec mémoire)
+ * APPROCHE SIMPLIFIÉE : Plan → Projet complet (2 étapes seulement)
  */
 export async function generateReactProject(
   prompt: string,
   anthropic: any
 ): Promise<ReactProjectStructure> {
-  console.log('🚀 Starting PLAN-BASED generation process with memory...')
+  console.log('🚀 Starting simplified 2-step generation process...')
 
-  // Historique de conversation pour que l'AI garde le plan en mémoire
+  // Historique de conversation simplifié
   const conversationHistory: ConversationMessage[] = []
 
   try {
     // ====================================
-    // ÉTAPE 0 : GÉNÉRER LE PLAN
+    // ÉTAPE 1 : GÉNÉRER LE PLAN
     // ====================================
+    console.log('\n📋 Step 1/2: Generating project plan...')
     const plan = await generateProjectPlan(prompt, anthropic, conversationHistory)
 
     // ====================================
-    // ÉTAPE 1 : GÉNÉRER LA BASE COMPLÈTE
+    // ÉTAPE 2 : GÉNÉRER TOUT LE PROJET
     // ====================================
-    const baseFiles = await generateBaseComplete(plan, anthropic, conversationHistory)
-
-    // ====================================
-    // ÉTAPE 2+ : GÉNÉRER CHAQUE PAGE
-    // ====================================
-    const allPageFiles: ProjectFile[] = []
-
-    for (let i = 0; i < plan.pages.length; i++) {
-      const page = plan.pages[i]
-      console.log(`\n📄 Step ${2 + i}/${1 + plan.pages.length}: ${page.name}`)
-
-      const pageFiles = await generatePage(page, plan, anthropic, conversationHistory)
-      allPageFiles.push(...pageFiles)
-    }
-
-    // ====================================
-    // MERGER ET RETOURNER
-    // ====================================
-    const allFiles = [...baseFiles, ...allPageFiles]
+    console.log('\n🏗️  Step 2/2: Generating complete project...')
+    const allFiles = await generateCompleteProject(plan, anthropic)
 
     console.log('\n✅ Generation complete!')
     console.log(`   Total files: ${allFiles.length}`)
