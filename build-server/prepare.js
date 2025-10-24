@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const reactGeneratorSource = join(__dirname, '../lib/react-generator.ts')
-const reactGeneratorDest = join(__dirname, 'src/react-generator.js')
+const reactGeneratorDest = join(__dirname, 'src/react-generator.ts')
 
 if (existsSync(reactGeneratorSource)) {
   console.log('📦 Copying react-generator.ts...')
