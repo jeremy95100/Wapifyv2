@@ -45,7 +45,16 @@ export function generateCreateTableSQL(schema) {
       }
 
       if (col.default) {
-        columnDef += ` DEFAULT ${col.default}`
+        // Validate DEFAULT value - must be a literal, function call, or special keyword
+        // Skip if it's a column reference (not allowed in PostgreSQL DEFAULT)
+        const defaultValue = col.default.trim()
+
+        // Skip column references like "book_id", "user_id", etc.
+        const isColumnReference = /^[a-z_]+$/.test(defaultValue) && !['true', 'false', 'null', 'current_timestamp', 'now()'].includes(defaultValue.toLowerCase())
+
+        if (!isColumnReference) {
+          columnDef += ` DEFAULT ${col.default}`
+        }
       }
 
       columns.push(columnDef)
