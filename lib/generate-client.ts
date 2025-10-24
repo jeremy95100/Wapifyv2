@@ -18,6 +18,9 @@ interface GenerateResult {
   databaseSchema?: string
   dbBranchId?: string
   dbConnectionString?: string
+  githubRepo?: string
+  githubRepoFullName?: string
+  githubCloneUrl?: string
   isMultiFile: boolean
   framework: string
 }

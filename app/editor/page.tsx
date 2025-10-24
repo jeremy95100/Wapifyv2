@@ -137,6 +137,9 @@ export default function EditorPage() {
   const [databaseSchema, setDatabaseSchema] = useState<string | null>(null)
   const [dbBranchId, setDbBranchId] = useState<string | null>(null)
   const [dbConnectionString, setDbConnectionString] = useState<string | null>(null)
+  const [githubRepo, setGithubRepo] = useState<string | null>(null)
+  const [githubRepoFullName, setGithubRepoFullName] = useState<string | null>(null)
+  const [githubCloneUrl, setGithubCloneUrl] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'preview' | 'dashboard' | 'code'>('preview')
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [fileContent, setFileContent] = useState<string>('')
@@ -245,6 +248,9 @@ export default function EditorPage() {
           requestBody.databaseSchema = databaseSchema
           if (dbBranchId) requestBody.dbBranchId = dbBranchId
           if (dbConnectionString) requestBody.dbConnectionString = dbConnectionString
+          if (githubRepo) requestBody.githubRepo = githubRepo
+          if (githubRepoFullName) requestBody.githubRepoFullName = githubRepoFullName
+          if (githubCloneUrl) requestBody.githubCloneUrl = githubCloneUrl
         } else {
           requestBody.code = code
         }
@@ -580,6 +586,12 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
         if (result.dbConnectionString) {
           setDbConnectionString(result.dbConnectionString)
           console.log('🔗 Database connection ready')
+        }
+        if (result.githubRepo) {
+          setGithubRepo(result.githubRepo)
+          setGithubRepoFullName(result.githubRepoFullName || null)
+          setGithubCloneUrl(result.githubCloneUrl || null)
+          console.log('📦 GitHub repo:', result.githubRepo)
         }
 
         const defaultFile = result.files.find((f: any) =>

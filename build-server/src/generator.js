@@ -8,6 +8,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { Redis } from 'ioredis'
 import { generateReactProject } from './react-generator.ts'
 import { generateExpressAPI } from './api-generator.js'
+import { deployToGitHub } from './github-deployer.js'
 
 // Initialiser Anthropic
 const anthropic = new Anthropic({
@@ -214,6 +215,44 @@ export async function generateProject({ prompt, jobId, userNeonProjectId, conver
       })
     }
 
+    // Étape 4 : Déployer sur GitHub
+    let githubInfo = null
+    try {
+      console.log('📦 Deploying to GitHub...')
+
+      await publishEvent(jobId, 'step', {
+        step: 4,
+        description: 'Déploiement sur GitHub...',
+        status: 'in_progress'
+      })
+
+      await publishEvent(jobId, 'substep', {
+        step: 4,
+        description: 'Création du repository GitHub'
+      })
+
+      // Get project name from result or use default
+      const projectName = result.files.find(f => f.path === 'package.json')
+        ? JSON.parse(result.files.find(f => f.path === 'package.json').content).name
+        : 'wapify-project'
+
+      githubInfo = await deployToGitHub(jobId, projectName, result.files)
+
+      console.log(`✅ GitHub deployment complete: ${githubInfo.repoUrl}`)
+
+      await publishEvent(jobId, 'substep', {
+        step: 4,
+        description: `✓ Code déployé sur GitHub`
+      })
+
+    } catch (error) {
+      console.error('❌ Failed to deploy to GitHub:', error)
+      await publishEvent(jobId, 'warning', {
+        message: 'GitHub deployment failed',
+        error: error.message
+      })
+    }
+
     if (onProgress) await onProgress(100)
 
     // Événement de complétion
@@ -224,13 +263,17 @@ export async function generateProject({ prompt, jobId, userNeonProjectId, conver
       databaseSchema: result.databaseSchema,
       dbBranchId: dbInfo?.branchId,
       dbConnectionString: dbInfo?.connectionString,
+      githubRepo: githubInfo?.repoUrl,
+      githubRepoFullName: githubInfo?.repoFullName,
+      githubCloneUrl: githubInfo?.cloneUrl,
       filesCount: result.files.length,
       summary: {
         pages: filesByType.pages.length,
         components: filesByType.components.length,
         configs: filesByType.config.length,
         totalFiles: result.files.length,
-        database: result.hasDatabase ? `${result.databaseSchema.tables.length} tables` : 'none'
+        database: result.hasDatabase ? `${result.databaseSchema.tables.length} tables` : 'none',
+        github: githubInfo?.repoUrl || 'failed'
       }
     })
 
@@ -242,6 +285,9 @@ export async function generateProject({ prompt, jobId, userNeonProjectId, conver
       databaseSchema: result.databaseSchema,
       dbBranchId: dbInfo?.branchId,
       dbConnectionString: dbInfo?.connectionString,
+      githubRepo: githubInfo?.repoUrl,
+      githubRepoFullName: githubInfo?.repoFullName,
+      githubCloneUrl: githubInfo?.cloneUrl,
       filesCount: result.files.length
     }
 
