@@ -156,8 +156,9 @@ export async function createProjectBranch(userNeonProjectId, projectId) {
       },
       body: JSON.stringify({
         branch: {
-          // Remove "proj-" prefix if present to avoid duplication
-          name: `proj-${projectId.replace(/^proj-/, '')}`
+          // Extract unique nanoid for collision-free naming
+          // Format: proj-1761346712964-k9jsun -> proj-k9jsun
+          name: `proj-${projectId.split('-').pop()}`
         },
         endpoints: [
           {

@@ -268,9 +268,11 @@ export async function deployToGitHub(projectId, projectName, files) {
     ]
 
     // 2. Create repository
-    // Remove "proj-" prefix if present and take first 8 chars of the actual ID
-    const cleanId = projectId.replace(/^proj-/, '')
-    const repoName = `wapify-${cleanId.substring(0, 8)}`
+    // Extract the unique nanoid part (after last hyphen) for collision-free naming
+    // Format: proj-1761346712964-k9jsun -> k9jsun
+    const parts = projectId.split('-')
+    const uniqueId = parts[parts.length - 1] // Get nanoid part (always unique)
+    const repoName = `wapify-${uniqueId}`
     const repo = await createGitHubRepo(
       repoName,
       `Wapify: ${projectName}`,
