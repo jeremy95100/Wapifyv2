@@ -523,20 +523,24 @@ RÈGLES CRITIQUES :
   * Si une base de données est nécessaire (voir règles DB ci-dessous)
   * TypeScript (.tsx) ou JavaScript (.jsx)
 
-⚠️ DÉTECTION AUTOMATIQUE DE BASE DE DONNÉES :
-Active hasDatabase: true et génère un schema SI l'app nécessite :
-  - E-commerce (produits, commandes, panier, clients)
-  - Blog/CMS (articles, auteurs, commentaires, catégories)
-  - Réservation/Booking (créneaux, rendez-vous, événements)
-  - Gestion de tâches avec persistance (todo lists, projets)
-  - Authentification avec profils utilisateurs personnalisés
-  - Tout système CRUD qui nécessite la persistance de données
+⚠️ DÉTECTION AUTOMATIQUE DE BASE DE DONNÉES (RÈGLE STRICTE) :
+Tu DOIS activer hasDatabase: true et générer un schema pour :
+  - E-commerce (produits, commandes, panier, clients) → OBLIGATOIRE
+  - Blog/CMS (articles, auteurs, commentaires, catégories) → OBLIGATOIRE
+  - Réservation/Booking (créneaux, rendez-vous, événements) → OBLIGATOIRE
+  - **Todo lists / Gestion de tâches** → OBLIGATOIRE (les tâches doivent persister!)
+  - Gestion de projets / Task management → OBLIGATOIRE
+  - Authentification avec profils utilisateurs personnalisés → OBLIGATOIRE
+  - Tout système CRUD qui nécessite la persistance de données → OBLIGATOIRE
 
-Garde hasDatabase: false pour :
-  - Sites vitrine/landing pages
-  - Portfolios statiques
-  - Calculateurs/outils simples
-  - Apps avec uniquement des données mockées temporaires
+❌ RÈGLE CRITIQUE : Une TODO LIST DOIT TOUJOURS avoir une database !
+Si l'utilisateur demande "todo", "tâches", "tasks", "gestion" → hasDatabase: true OBLIGATOIRE
+
+✅ hasDatabase: false UNIQUEMENT pour :
+  - Sites vitrine/landing pages (pas d'interaction)
+  - Portfolios statiques (juste de l'affichage)
+  - Calculateurs/outils simples (calculs sans sauvegarde)
+  - Apps de démonstration sans persistance réelle
 - Génère TOUT en une seule réponse JSON
 - Composants UI : UNIQUEMENT Button, Card, Input - NAMED EXPORTS
 - CardContent children: Toujours utiliser children?: React.ReactNode (pour accepter plusieurs enfants)
