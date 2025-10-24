@@ -357,6 +357,7 @@ async function generateCompleteProject(
 2. COMPOSANTS UI (src/components/ui/) - NAMED EXPORTS :
    - Button.${ext} (export { Button })
    - Card.${ext} (export { Card, CardHeader, CardTitle, CardContent })
+     ⚠️ IMPORTANT : CardContent doit accepter children?: React.ReactNode (PAS ReactElement)
    - Input.${ext} (export { Input })
 
 3. APP (src/App.${ext}) :
@@ -378,6 +379,7 @@ ${pagesDescription}
 
 ⚠️ RÈGLES STRICTES :
 - Composants UI : UNIQUEMENT Button, Card, Input - NAMED EXPORTS
+- CardContent children: Toujours utiliser children?: React.ReactNode (pour accepter plusieurs enfants)
 - Header/Footer : DEFAULT EXPORTS (export default Header)
 - Pages : DEFAULT EXPORTS (export default HomePage)
 - Données mockées DANS les pages (6-8 items min)
