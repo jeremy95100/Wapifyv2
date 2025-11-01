@@ -6,7 +6,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { Redis } from 'ioredis'
-import { generateReactProject, fixTypographicApostrophes } from './react-generator.ts'
+import { generateReactProject, fixTypographicApostrophes, removeAsChildProp } from './react-generator.ts'
 
 // Initialiser Anthropic
 const anthropic = new Anthropic({
@@ -88,6 +88,9 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
 
     // Corriger les apostrophes typographiques (problème récurrent avec Claude)
     result.files = fixTypographicApostrophes(result.files)
+
+    // Supprimer les props asChild invalides
+    result.files = removeAsChildProp(result.files)
 
     // Événement plan généré
     await publishEvent(jobId, 'plan', {

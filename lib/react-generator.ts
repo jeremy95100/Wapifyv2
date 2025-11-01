@@ -1747,3 +1747,51 @@ export function fixTypographicApostrophes(files: ProjectFile[]): ProjectFile[] {
 
   return files
 }
+
+/**
+ * Supprimer la prop asChild qui n'existe pas dans notre Button
+ * PROBLÈME : Claude génère parfois <Button asChild> malgré les règles du prompt
+ * SOLUTION : Supprimer automatiquement toutes les props asChild
+ */
+export function removeAsChildProp(files: ProjectFile[]): ProjectFile[] {
+  console.log('\n🔧 ========================================')
+  console.log('🔧 Suppression des props asChild invalides')
+  console.log('🔧 ========================================\n')
+
+  let totalFilesFixed = 0
+  let totalReplacements = 0
+
+  files.forEach(file => {
+    // Appliquer sur les fichiers React
+    if (file.path.match(/\.(tsx|jsx)$/)) {
+      const original = file.content
+
+      // Supprimer asChild prop (format: asChild={true} ou asChild)
+      let fixed = original
+        .replace(/\s+asChild={true}/g, '')  // <Button asChild={true}>
+        .replace(/\s+asChild\s/g, ' ')      // <Button asChild >
+        .replace(/\s+asChild>/g, '>')       // <Button asChild>
+
+      // Compter les remplacements
+      const matches = original.match(/\s+asChild[=\s>]/g) || []
+      const count = matches.length
+
+      if (count > 0) {
+        file.content = fixed
+        totalFilesFixed++
+        totalReplacements += count
+        console.log(`✅ ${file.path}: ${count} prop(s) asChild supprimée(s)`)
+      }
+    }
+  })
+
+  if (totalReplacements > 0) {
+    console.log(`\n🔧 RÉSULTAT : ${totalReplacements} prop(s) asChild supprimée(s) dans ${totalFilesFixed} fichier(s)`)
+  } else {
+    console.log('✅ Aucune prop asChild détectée')
+  }
+
+  console.log('🔧 ========================================\n')
+
+  return files
+}
