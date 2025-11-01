@@ -748,18 +748,43 @@ RÈGLES ABSOLUES :
    ❌ Cart/Bag → Utilise ShoppingCart ou ShoppingBag
    ❌ Picture/Photo → Utilise Image
 
-3️⃣ FORMAT D'IMPORT OBLIGATOIRE :
+3️⃣ SYNTAXE JSX POUR LES ICÔNES (CRITIQUE !) :
+
+⚠️ RÈGLE ABSOLUE : Les icônes lucide-react sont des composants SANS ENFANTS !
+
+✅ SYNTAXE CORRECTE (TOUJOURS auto-fermante) :
+   <Clock className="h-4 w-4" />
+   <Timer />
+   <User className="text-blue-500" />
+
+❌ SYNTAXE INCORRECTE (causera une erreur de build) :
+   <Clock>                          ← JAMAIS sans auto-fermeture
+   <Clock>...</Clock>               ← Les icônes n'ont PAS de contenu
+   <Clock data={...}>...</Clock>    ← Les icônes n'ont PAS de prop 'data'
+
+⚠️ NE CONFONDS PAS ICÔNES ET COMPOSANTS RECHARTS :
+   ✅ Pour les graphiques, utilise :
+      - <BarChart data={...}><Bar /></BarChart>    (pas <Clock>)
+      - <LineChart data={...}><Line /></LineChart> (pas <TrendingUp>)
+      - <PieChart data={...}><Pie /></PieChart>
+
+   ❌ N'utilise JAMAIS une icône comme conteneur :
+      <Clock data={data}>...</Clock>  ← FAUX ! Clock est une icône, pas un chart
+
+4️⃣ FORMAT D'IMPORT OBLIGATOIRE :
    import { Clock, Timer, User, Settings } from 'lucide-react'
    - TOUTE icône utilisée dans le code DOIT être importée
    - Vérifie ligne par ligne que chaque <IconName /> a son import
+   - Format : TOUJOURS auto-fermant <IconName />
 
-4️⃣ AVANT DE GÉNÉRER LE CODE :
+5️⃣ AVANT DE GÉNÉRER LE CODE :
    - Liste mentalement toutes les icônes que tu vas utiliser
    - Vérifie qu'elles sont TOUTES dans la liste valide ci-dessus
    - Si une icône n'existe pas, choisis une alternative valide
    - N'INVENTE JAMAIS de noms d'icônes !
+   - Vérifie que tu n'utilises pas d'icône comme conteneur (BarChart vs Clock)
 
-⚠️ RAPPEL : Une seule icône invalide = Build TypeScript échoue !
+⚠️ RAPPEL : Une seule icône mal utilisée = Build TypeScript échoue !
 - APOSTROPHES : Utilise UNIQUEMENT des apostrophes ASCII standard (') dans tout le code
   ⚠️ NE JAMAIS utiliser d'apostrophes typographiques (' ou ') - elles causent des erreurs TypeScript
   Exemples CORRECTS : "jusqu'à", "L'Oréal", "n'êtes pas" (avec ')
