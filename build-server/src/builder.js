@@ -11,6 +11,31 @@ const execAsync = promisify(exec)
 const BUILDS_DIR = path.join(process.cwd(), 'builds')
 
 /**
+ * Parse TypeScript errors from tsc output
+ * Format: src/pages/Home.tsx(42,5): error TS2305: Module '"lucide-react"' has no exported member 'Stop'.
+ */
+function parseTypeScriptErrors(output) {
+  const errors = []
+  const lines = output.split('\n')
+  const errorRegex = /^(.+?)\((\d+),(\d+)\):\s+error\s+(TS\d+):\s+(.+)$/
+
+  for (const line of lines) {
+    const match = line.match(errorRegex)
+    if (match) {
+      errors.push({
+        file: match[1],
+        line: parseInt(match[2]),
+        column: parseInt(match[3]),
+        code: match[4],
+        message: match[5]
+      })
+    }
+  }
+
+  return errors
+}
+
+/**
  * Get the correct Content-Type for a file based on its extension
  */
 function getContentType(filename) {
@@ -102,7 +127,46 @@ export async function buildProject({ projectId, files, projectName, onProgress }
 
     await onProgress?.(60)
 
-    // 4. Build with Vite
+    // 4. TypeScript Validation (tsc --noEmit)
+    console.log(`🔍 Validating TypeScript...`)
+    const validationStart = Date.now()
+
+    try {
+      const { stdout: tscOutput, stderr: tscError } = await execAsync('npx tsc --noEmit --skipLibCheck 2>&1', {
+        cwd: buildDir,
+        timeout: 60000, // 1 minute max
+        maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+      })
+
+      const validationTime = Date.now() - validationStart
+      console.log(`✅ TypeScript validation passed in ${(validationTime / 1000).toFixed(1)}s`)
+
+    } catch (error) {
+      // tsc exits with code 2 when there are type errors
+      const validationTime = Date.now() - validationStart
+      const output = error.stdout || error.stderr || error.message || ''
+
+      // Parse TypeScript errors
+      const errors = parseTypeScriptErrors(output)
+
+      if (errors.length > 0) {
+        console.warn(`⚠️  ${errors.length} TypeScript error(s) detected:`)
+        errors.slice(0, 10).forEach((err, i) => {
+          console.log(`\n${i + 1}. ${err.file}:${err.line}`)
+          console.log(`   ${err.code}: ${err.message}`)
+        })
+
+        if (errors.length > 10) {
+          console.log(`\n... and ${errors.length - 10} more error(s)`)
+        }
+
+        // TODO: Publish validation event via Redis (needs jobId parameter)
+        // For now, we log and continue to build (Phase 1: detection only)
+        console.log(`⏱️  Validation took ${(validationTime / 1000).toFixed(1)}s`)
+      }
+    }
+
+    // 5. Build with Vite
     console.log(`🔨 Building with Vite...`)
     const buildStart = Date.now()
 

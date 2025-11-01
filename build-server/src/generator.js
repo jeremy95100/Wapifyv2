@@ -7,11 +7,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { Redis } from 'ioredis'
 import { generateReactProject, fixTypographicApostrophes, removeAsChildProp, fixCheckboxValueToChecked } from './react-generator.ts'
-import { promises as fs } from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import { spawn } from 'child_process'
-import os from 'os'
 
 // Initialiser Anthropic
 const anthropic = new Anthropic({
@@ -46,169 +41,9 @@ async function publishEvent(jobId, type, data) {
 }
 
 /**
- * Valider les fichiers générés avec TypeScript (tsc --noEmit)
- * Phase 1 : Détection et logging uniquement
+ * Note: TypeScript validation moved to builder.js
+ * Validation now runs in the real build environment for 100% accuracy
  */
-async function validateTypeScript(files, jobId) {
-  let tempDir = null
-
-  try {
-    // Créer un répertoire temporaire
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'wapify-validate-'))
-
-    console.log(`🔍 Validation TypeScript dans ${tempDir}`)
-
-    // Écrire tous les fichiers
-    for (const file of files) {
-      const filePath = path.join(tempDir, file.path)
-      await fs.mkdir(path.dirname(filePath), { recursive: true })
-      await fs.writeFile(filePath, file.content, 'utf-8')
-    }
-
-    // Installer les dépendances types nécessaires pour la validation
-    await fs.writeFile(
-      path.join(tempDir, 'package.json'),
-      JSON.stringify({
-        name: 'validation-temp',
-        version: '1.0.0',
-        private: true,
-        dependencies: {},
-        devDependencies: {
-          'typescript': '^5.0.0',
-          '@types/react': '^18.0.0',
-          '@types/react-dom': '^18.0.0',
-          '@types/node': '^20.0.0'
-        }
-      }, null, 2)
-    )
-
-    // Installer les dépendances npm
-    console.log('📦 Installation des dépendances TypeScript...')
-    await new Promise((resolve, reject) => {
-      const npm = spawn('npm', ['install', '--silent'], {
-        cwd: tempDir,
-        shell: true
-      })
-
-      npm.on('close', (code) => {
-        if (code === 0) {
-          resolve()
-        } else {
-          reject(new Error(`npm install failed with code ${code}`))
-        }
-      })
-
-      npm.on('error', (err) => {
-        reject(err)
-      })
-    })
-
-    // Exécuter tsc --noEmit
-    console.log('🔧 Exécution de tsc --noEmit...')
-
-    const tscOutput = await new Promise((resolve, reject) => {
-      const tsc = spawn('npx', ['tsc', '--noEmit', '--skipLibCheck'], {
-        cwd: tempDir,
-        shell: true
-      })
-
-      let stdout = ''
-      let stderr = ''
-
-      tsc.stdout.on('data', (data) => {
-        stdout += data.toString()
-      })
-
-      tsc.stderr.on('data', (data) => {
-        stderr += data.toString()
-      })
-
-      tsc.on('close', (code) => {
-        resolve({ code, stdout, stderr })
-      })
-
-      tsc.on('error', (err) => {
-        reject(err)
-      })
-    })
-
-    // Parser les erreurs TypeScript
-    const errors = parseTypeScriptErrors(tscOutput.stderr + tscOutput.stdout)
-
-    if (errors.length === 0) {
-      console.log('✅ Aucune erreur TypeScript détectée')
-      await publishEvent(jobId, 'validation', {
-        success: true,
-        errors: []
-      })
-      return { success: true, errors: [] }
-    }
-
-    // Logger les erreurs
-    console.log(`⚠️  ${errors.length} erreur(s) TypeScript détectée(s):`)
-    errors.slice(0, 10).forEach((err, i) => {
-      console.log(`\n${i + 1}. ${err.file}:${err.line}`)
-      console.log(`   ${err.code}: ${err.message}`)
-    })
-
-    if (errors.length > 10) {
-      console.log(`\n... et ${errors.length - 10} autre(s) erreur(s)`)
-    }
-
-    // Publier les erreurs via Redis pour le frontend
-    await publishEvent(jobId, 'validation', {
-      success: false,
-      errorsCount: errors.length,
-      errors: errors.slice(0, 10).map(e => ({
-        file: e.file,
-        line: e.line,
-        message: e.message,
-        code: e.code
-      }))
-    })
-
-    return { success: false, errors }
-
-  } catch (error) {
-    console.error('❌ Erreur lors de la validation TypeScript:', error)
-    return { success: false, errors: [], validationError: error.message }
-  } finally {
-    // Nettoyer le répertoire temporaire
-    if (tempDir) {
-      try {
-        await fs.rm(tempDir, { recursive: true, force: true })
-      } catch (err) {
-        console.warn('Impossible de nettoyer le répertoire temporaire:', err)
-      }
-    }
-  }
-}
-
-/**
- * Parser les erreurs TypeScript depuis la sortie de tsc
- */
-function parseTypeScriptErrors(output) {
-  const errors = []
-  const lines = output.split('\n')
-
-  // Format: src/pages/Home.tsx(42,5): error TS2305: Module '"lucide-react"' has no exported member 'Stop'.
-  const errorRegex = /^(.+?)\((\d+),(\d+)\):\s+error\s+(TS\d+):\s+(.+)$/
-
-  for (const line of lines) {
-    const match = line.match(errorRegex)
-    if (match) {
-      errors.push({
-        file: match[1],
-        line: parseInt(match[2]),
-        column: parseInt(match[3]),
-        code: match[4],
-        message: match[5]
-      })
-    }
-  }
-
-  return errors
-}
 
 /**
  * Générer un projet React complet avec événements temps réel
@@ -265,17 +100,7 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
     // Corriger les checkboxes (value → checked)
     result.files = fixCheckboxValueToChecked(result.files)
 
-    // Phase 1 : Validation TypeScript (détection et logging uniquement)
-    console.log('🔍 Validation TypeScript des fichiers générés...')
-    const validationResult = await validateTypeScript(result.files, jobId)
-
-    if (validationResult.success) {
-      console.log('✅ Validation TypeScript réussie - aucune erreur')
-    } else if (validationResult.errors && validationResult.errors.length > 0) {
-      console.log(`⚠️  ${validationResult.errors.length} erreur(s) TypeScript détectée(s) (Phase 1: logging uniquement)`)
-    } else if (validationResult.validationError) {
-      console.warn('⚠️  Impossible de valider TypeScript:', validationResult.validationError)
-    }
+    // Note: TypeScript validation moved to builder.js (runs in real build environment)
 
     // Événement plan généré
     await publishEvent(jobId, 'plan', {
