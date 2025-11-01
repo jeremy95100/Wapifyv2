@@ -713,15 +713,49 @@ RÈGLE SIMPLE: Si tu vois .propriété avant le spread, c'est INTERDIT!
   ...X.y  → ❌ TOUJOURS FAUX (y est une primitive)
   ...X    → ✅ Vérifier que X est un objet
 
-- Icônes de lucide-react : RÈGLE CRITIQUE - TOUTE icône utilisée dans le code DOIT être importée !
-  ⚠️ FORMAT D'IMPORT OBLIGATOIRE (exemple) :
-  import { Home, User, Settings, Menu, X, Search, Plus, Trash, Edit } from 'lucide-react'
-  - Si tu utilises <BarChart /> dans le code, tu DOIS avoir : import { BarChart } from 'lucide-react'
-  - Si tu utilises <Settings />, tu DOIS avoir : import { Settings } from 'lucide-react'
-  - VÉRIFIE que TOUTES les icônes utilisées sont dans l'import (ligne par ligne)
-  - Icônes disponibles : Home, User, Settings, Menu, X, Search, Plus, Trash, Edit, Eye, Heart, Star, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, Mail, Phone, MapPin, Calendar, Clock, Download, Upload, Check, AlertCircle, Info, Bell, LogOut, LogIn, FileText, Image, Video, Music, Package, ShoppingCart, DollarSign, TrendingUp, TrendingDown, BarChart, PieChart, Activity, Users, Building, Book, Bookmark, Tag, Filter, Layout, Grid, List, Lock, Unlock, Shield, Database, Server, Globe, Wifi, Code, Terminal, Cpu, HardDrive
-  ⚠️ ERREUR CRITIQUE : Utiliser une icône sans l'importer → build TypeScript échoue
-  ⚠️ AVANT DE GÉNÉRER : Fais la liste de TOUTES les icônes utilisées et ajoute-les à l'import
+🎨 ICÔNES LUCIDE-REACT - RÈGLES CRITIQUES (ÉCHEC = BUILD CASSÉ) 🎨
+
+⚠️ PROBLÈME RÉCURRENT : Claude génère des noms d'icônes qui N'EXISTENT PAS !
+⚠️ CONSÉQUENCE : Module '"lucide-react"' has no exported member 'Stopwatch' → Build échoue
+
+RÈGLES ABSOLUES :
+
+1️⃣ UTILISE UNIQUEMENT DES ICÔNES VALIDES DE CETTE LISTE :
+   ✅ Time & Calendar: Clock, Timer, Hourglass, Calendar, CalendarDays, Watch, AlarmClock
+   ✅ Actions: Play, Pause, Stop, Plus, Minus, X, Check, Edit, Trash, Save, Search, Filter
+   ✅ Navigation: ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ArrowLeft, ArrowRight, Menu
+   ✅ UI: Eye, EyeOff, Heart, Star, Bell, Settings, Lock, Unlock, Key
+   ✅ User: User, Users, UserPlus, UserMinus
+   ✅ Communication: Mail, Phone, MessageCircle, MessageSquare, Send, Video
+   ✅ Files: File, FileText, Folder, Upload, Download
+   ✅ Location: MapPin, Map, Navigation, Home
+   ✅ Commerce: ShoppingCart, ShoppingBag, CreditCard, DollarSign, Store
+   ✅ Media: Image, Camera, Music, Mic, Volume2, VolumeX
+   ✅ Status: AlertCircle, AlertTriangle, Info, CheckCircle, XCircle, HelpCircle
+   ✅ Data: Activity, TrendingUp, TrendingDown, Database, LayoutGrid, List
+
+2️⃣ ICÔNES INVALIDES À NE JAMAIS UTILISER (vont être auto-corrigées) :
+   ❌ Stopwatch → Utilise Timer à la place
+   ❌ Delete/Remove → Utilise Trash
+   ❌ Close/Cross → Utilise X
+   ❌ Email → Utilise Mail
+   ❌ Profile/Account/Person → Utilise User
+   ❌ Location/Pin → Utilise MapPin
+   ❌ Cart/Bag → Utilise ShoppingCart ou ShoppingBag
+   ❌ Picture/Photo → Utilise Image
+
+3️⃣ FORMAT D'IMPORT OBLIGATOIRE :
+   import { Clock, Timer, User, Settings } from 'lucide-react'
+   - TOUTE icône utilisée dans le code DOIT être importée
+   - Vérifie ligne par ligne que chaque <IconName /> a son import
+
+4️⃣ AVANT DE GÉNÉRER LE CODE :
+   - Liste mentalement toutes les icônes que tu vas utiliser
+   - Vérifie qu'elles sont TOUTES dans la liste valide ci-dessus
+   - Si une icône n'existe pas, choisis une alternative valide
+   - N'INVENTE JAMAIS de noms d'icônes !
+
+⚠️ RAPPEL : Une seule icône invalide = Build TypeScript échoue !
 - APOSTROPHES : Utilise UNIQUEMENT des apostrophes ASCII standard (') dans tout le code
   ⚠️ NE JAMAIS utiliser d'apostrophes typographiques (' ou ') - elles causent des erreurs TypeScript
   Exemples CORRECTS : "jusqu'à", "L'Oréal", "n'êtes pas" (avec ')
@@ -1453,7 +1487,7 @@ function generateTSConfig(): string {
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
@@ -1918,6 +1952,223 @@ export function fixCheckboxValueToChecked(files: ProjectFile[]): ProjectFile[] {
     console.log(`\n🔧 RÉSULTAT : ${totalReplacements} checkbox(es) corrigée(s) dans ${totalFilesFixed} fichier(s)`)
   } else {
     console.log('✅ Aucune checkbox à corriger')
+  }
+
+  console.log('🔧 ========================================\n')
+
+  return files
+}
+
+/**
+ * Valider et corriger les imports d'icônes lucide-react invalides
+ * PROBLÈME : Claude génère parfois des noms d'icônes qui n'existent pas dans lucide-react
+ * SOLUTION : Remplacer automatiquement par des icônes similaires valides
+ */
+export function fixInvalidLucideIcons(files: ProjectFile[]): ProjectFile[] {
+  console.log('\n🔧 ========================================')
+  console.log('🔧 Validation des icônes lucide-react')
+  console.log('🔧 ========================================\n')
+
+  // Liste des icônes valides les plus courantes dans lucide-react
+  const validIcons = new Set([
+    // Time & Calendar
+    'Clock', 'Timer', 'Hourglass', 'Calendar', 'CalendarDays', 'CalendarClock',
+    'AlarmClock', 'Watch',
+
+    // Actions
+    'Play', 'Pause', 'Stop', 'SkipForward', 'SkipBack', 'FastForward', 'Rewind',
+    'Plus', 'Minus', 'X', 'Check', 'ChevronLeft', 'ChevronRight', 'ChevronUp', 'ChevronDown',
+    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+    'Edit', 'Trash', 'Save', 'Download', 'Upload', 'Copy', 'Clipboard',
+    'Search', 'Filter', 'RefreshCw', 'RotateCw', 'RotateCcw',
+
+    // UI
+    'Menu', 'MoreVertical', 'MoreHorizontal', 'Settings', 'Sliders',
+    'Eye', 'EyeOff', 'Lock', 'Unlock', 'Key',
+    'Star', 'Heart', 'Bookmark', 'Flag', 'Bell', 'BellOff',
+
+    // User & People
+    'User', 'Users', 'UserPlus', 'UserMinus', 'UserCheck', 'UserX',
+
+    // Communication
+    'Mail', 'Send', 'MessageSquare', 'MessageCircle', 'Phone', 'Video',
+
+    // Files & Folders
+    'File', 'FileText', 'Folder', 'FolderOpen', 'Upload', 'Download',
+
+    // Location
+    'MapPin', 'Map', 'Navigation', 'Compass',
+
+    // Home & Building
+    'Home', 'Building', 'Store', 'Warehouse',
+
+    // Commerce
+    'ShoppingCart', 'ShoppingBag', 'CreditCard', 'DollarSign',
+
+    // Media
+    'Image', 'Camera', 'Film', 'Music', 'Mic', 'Volume2', 'VolumeX',
+
+    // Development
+    'Code', 'Terminal', 'Github', 'GitBranch', 'Database',
+
+    // Status
+    'AlertCircle', 'AlertTriangle', 'Info', 'HelpCircle', 'CheckCircle', 'XCircle',
+
+    // Layout
+    'Layout', 'LayoutGrid', 'LayoutList', 'Columns', 'Grid', 'List',
+
+    // Other
+    'Sun', 'Moon', 'Zap', 'TrendingUp', 'TrendingDown', 'Activity',
+    'Link', 'ExternalLink', 'Share', 'Wifi', 'WifiOff'
+  ])
+
+  // Mapping des icônes invalides vers des icônes valides similaires
+  const iconReplacements: Record<string, string> = {
+    // Time-related
+    'Stopwatch': 'Timer',
+    'StopWatch': 'Timer',
+    'Chronometer': 'Timer',
+    'TimeWatch': 'Clock',
+
+    // Actions
+    'Delete': 'Trash',
+    'Remove': 'Trash',
+    'Cross': 'X',
+    'Close': 'X',
+    'Checkmark': 'Check',
+    'Tick': 'Check',
+    'Arrow': 'ArrowRight',
+
+    // UI
+    'Hamburger': 'Menu',
+    'Bars': 'Menu',
+    'Gear': 'Settings',
+    'Cog': 'Settings',
+    'Love': 'Heart',
+    'Favorite': 'Star',
+
+    // User
+    'Profile': 'User',
+    'Account': 'User',
+    'Avatar': 'User',
+    'Person': 'User',
+    'People': 'Users',
+
+    // Communication
+    'Email': 'Mail',
+    'Message': 'MessageSquare',
+    'Chat': 'MessageCircle',
+    'Call': 'Phone',
+
+    // Location
+    'Location': 'MapPin',
+    'Pin': 'MapPin',
+    'Marker': 'MapPin',
+
+    // Files
+    'Document': 'FileText',
+    'Doc': 'FileText',
+
+    // Commerce
+    'Cart': 'ShoppingCart',
+    'Bag': 'ShoppingBag',
+    'Shop': 'Store',
+    'Money': 'DollarSign',
+
+    // Media
+    'Picture': 'Image',
+    'Photo': 'Image',
+    'Sound': 'Volume2',
+    'Audio': 'Music',
+
+    // Status
+    'Warning': 'AlertTriangle',
+    'Error': 'AlertCircle',
+    'Success': 'CheckCircle',
+    'Failed': 'XCircle',
+
+    // Other
+    'Lightning': 'Zap',
+    'Bolt': 'Zap',
+    'Chain': 'Link',
+    'Hyperlink': 'Link'
+  }
+
+  let totalFilesFixed = 0
+  let totalReplacements = 0
+
+  files.forEach(file => {
+    if (file.path.match(/\.(tsx|jsx)$/)) {
+      const original = file.content
+      let fixed = original
+      let fileChanged = false
+
+      // Pattern pour détecter les imports lucide-react
+      // Ex: import { Clock, Stopwatch, User } from 'lucide-react'
+      const importPattern = /import\s+{([^}]+)}\s+from\s+['"]lucide-react['"]/g
+
+      const importMatches = [...original.matchAll(importPattern)]
+
+      importMatches.forEach(match => {
+        const importList = match[1]
+        const icons = importList.split(',').map(i => i.trim())
+        const fixedIcons: string[] = []
+        const replacements: string[] = []
+
+        icons.forEach(icon => {
+          if (validIcons.has(icon)) {
+            // Icône valide, on garde
+            fixedIcons.push(icon)
+          } else if (iconReplacements[icon]) {
+            // Icône invalide avec remplacement connu
+            const replacement = iconReplacements[icon]
+            fixedIcons.push(replacement)
+            replacements.push(`${icon} → ${replacement}`)
+            fileChanged = true
+            totalReplacements++
+
+            // Remplacer aussi toutes les utilisations de cette icône dans le fichier
+            // Ex: <Stopwatch /> devient <Timer />
+            const usagePattern = new RegExp(`<${icon}([\\s/>])`, 'g')
+            fixed = fixed.replace(usagePattern, `<${replacement}$1`)
+          } else {
+            // Icône invalide sans remplacement connu, on essaie de deviner
+            console.log(`⚠️  ${file.path}: Icône inconnue "${icon}" - utilisation de Clock par défaut`)
+            fixedIcons.push('Clock')
+            replacements.push(`${icon} → Clock (fallback)`)
+            fileChanged = true
+            totalReplacements++
+
+            const usagePattern = new RegExp(`<${icon}([\\s/>])`, 'g')
+            fixed = fixed.replace(usagePattern, `<Clock$1`)
+          }
+        })
+
+        if (fileChanged) {
+          // Reconstruire l'import avec les icônes corrigées
+          // Éliminer les doublons
+          const uniqueIcons = [...new Set(fixedIcons)]
+          const newImport = `import { ${uniqueIcons.join(', ')} } from 'lucide-react'`
+          fixed = fixed.replace(match[0], newImport)
+        }
+
+        if (replacements.length > 0) {
+          console.log(`✅ ${file.path}:`)
+          replacements.forEach(r => console.log(`   ${r}`))
+        }
+      })
+
+      if (fileChanged) {
+        file.content = fixed
+        totalFilesFixed++
+      }
+    }
+  })
+
+  if (totalReplacements > 0) {
+    console.log(`\n🔧 RÉSULTAT : ${totalReplacements} icône(s) corrigée(s) dans ${totalFilesFixed} fichier(s)`)
+  } else {
+    console.log('✅ Toutes les icônes lucide-react sont valides')
   }
 
   console.log('🔧 ========================================\n')

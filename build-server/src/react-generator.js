@@ -1226,3 +1226,313 @@ export function fixTypographicApostrophes(files: ProjectFile[]): ProjectFile[] {
 
   return files
 }
+
+/**
+ * Supprimer la prop asChild qui n'existe pas dans notre Button
+ * PROBLÈME : Claude génère parfois <Button asChild> malgré les règles du prompt
+ * SOLUTION : Supprimer automatiquement toutes les props asChild
+ */
+export function removeAsChildProp(files) {
+  console.log('\n🔧 ========================================')
+  console.log('🔧 Suppression des props asChild invalides')
+  console.log('🔧 ========================================\n')
+
+  let totalFilesFixed = 0
+  let totalReplacements = 0
+
+  files.forEach(file => {
+    // Appliquer sur les fichiers React
+    if (file.path.match(/\.(tsx|jsx)$/)) {
+      const original = file.content
+
+      // Supprimer asChild prop (format: asChild={true} ou asChild)
+      let fixed = original
+        .replace(/\s+asChild={true}/g, '')  // <Button asChild={true}>
+        .replace(/\s+asChild\s/g, ' ')      // <Button asChild >
+        .replace(/\s+asChild>/g, '>')       // <Button asChild>
+
+      // Compter les remplacements
+      const matches = original.match(/\s+asChild[=\s>]/g) || []
+      const count = matches.length
+
+      if (count > 0) {
+        file.content = fixed
+        totalFilesFixed++
+        totalReplacements += count
+        console.log(`✅ ${file.path}: ${count} prop(s) asChild supprimée(s)`)
+      }
+    }
+  })
+
+  if (totalReplacements > 0) {
+    console.log(`\n🔧 RÉSULTAT : ${totalReplacements} prop(s) asChild supprimée(s) dans ${totalFilesFixed} fichier(s)`)
+  } else {
+    console.log('✅ Aucune prop asChild détectée')
+  }
+
+  console.log('🔧 ========================================\n')
+
+  return files
+}
+
+/**
+ * Corriger les checkboxes avec value au lieu de checked
+ * PROBLÈME : Claude génère <input type="checkbox" value={boolean}> au lieu de checked
+ * SOLUTION : Remplacer value par checked pour les inputs de type checkbox
+ */
+export function fixCheckboxValueToChecked(files) {
+  console.log('\n🔧 ========================================')
+  console.log('🔧 Correction checkbox value → checked')
+  console.log('🔧 ========================================\n')
+
+  let totalFilesFixed = 0
+  let totalReplacements = 0
+
+  files.forEach(file => {
+    if (file.path.match(/\.(tsx|jsx)$/)) {
+      const original = file.content
+      let fixed = original
+
+      // Pattern: <input type="checkbox" ... value={...} />
+      // Remplacer value= par checked= pour les checkbox
+      const checkboxPattern = /(<input[^>]*type=["']checkbox["'][^>]*)\svalue=/gi
+
+      const matches = original.match(checkboxPattern) || []
+      if (matches.length > 0) {
+        fixed = original.replace(checkboxPattern, '$1 checked=')
+
+        file.content = fixed
+        totalFilesFixed++
+        totalReplacements += matches.length
+        console.log(`✅ ${file.path}: ${matches.length} checkbox(es) corrigée(s)`)
+      }
+    }
+  })
+
+  if (totalReplacements > 0) {
+    console.log(`\n🔧 RÉSULTAT : ${totalReplacements} checkbox(es) corrigée(s) dans ${totalFilesFixed} fichier(s)`)
+  } else {
+    console.log('✅ Aucune checkbox à corriger')
+  }
+
+  console.log('🔧 ========================================\n')
+
+  return files
+}
+
+/**
+ * Valider et corriger les imports d'icônes lucide-react invalides
+ * PROBLÈME : Claude génère parfois des noms d'icônes qui n'existent pas dans lucide-react
+ * SOLUTION : Remplacer automatiquement par des icônes similaires valides
+ */
+export function fixInvalidLucideIcons(files) {
+  console.log('\n🔧 ========================================')
+  console.log('🔧 Validation des icônes lucide-react')
+  console.log('🔧 ========================================\n')
+
+  // Liste des icônes valides les plus courantes dans lucide-react
+  const validIcons = new Set([
+    // Time & Calendar
+    'Clock', 'Timer', 'Hourglass', 'Calendar', 'CalendarDays', 'CalendarClock',
+    'AlarmClock', 'Watch',
+
+    // Actions
+    'Play', 'Pause', 'Stop', 'SkipForward', 'SkipBack', 'FastForward', 'Rewind',
+    'Plus', 'Minus', 'X', 'Check', 'ChevronLeft', 'ChevronRight', 'ChevronUp', 'ChevronDown',
+    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+    'Edit', 'Trash', 'Save', 'Download', 'Upload', 'Copy', 'Clipboard',
+    'Search', 'Filter', 'RefreshCw', 'RotateCw', 'RotateCcw',
+
+    // UI
+    'Menu', 'MoreVertical', 'MoreHorizontal', 'Settings', 'Sliders',
+    'Eye', 'EyeOff', 'Lock', 'Unlock', 'Key',
+    'Star', 'Heart', 'Bookmark', 'Flag', 'Bell', 'BellOff',
+
+    // User & People
+    'User', 'Users', 'UserPlus', 'UserMinus', 'UserCheck', 'UserX',
+
+    // Communication
+    'Mail', 'Send', 'MessageSquare', 'MessageCircle', 'Phone', 'Video',
+
+    // Files & Folders
+    'File', 'FileText', 'Folder', 'FolderOpen', 'Upload', 'Download',
+
+    // Location
+    'MapPin', 'Map', 'Navigation', 'Compass',
+
+    // Home & Building
+    'Home', 'Building', 'Store', 'Warehouse',
+
+    // Commerce
+    'ShoppingCart', 'ShoppingBag', 'CreditCard', 'DollarSign',
+
+    // Media
+    'Image', 'Camera', 'Film', 'Music', 'Mic', 'Volume2', 'VolumeX',
+
+    // Development
+    'Code', 'Terminal', 'Github', 'GitBranch', 'Database',
+
+    // Status
+    'AlertCircle', 'AlertTriangle', 'Info', 'HelpCircle', 'CheckCircle', 'XCircle',
+
+    // Layout
+    'Layout', 'LayoutGrid', 'LayoutList', 'Columns', 'Grid', 'List',
+
+    // Other
+    'Sun', 'Moon', 'Zap', 'TrendingUp', 'TrendingDown', 'Activity',
+    'Link', 'ExternalLink', 'Share', 'Wifi', 'WifiOff'
+  ])
+
+  // Mapping des icônes invalides vers des icônes valides similaires
+  const iconReplacements = {
+    // Time-related
+    'Stopwatch': 'Timer',
+    'StopWatch': 'Timer',
+    'Chronometer': 'Timer',
+    'TimeWatch': 'Clock',
+
+    // Actions
+    'Delete': 'Trash',
+    'Remove': 'Trash',
+    'Cross': 'X',
+    'Close': 'X',
+    'Checkmark': 'Check',
+    'Tick': 'Check',
+    'Arrow': 'ArrowRight',
+
+    // UI
+    'Hamburger': 'Menu',
+    'Bars': 'Menu',
+    'Gear': 'Settings',
+    'Cog': 'Settings',
+    'Love': 'Heart',
+    'Favorite': 'Star',
+
+    // User
+    'Profile': 'User',
+    'Account': 'User',
+    'Avatar': 'User',
+    'Person': 'User',
+    'People': 'Users',
+
+    // Communication
+    'Email': 'Mail',
+    'Message': 'MessageSquare',
+    'Chat': 'MessageCircle',
+    'Call': 'Phone',
+
+    // Location
+    'Location': 'MapPin',
+    'Pin': 'MapPin',
+    'Marker': 'MapPin',
+
+    // Files
+    'Document': 'FileText',
+    'Doc': 'FileText',
+
+    // Commerce
+    'Cart': 'ShoppingCart',
+    'Bag': 'ShoppingBag',
+    'Shop': 'Store',
+    'Money': 'DollarSign',
+
+    // Media
+    'Picture': 'Image',
+    'Photo': 'Image',
+    'Sound': 'Volume2',
+    'Audio': 'Music',
+
+    // Status
+    'Warning': 'AlertTriangle',
+    'Error': 'AlertCircle',
+    'Success': 'CheckCircle',
+    'Failed': 'XCircle',
+
+    // Other
+    'Lightning': 'Zap',
+    'Bolt': 'Zap',
+    'Chain': 'Link',
+    'Hyperlink': 'Link'
+  }
+
+  let totalFilesFixed = 0
+  let totalReplacements = 0
+
+  files.forEach(file => {
+    if (file.path.match(/\.(tsx|jsx)$/)) {
+      const original = file.content
+      let fixed = original
+      let fileChanged = false
+
+      // Pattern pour détecter les imports lucide-react
+      // Ex: import { Clock, Stopwatch, User } from 'lucide-react'
+      const importPattern = /import\s+{([^}]+)}\s+from\s+['"]lucide-react['"]/g
+
+      const importMatches = [...original.matchAll(importPattern)]
+
+      importMatches.forEach(match => {
+        const importList = match[1]
+        const icons = importList.split(',').map(i => i.trim())
+        const fixedIcons = []
+        const replacements = []
+
+        icons.forEach(icon => {
+          if (validIcons.has(icon)) {
+            // Icône valide, on garde
+            fixedIcons.push(icon)
+          } else if (iconReplacements[icon]) {
+            // Icône invalide avec remplacement connu
+            const replacement = iconReplacements[icon]
+            fixedIcons.push(replacement)
+            replacements.push(`${icon} → ${replacement}`)
+            fileChanged = true
+            totalReplacements++
+
+            // Remplacer aussi toutes les utilisations de cette icône dans le fichier
+            // Ex: <Stopwatch /> devient <Timer />
+            const usagePattern = new RegExp(`<${icon}([\\s/>])`, 'g')
+            fixed = fixed.replace(usagePattern, `<${replacement}$1`)
+          } else {
+            // Icône invalide sans remplacement connu, on essaie de deviner
+            console.log(`⚠️  ${file.path}: Icône inconnue "${icon}" - utilisation de Clock par défaut`)
+            fixedIcons.push('Clock')
+            replacements.push(`${icon} → Clock (fallback)`)
+            fileChanged = true
+            totalReplacements++
+
+            const usagePattern = new RegExp(`<${icon}([\\s/>])`, 'g')
+            fixed = fixed.replace(usagePattern, `<Clock$1`)
+          }
+        })
+
+        if (fileChanged) {
+          // Reconstruire l'import avec les icônes corrigées
+          // Éliminer les doublons
+          const uniqueIcons = [...new Set(fixedIcons)]
+          const newImport = `import { ${uniqueIcons.join(', ')} } from 'lucide-react'`
+          fixed = fixed.replace(match[0], newImport)
+        }
+
+        if (replacements.length > 0) {
+          console.log(`✅ ${file.path}:`)
+          replacements.forEach(r => console.log(`   ${r}`))
+        }
+      })
+
+      if (fileChanged) {
+        file.content = fixed
+        totalFilesFixed++
+      }
+    }
+  })
+
+  if (totalReplacements > 0) {
+    console.log(`\n🔧 RÉSULTAT : ${totalReplacements} icône(s) corrigée(s) dans ${totalFilesFixed} fichier(s)`)
+  } else {
+    console.log('✅ Toutes les icônes lucide-react sont valides')
+  }
+
+  console.log('🔧 ========================================\n')
+
+  return files
+}
