@@ -720,23 +720,25 @@ RÈGLE SIMPLE: Si tu vois .propriété avant le spread, c'est INTERDIT!
 
 RÈGLES ABSOLUES :
 
-1️⃣ UTILISE UNIQUEMENT DES ICÔNES VALIDES DE CETTE LISTE :
+1️⃣ UTILISE UNIQUEMENT DES ICÔNES VALIDES DE CETTE LISTE (vérifiée sur lucide.dev) :
    ✅ Time & Calendar: Clock, Timer, Hourglass, Calendar, CalendarDays, Watch, AlarmClock
-   ✅ Actions: Play, Pause, Square, Circle, StopCircle, Plus, Minus, X, Check, Edit, Trash, Save, Search, Filter
+   ✅ Actions: Play, Pause, Square, Circle, CircleStop, Plus, Minus, X, Check, Pencil, Trash, Save, Search, Filter
    ✅ Navigation: ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ArrowLeft, ArrowRight, Menu
    ✅ UI: Eye, EyeOff, Heart, Star, Bell, Settings, Lock, Unlock, Key
    ✅ User: User, Users, UserPlus, UserMinus
    ✅ Communication: Mail, Phone, MessageCircle, MessageSquare, Send, Video
    ✅ Files: File, FileText, Folder, Upload, Download
-   ✅ Location: MapPin, Map, Navigation, Home
+   ✅ Location: MapPin, Map, Navigation, House, Home
    ✅ Commerce: ShoppingCart, ShoppingBag, CreditCard, DollarSign, Store
    ✅ Media: Image, Camera, Music, Mic, Volume2, VolumeX
    ✅ Status: AlertCircle, AlertTriangle, Info, CheckCircle, XCircle, HelpCircle
    ✅ Data: Activity, TrendingUp, TrendingDown, Database, LayoutGrid, List
 
 2️⃣ ICÔNES INVALIDES À NE JAMAIS UTILISER (vont être auto-corrigées) :
-   ❌ Stopwatch → Utilise Timer à la place
-   ❌ Stop → Utilise StopCircle ou Square
+   ❌ Stopwatch → Utilise Timer
+   ❌ Stop → Utilise CircleStop (PAS StopCircle !)
+   ❌ StopCircle → Utilise CircleStop (nom correct)
+   ❌ Edit → Utilise Pencil (ou Edit2, Edit3)
    ❌ Target → Utilise Circle
    ❌ Delete/Remove → Utilise Trash
    ❌ Close/Cross → Utilise X
@@ -1978,10 +1980,10 @@ export function fixInvalidLucideIcons(files: ProjectFile[]): ProjectFile[] {
     'AlarmClock', 'Watch',
 
     // Actions
-    'Play', 'Pause', 'Square', 'Circle', 'StopCircle', 'SkipForward', 'SkipBack', 'FastForward', 'Rewind',
+    'Play', 'Pause', 'Square', 'Circle', 'CircleStop', 'SkipForward', 'SkipBack', 'FastForward', 'Rewind',
     'Plus', 'Minus', 'X', 'Check', 'ChevronLeft', 'ChevronRight', 'ChevronUp', 'ChevronDown',
     'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-    'Edit', 'Trash', 'Save', 'Download', 'Upload', 'Copy', 'Clipboard',
+    'Pencil', 'Edit2', 'Edit3', 'Trash', 'Save', 'Download', 'Upload', 'Copy', 'Clipboard',
     'Search', 'Filter', 'RefreshCw', 'RotateCw', 'RotateCcw',
 
     // UI
@@ -2002,7 +2004,7 @@ export function fixInvalidLucideIcons(files: ProjectFile[]): ProjectFile[] {
     'MapPin', 'Map', 'Navigation', 'Compass',
 
     // Home & Building
-    'Home', 'Building', 'Store', 'Warehouse',
+    'House', 'Home', 'Building', 'Store', 'Warehouse',
 
     // Commerce
     'ShoppingCart', 'ShoppingBag', 'CreditCard', 'DollarSign',
@@ -2033,7 +2035,9 @@ export function fixInvalidLucideIcons(files: ProjectFile[]): ProjectFile[] {
     'TimeWatch': 'Clock',
 
     // Actions
-    'Stop': 'StopCircle',
+    'Stop': 'CircleStop',
+    'StopCircle': 'CircleStop',
+    'Edit': 'Pencil',
     'Delete': 'Trash',
     'Remove': 'Trash',
     'Cross': 'X',

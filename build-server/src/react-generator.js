@@ -1337,10 +1337,10 @@ export function fixInvalidLucideIcons(files) {
     'AlarmClock', 'Watch',
 
     // Actions
-    'Play', 'Pause', 'Square', 'Circle', 'StopCircle', 'SkipForward', 'SkipBack', 'FastForward', 'Rewind',
+    'Play', 'Pause', 'Square', 'Circle', 'CircleStop', 'SkipForward', 'SkipBack', 'FastForward', 'Rewind',
     'Plus', 'Minus', 'X', 'Check', 'ChevronLeft', 'ChevronRight', 'ChevronUp', 'ChevronDown',
     'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-    'Edit', 'Trash', 'Save', 'Download', 'Upload', 'Copy', 'Clipboard',
+    'Pencil', 'Edit2', 'Edit3', 'Trash', 'Save', 'Download', 'Upload', 'Copy', 'Clipboard',
     'Search', 'Filter', 'RefreshCw', 'RotateCw', 'RotateCcw',
 
     // UI
@@ -1361,7 +1361,7 @@ export function fixInvalidLucideIcons(files) {
     'MapPin', 'Map', 'Navigation', 'Compass',
 
     // Home & Building
-    'Home', 'Building', 'Store', 'Warehouse',
+    'House', 'Home', 'Building', 'Store', 'Warehouse',
 
     // Commerce
     'ShoppingCart', 'ShoppingBag', 'CreditCard', 'DollarSign',
@@ -1392,7 +1392,9 @@ export function fixInvalidLucideIcons(files) {
     'TimeWatch': 'Clock',
 
     // Actions
-    'Stop': 'StopCircle',
+    'Stop': 'CircleStop',
+    'StopCircle': 'CircleStop',
+    'Edit': 'Pencil',
     'Delete': 'Trash',
     'Remove': 'Trash',
     'Cross': 'X',
