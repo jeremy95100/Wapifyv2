@@ -78,6 +78,22 @@ function attemptJsonRepair(jsonText: string): string {
   console.log('🔧 Starting JSON repair...')
   console.log('📏 Original length:', repaired.length)
 
+  // 0. NOUVEAU: Détecter et réparer les backslashes mal échappés en fin de JSON
+  // Pattern: "...texte\" ou "...texte\n" tronqué
+  const trailingBackslashMatch = repaired.match(/\\+$/);
+  if (trailingBackslashMatch) {
+    console.log('🔧 Detected trailing backslash, removing it')
+    repaired = repaired.replace(/\\+$/, '')
+  }
+
+  // Détecter les strings qui se terminent par un backslash sans guillemet fermant
+  // Pattern: "content": "some text\
+  const unclosedEscapeMatch = repaired.match(/"content"\s*:\s*"[^"]*\\$/m)
+  if (unclosedEscapeMatch) {
+    console.log('🔧 Detected unclosed escape sequence, closing string')
+    repaired += '"'
+  }
+
   // 1. Détecter les strings non fermées (cause #1 des erreurs)
   // Chercher les patterns comme: "content": "...texte sans guillemet de fermeture
   const unteriminatedStringMatch = repaired.match(/"content"\s*:\s*"[^"]*$/m)
