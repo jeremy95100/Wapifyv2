@@ -6,7 +6,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { Redis } from 'ioredis'
-import { generateReactProject, fixTypographicApostrophes, removeAsChildProp, fixCheckboxValueToChecked, fixInvalidLucideIcons } from './react-generator.ts'
+import { generateReactProject, fixTypographicApostrophes, removeAsChildProp, fixCheckboxValueToChecked } from './react-generator.ts'
 
 // Initialiser Anthropic
 const anthropic = new Anthropic({
@@ -94,9 +94,6 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
 
     // Corriger les checkboxes (value → checked)
     result.files = fixCheckboxValueToChecked(result.files)
-
-    // Valider et corriger les icônes lucide-react invalides
-    result.files = fixInvalidLucideIcons(result.files)
 
     // Événement plan généré
     await publishEvent(jobId, 'plan', {
