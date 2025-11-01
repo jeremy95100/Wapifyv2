@@ -57,7 +57,7 @@ export async function setupQueue() {
   buildWorker = new Worker(
     'wapify-builds',
     async (job) => {
-      const { projectId, files, projectName } = job.data
+      const { projectId, files, projectName, userPrompt } = job.data
 
       console.log(`\n🔨 Starting build for project: ${projectId}`)
       console.log(`📁 Files: ${files.length}`)
@@ -71,6 +71,8 @@ export async function setupQueue() {
           projectId,
           files,
           projectName,
+          jobId: job.id, // Pass job ID for error logging
+          userPrompt: userPrompt || null, // Pass user prompt for analysis
           onProgress: async (progress) => {
             await job.updateProgress(progress)
           }

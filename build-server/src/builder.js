@@ -5,6 +5,7 @@ import { promisify } from 'util'
 import { put } from '@vercel/blob'
 import { nanoid } from 'nanoid'
 import Anthropic from '@anthropic-ai/sdk'
+import { createClient } from '@supabase/supabase-js'
 
 const execAsync = promisify(exec)
 
@@ -12,6 +13,12 @@ const execAsync = promisify(exec)
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 })
+
+// Initialize Supabase for logging TypeScript errors
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
 
 // Temporary build directory
 const BUILDS_DIR = path.join(process.cwd(), 'builds')
@@ -39,6 +46,97 @@ function parseTypeScriptErrors(output) {
   }
 
   return errors
+}
+
+/**
+ * Save TypeScript errors to database for analysis
+ */
+async function saveErrorsToDatabase(projectId, jobId, errors, userPrompt, buildDir) {
+  if (!errors || errors.length === 0) return
+
+  try {
+    const errorsToInsert = await Promise.all(errors.map(async (error) => {
+      // Read file content before fix
+      let fileContentBefore = null
+      try {
+        const filePath = path.join(buildDir, error.file)
+        fileContentBefore = await fs.readFile(filePath, 'utf-8')
+      } catch (e) {
+        console.warn(`⚠️  Could not read file for error logging: ${error.file}`)
+      }
+
+      return {
+        project_id: projectId,
+        job_id: jobId,
+        error_code: error.code,
+        error_message: error.message,
+        file_path: error.file,
+        line_number: error.line,
+        column_number: error.column,
+        user_prompt: userPrompt,
+        file_content_before: fileContentBefore,
+        was_fixed: false // Will be updated after fix attempt
+      }
+    }))
+
+    const { data, error } = await supabase
+      .from('typescript_errors')
+      .insert(errorsToInsert)
+      .select('id')
+
+    if (error) {
+      console.error('❌ Error saving to database:', error.message)
+    } else {
+      console.log(`📊 Saved ${errorsToInsert.length} error(s) to database`)
+      return data // Return inserted records with IDs
+    }
+  } catch (err) {
+    console.error('❌ Exception saving errors to database:', err.message)
+  }
+
+  return null
+}
+
+/**
+ * Update error records after fix attempt
+ */
+async function updateErrorsAfterFix(errorIds, buildDir, errors, fixSuccess) {
+  if (!errorIds || errorIds.length === 0) return
+
+  try {
+    // Read file contents after fix
+    const filesToUpdate = new Set(errors.map(e => e.file))
+    const fileContentsAfter = {}
+
+    for (const file of filesToUpdate) {
+      try {
+        const filePath = path.join(buildDir, file)
+        fileContentsAfter[file] = await fs.readFile(filePath, 'utf-8')
+      } catch (e) {
+        console.warn(`⚠️  Could not read file after fix: ${file}`)
+      }
+    }
+
+    // Update each error record
+    for (let i = 0; i < errorIds.length; i++) {
+      const errorId = errorIds[i].id
+      const error = errors[i]
+      const fileContentAfter = fileContentsAfter[error.file]
+
+      await supabase
+        .from('typescript_errors')
+        .update({
+          was_fixed: fixSuccess,
+          fix_applied_at: new Date().toISOString(),
+          file_content_after: fileContentAfter
+        })
+        .eq('id', errorId)
+    }
+
+    console.log(`📊 Updated ${errorIds.length} error record(s) in database`)
+  } catch (err) {
+    console.error('❌ Exception updating errors in database:', err.message)
+  }
 }
 
 /**
@@ -166,7 +264,7 @@ function getContentType(filename) {
 /**
  * Build a React project with Vite
  */
-export async function buildProject({ projectId, files, projectName, onProgress }) {
+export async function buildProject({ projectId, files, projectName, jobId, userPrompt, onProgress }) {
   const buildId = nanoid(10)
   const buildDir = path.join(BUILDS_DIR, buildId)
 
@@ -262,8 +360,18 @@ export async function buildProject({ projectId, files, projectName, onProgress }
 
         console.log(`⏱️  Validation took ${(validationTime / 1000).toFixed(1)}s`)
 
+        // Save errors to database for analysis
+        const errorRecords = await saveErrorsToDatabase(projectId, jobId, errors, userPrompt, buildDir)
+
         // Phase 2: Automatic error correction with Claude agent
+        const fixStart = Date.now()
         const fixSuccess = await fixTypeScriptErrorsWithClaude(buildDir, errors)
+        const fixTime = Date.now() - fixStart
+
+        // Update error records with fix results
+        if (errorRecords) {
+          await updateErrorsAfterFix(errorRecords, buildDir, errors, fixSuccess)
+        }
 
         if (fixSuccess) {
           // Re-validate after fixes
