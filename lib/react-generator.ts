@@ -1795,3 +1795,48 @@ export function removeAsChildProp(files: ProjectFile[]): ProjectFile[] {
 
   return files
 }
+
+/**
+ * Corriger les checkboxes avec value au lieu de checked
+ * PROBLÈME : Claude génère <input type="checkbox" value={boolean}> au lieu de checked
+ * SOLUTION : Remplacer value par checked pour les inputs de type checkbox
+ */
+export function fixCheckboxValueToChecked(files: ProjectFile[]): ProjectFile[] {
+  console.log('\n🔧 ========================================')
+  console.log('🔧 Correction checkbox value → checked')
+  console.log('🔧 ========================================\n')
+
+  let totalFilesFixed = 0
+  let totalReplacements = 0
+
+  files.forEach(file => {
+    if (file.path.match(/\.(tsx|jsx)$/)) {
+      const original = file.content
+      let fixed = original
+
+      // Pattern: <input type="checkbox" ... value={...} />
+      // Remplacer value= par checked= pour les checkbox
+      const checkboxPattern = /(<input[^>]*type=["']checkbox["'][^>]*)\svalue=/gi
+
+      const matches = original.match(checkboxPattern) || []
+      if (matches.length > 0) {
+        fixed = original.replace(checkboxPattern, '$1 checked=')
+
+        file.content = fixed
+        totalFilesFixed++
+        totalReplacements += matches.length
+        console.log(`✅ ${file.path}: ${matches.length} checkbox(es) corrigée(s)`)
+      }
+    }
+  })
+
+  if (totalReplacements > 0) {
+    console.log(`\n🔧 RÉSULTAT : ${totalReplacements} checkbox(es) corrigée(s) dans ${totalFilesFixed} fichier(s)`)
+  } else {
+    console.log('✅ Aucune checkbox à corriger')
+  }
+
+  console.log('🔧 ========================================\n')
+
+  return files
+}

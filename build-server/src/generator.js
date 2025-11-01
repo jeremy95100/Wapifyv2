@@ -6,7 +6,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { Redis } from 'ioredis'
-import { generateReactProject, fixTypographicApostrophes, removeAsChildProp } from './react-generator.ts'
+import { generateReactProject, fixTypographicApostrophes, removeAsChildProp, fixCheckboxValueToChecked } from './react-generator.ts'
 
 // Initialiser Anthropic
 const anthropic = new Anthropic({
@@ -91,6 +91,9 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
 
     // Supprimer les props asChild invalides
     result.files = removeAsChildProp(result.files)
+
+    // Corriger les checkboxes (value → checked)
+    result.files = fixCheckboxValueToChecked(result.files)
 
     // Événement plan généré
     await publishEvent(jobId, 'plan', {
