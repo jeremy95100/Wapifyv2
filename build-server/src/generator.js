@@ -82,6 +82,27 @@ async function validateTypeScript(files, jobId) {
       }, null, 2)
     )
 
+    // Installer les dépendances npm
+    console.log('📦 Installation des dépendances TypeScript...')
+    await new Promise((resolve, reject) => {
+      const npm = spawn('npm', ['install', '--silent'], {
+        cwd: tempDir,
+        shell: true
+      })
+
+      npm.on('close', (code) => {
+        if (code === 0) {
+          resolve()
+        } else {
+          reject(new Error(`npm install failed with code ${code}`))
+        }
+      })
+
+      npm.on('error', (err) => {
+        reject(err)
+      })
+    })
+
     // Exécuter tsc --noEmit
     console.log('🔧 Exécution de tsc --noEmit...')
 
