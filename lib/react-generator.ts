@@ -824,6 +824,29 @@ RÈGLES ABSOLUES :
 - Double-vérifie la cohérence des noms avant de générer le JSON
 - RAPPEL: L'opérateur spread (...) ne fonctionne QUE sur des objets (voir règle détaillée ci-dessus)
 
+⚠️ RÈGLES JSX STRICTES (ANTI-ERREURS) :
+1. ❌ JAMAIS d'attributs en double sur un élément JSX :
+   ❌ INCORRECT : <input type="text" onChange={...} onChange={...} />
+   ✅ CORRECT : <input type="text" onChange={...} />
+
+2. ❌ JAMAIS de props conflictuelles :
+   ❌ INCORRECT : <input value={x} defaultValue={y} />
+   ✅ CORRECT : <input value={x} /> (contrôlé) OU <input defaultValue={y} /> (non-contrôlé)
+
+3. Pour les inputs numériques, utilise TOUJOURS string comme type de state :
+   ✅ CORRECT : const [price, setPrice] = useState<string>('')
+   ❌ INCORRECT : const [price, setPrice] = useState<number>(0) puis <input value={price} />
+   Raison : value d'un input est toujours string, sinon erreur TS2322
+
+4. Pour les checkboxes, utilise TOUJOURS "checked" pas "value" :
+   ✅ CORRECT : <input type="checkbox" checked={isActive} />
+   ❌ INCORRECT : <input type="checkbox" value={isActive} />
+
+5. Avant de générer chaque composant JSX, vérifie :
+   - Pas d'attributs en double (onChange, className, value, etc.)
+   - Cohérence des types (string pour value d'input)
+   - Props valides pour le type de composant
+
 FORMAT DE RÉPONSE (JSON uniquement) :
 {
   "siteName": "Nom de l'app",

@@ -4,8 +4,14 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 import { put } from '@vercel/blob'
 import { nanoid } from 'nanoid'
+import Anthropic from '@anthropic-ai/sdk'
 
 const execAsync = promisify(exec)
+
+// Initialize Anthropic for error correction
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY
+})
 
 // Temporary build directory
 const BUILDS_DIR = path.join(process.cwd(), 'builds')
@@ -33,6 +39,100 @@ function parseTypeScriptErrors(output) {
   }
 
   return errors
+}
+
+/**
+ * Fix TypeScript errors using Claude agent
+ * Phase 2: Automatic error correction
+ */
+async function fixTypeScriptErrorsWithClaude(buildDir, errors) {
+  console.log(`\n🤖 Calling Claude agent to fix ${errors.length} error(s)...`)
+
+  try {
+    // Read files with errors
+    const filesToFix = new Set(errors.map(e => e.file))
+    const fileContents = {}
+
+    for (const file of filesToFix) {
+      const filePath = path.join(buildDir, file)
+      fileContents[file] = await fs.readFile(filePath, 'utf-8')
+    }
+
+    // Prepare prompt for Claude
+    const errorsDescription = errors.slice(0, 10).map((err, i) =>
+      `${i + 1}. ${err.file}:${err.line}:${err.column}\n   ${err.code}: ${err.message}`
+    ).join('\n\n')
+
+    const filesDescription = Object.entries(fileContents).map(([file, content]) =>
+      `=== ${file} ===\n${content}`
+    ).join('\n\n')
+
+    const prompt = `Tu es un expert TypeScript. Tu dois corriger UNIQUEMENT les erreurs listées ci-dessous.
+
+ERREURS À CORRIGER :
+${errorsDescription}
+
+FICHIERS CONCERNÉS :
+${filesDescription}
+
+RÈGLES STRICTES :
+1. Corrige UNIQUEMENT les erreurs listées (ne modifie rien d'autre)
+2. Garde exactement la même structure et logique
+3. Pour TS17001 (attributs en double) : supprime le doublon
+4. Pour TS2322 (type mismatch) : corrige le type (ex: number → string pour input.value)
+5. Pour TS2305 (import manquant) : ajoute l'import correct
+6. Pour TS2300 (duplicate identifier) : supprime ou renomme le doublon
+
+Retourne UNIQUEMENT le JSON suivant (pas de markdown, pas d'explication) :
+{
+  "fixes": [
+    {
+      "file": "chemin/fichier.tsx",
+      "newContent": "contenu complet du fichier corrigé"
+    }
+  ]
+}`
+
+    // Call Claude
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 16000,
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
+    })
+
+    const response = message.content[0].text
+
+    // Parse JSON response
+    const jsonMatch = response.match(/\{[\s\S]*"fixes"[\s\S]*\}/)
+    if (!jsonMatch) {
+      console.error('❌ Claude response is not valid JSON')
+      return false
+    }
+
+    const result = JSON.parse(jsonMatch[0])
+
+    // Apply fixes
+    if (result.fixes && result.fixes.length > 0) {
+      console.log(`✅ Claude generated ${result.fixes.length} fix(es)`)
+
+      for (const fix of result.fixes) {
+        const filePath = path.join(buildDir, fix.file)
+        await fs.writeFile(filePath, fix.newContent, 'utf-8')
+        console.log(`   ✓ Fixed ${fix.file}`)
+      }
+
+      return true
+    }
+
+    return false
+
+  } catch (error) {
+    console.error('❌ Error calling Claude for fixes:', error.message)
+    return false
+  }
 }
 
 /**
@@ -160,9 +260,40 @@ export async function buildProject({ projectId, files, projectName, onProgress }
           console.log(`\n... and ${errors.length - 10} more error(s)`)
         }
 
-        // TODO: Publish validation event via Redis (needs jobId parameter)
-        // For now, we log and continue to build (Phase 1: detection only)
         console.log(`⏱️  Validation took ${(validationTime / 1000).toFixed(1)}s`)
+
+        // Phase 2: Automatic error correction with Claude agent
+        const fixSuccess = await fixTypeScriptErrorsWithClaude(buildDir, errors)
+
+        if (fixSuccess) {
+          // Re-validate after fixes
+          console.log('\n🔍 Re-validating TypeScript after fixes...')
+          const recheckStart = Date.now()
+
+          try {
+            await execAsync('npx tsc --noEmit --skipLibCheck 2>&1', {
+              cwd: buildDir,
+              timeout: 60000,
+              maxBuffer: 10 * 1024 * 1024
+            })
+
+            const recheckTime = Date.now() - recheckStart
+            console.log(`✅ Re-validation passed! All errors fixed in ${(recheckTime / 1000).toFixed(1)}s`)
+          } catch (recheckError) {
+            const recheckOutput = recheckError.stdout || recheckError.stderr || ''
+            const remainingErrors = parseTypeScriptErrors(recheckOutput)
+
+            if (remainingErrors.length > 0) {
+              console.warn(`⚠️  ${remainingErrors.length} error(s) still remain after fixes`)
+              remainingErrors.slice(0, 5).forEach((err, i) => {
+                console.log(`\n${i + 1}. ${err.file}:${err.line}`)
+                console.log(`   ${err.code}: ${err.message}`)
+              })
+            }
+          }
+        } else {
+          console.warn('⚠️  Claude agent could not fix errors, continuing with build...')
+        }
       }
     }
 
