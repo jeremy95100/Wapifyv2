@@ -1180,3 +1180,49 @@ export async function validateAndFixProject(
 
   return files
 }
+
+/**
+ * Corriger les apostrophes typographiques dans le code généré
+ * PROBLÈME : Claude génère parfois des apostrophes typographiques (' ou ') au lieu d'apostrophes ASCII (')
+ * SOLUTION : Remplacer automatiquement toutes les apostrophes typographiques
+ */
+export function fixTypographicApostrophes(files: ProjectFile[]): ProjectFile[] {
+  console.log('\n🔧 ========================================')
+  console.log('🔧 Correction des apostrophes typographiques')
+  console.log('🔧 ========================================\n')
+
+  let totalFilesFixed = 0
+  let totalReplacements = 0
+
+  files.forEach(file => {
+    // Appliquer la correction sur tous les fichiers de code
+    if (file.path.match(/\.(tsx?|jsx?|css|json)$/)) {
+      const original = file.content
+
+      // Remplacer les apostrophes typographiques par des apostrophes ASCII
+      let fixed = original
+        .replace(/'/g, "'")  // U+2019 RIGHT SINGLE QUOTATION MARK → U+0027 APOSTROPHE
+        .replace(/'/g, "'")  // U+2018 LEFT SINGLE QUOTATION MARK → U+0027 APOSTROPHE
+
+      // Compter les remplacements
+      const count = (original.match(/[']/g) || []).length
+
+      if (count > 0) {
+        file.content = fixed
+        totalFilesFixed++
+        totalReplacements += count
+        console.log(`✅ ${file.path}: ${count} apostrophe(s) corrigée(s)`)
+      }
+    }
+  })
+
+  if (totalReplacements > 0) {
+    console.log(`\n🔧 RÉSULTAT : ${totalReplacements} apostrophe(s) corrigée(s) dans ${totalFilesFixed} fichier(s)`)
+  } else {
+    console.log('✅ Aucune apostrophe typographique détectée')
+  }
+
+  console.log('🔧 ========================================\n')
+
+  return files
+}

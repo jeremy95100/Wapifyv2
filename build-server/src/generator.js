@@ -6,7 +6,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { Redis } from 'ioredis'
-import { generateReactProject } from './react-generator.ts'
+import { generateReactProject, fixTypographicApostrophes } from './react-generator.ts'
 
 // Initialiser Anthropic
 const anthropic = new Anthropic({
@@ -85,6 +85,9 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
 
     // Générer le projet avec la fonction unifiée
     const result = await generateReactProject(prompt, anthropic)
+
+    // Corriger les apostrophes typographiques (problème récurrent avec Claude)
+    result.files = fixTypographicApostrophes(result.files)
 
     // Événement plan généré
     await publishEvent(jobId, 'plan', {
