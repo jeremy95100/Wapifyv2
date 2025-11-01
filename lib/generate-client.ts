@@ -103,6 +103,23 @@ export async function generateProject(options: GenerateOptions): Promise<Generat
             if (onProgress) onProgress(30)
             break
 
+          case 'validation':
+            // TypeScript validation results
+            if (data.data.success) {
+              console.log('✅ Validation TypeScript réussie - aucune erreur détectée')
+            } else {
+              console.warn(`⚠️  Validation TypeScript: ${data.data.errorsCount} erreur(s) détectée(s)`)
+              if (data.data.errors && data.data.errors.length > 0) {
+                console.group('📋 Erreurs TypeScript détectées:')
+                data.data.errors.forEach((err: any, i: number) => {
+                  console.log(`${i + 1}. ${err.file}:${err.line}`)
+                  console.log(`   ${err.code}: ${err.message}`)
+                })
+                console.groupEnd()
+              }
+            }
+            break
+
           case 'complete':
             // Generation completed!
             console.log('✅ Generation complete!')
