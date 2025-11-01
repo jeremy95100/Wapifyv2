@@ -9,7 +9,8 @@ import { Redis } from 'ioredis'
 import { generateReactProject } from './react-generator.ts'
 import { generateExpressAPI } from './api-generator.js'
 import { deployToGitHub, addAPIEnvironmentFile } from './github-deployer.js'
-import { deployAPIToRailway } from './railway.js'
+import { createTablesInSharedDatabase, isSharedDatabaseConfigured } from './neon-multitenant.js'
+import { createProjectDatabase } from './neon.js' // Fallback for old architecture
 
 // Initialiser Anthropic
 const anthropic = new Anthropic({
@@ -174,8 +175,8 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
 
     // Étape 3 : Créer la base de données si nécessaire
     let dbInfo = null
-    if (result.hasDatabase && result.databaseSchema && userNeonProjectId) {
-      console.log('🗄️  Database required, creating Neon branch...')
+    if (result.hasDatabase && result.databaseSchema) {
+      console.log('🗄️  Database required...')
 
       await publishEvent(jobId, 'step', {
         step: 3,
@@ -183,24 +184,49 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
         status: 'in_progress'
       })
 
-      await publishEvent(jobId, 'substep', {
-        step: 3,
-        description: 'Création d\'une branche Neon dédiée'
-      })
-
       try {
-        // Import de la fonction Neon
-        const { createProjectDatabase } = await import('./neon.js')
+        // Check if shared database is configured (new multitenant architecture)
+        if (isSharedDatabaseConfigured()) {
+          console.log('📦 Using shared multitenant database')
 
-        // Créer la branche et les tables dans le projet Neon de l'utilisateur
-        dbInfo = await createProjectDatabase(userNeonProjectId, projectId, result.databaseSchema)
+          await publishEvent(jobId, 'substep', {
+            step: 3,
+            description: 'Création des tables dans la base partagée'
+          })
 
-        console.log(`✅ Database created: ${dbInfo.branchId}`)
+          dbInfo = await createTablesInSharedDatabase(projectId, result.databaseSchema)
 
-        await publishEvent(jobId, 'substep', {
-          step: 3,
-          description: `✓ Base de données créée (${result.databaseSchema.tables.length} tables)`
-        })
+          console.log(`✅ Tables created in shared database`)
+
+          await publishEvent(jobId, 'substep', {
+            step: 3,
+            description: `✓ ${result.databaseSchema.tables.length} tables créées (architecture multitenant)`
+          })
+
+        } else if (userNeonProjectId) {
+          // Fallback to old architecture (per-app branches)
+          console.log('⚠️  Using legacy per-branch architecture')
+
+          await publishEvent(jobId, 'substep', {
+            step: 3,
+            description: 'Création d\'une branche Neon dédiée (legacy)'
+          })
+
+          dbInfo = await createProjectDatabase(userNeonProjectId, projectId, result.databaseSchema)
+
+          console.log(`✅ Database created: ${dbInfo.branchId}`)
+
+          await publishEvent(jobId, 'substep', {
+            step: 3,
+            description: `✓ Base de données créée (${result.databaseSchema.tables.length} tables)`
+          })
+
+        } else {
+          console.warn('⚠️  Neither shared database nor user Neon project configured')
+          await publishEvent(jobId, 'warning', {
+            message: 'Database required but not configured (set SHARED_DATABASE_URL or user Neon project)'
+          })
+        }
 
       } catch (error) {
         console.error('❌ Failed to create database:', error)
@@ -210,11 +236,6 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
           error: error.message
         })
       }
-    } else if (result.hasDatabase && result.databaseSchema && !userNeonProjectId) {
-      console.warn('⚠️  Database required but no user Neon project ID provided')
-      await publishEvent(jobId, 'warning', {
-        message: 'Database required but user has no Neon project'
-      })
     }
 
     // Étape 4 : Déployer sur GitHub
@@ -255,55 +276,49 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
       })
     }
 
-    // Étape 5 : Déployer l'API backend sur Railway (si database requise)
-    let railwayInfo = null
-    if (result.hasDatabase && dbInfo?.connectionString && githubInfo?.repoFullName) {
+    // Étape 5 : Configuration du frontend (si database requise)
+    const SHARED_API_URL = process.env.SHARED_API_URL || 'https://wapify-shared-api.railway.app'
+
+    if (result.hasDatabase && dbInfo && githubInfo?.repoFullName) {
       try {
-        console.log('🚂 Deploying API to Railway...')
+        console.log('🔧 Configuring frontend with API environment variables...')
 
         await publishEvent(jobId, 'step', {
           step: 5,
-          description: 'Déploiement du backend sur Railway...',
+          description: 'Configuration du frontend...',
           status: 'in_progress'
         })
 
         await publishEvent(jobId, 'substep', {
           step: 5,
-          description: 'Création du service Railway'
+          description: 'Injection des variables d\'environnement (API_URL + PROJECT_ID)'
         })
 
-        railwayInfo = await deployAPIToRailway(
+        // Inject both API_URL and PROJECT_ID into frontend
+        await addAPIEnvironmentFile(
           githubInfo.repoFullName,
-          projectId,
-          dbInfo.connectionString
+          SHARED_API_URL,
+          projectId
         )
 
-        console.log(`✅ Railway deployment complete: ${railwayInfo.apiUrl}`)
+        console.log(`✅ Frontend configured:`)
+        console.log(`   API_URL: ${SHARED_API_URL}`)
+        console.log(`   PROJECT_ID: ${projectId}`)
 
         await publishEvent(jobId, 'substep', {
           step: 5,
-          description: `✓ API déployée sur Railway`
+          description: `✓ Frontend configuré avec l'API partagée`
         })
-
-        // Ajouter l'URL de l'API au repo GitHub pour le frontend
-        await publishEvent(jobId, 'substep', {
-          step: 5,
-          description: 'Configuration du frontend avec l\'URL de l\'API'
-        })
-
-        await addAPIEnvironmentFile(githubInfo.repoFullName, railwayInfo.apiUrl)
-
-        console.log(`✅ Frontend configured with API URL`)
 
       } catch (error) {
-        console.error('❌ Failed to deploy to Railway:', error)
+        console.error('❌ Failed to configure frontend:', error)
         await publishEvent(jobId, 'warning', {
-          message: 'Railway deployment failed',
+          message: 'Frontend configuration failed',
           error: error.message
         })
       }
     } else if (result.hasDatabase && (!dbInfo || !githubInfo)) {
-      console.warn('⚠️  API deployment skipped: database or GitHub deployment failed')
+      console.warn('⚠️  Frontend configuration skipped: database or GitHub deployment failed')
     }
 
     if (onProgress) await onProgress(100)
@@ -316,20 +331,21 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
       databaseSchema: result.databaseSchema,
       dbBranchId: dbInfo?.branchId,
       dbConnectionString: dbInfo?.connectionString,
+      dbIsShared: dbInfo?.isShared || false,
       githubRepo: githubInfo?.repoUrl,
       githubRepoFullName: githubInfo?.repoFullName,
       githubCloneUrl: githubInfo?.cloneUrl,
-      railwayService: railwayInfo?.serviceName,
-      railwayApiUrl: railwayInfo?.apiUrl,
+      sharedApiUrl: result.hasDatabase ? SHARED_API_URL : null,
+      projectId: projectId,
       filesCount: result.files.length,
       summary: {
         pages: filesByType.pages.length,
         components: filesByType.components.length,
         configs: filesByType.config.length,
         totalFiles: result.files.length,
-        database: result.hasDatabase ? `${result.databaseSchema.tables.length} tables` : 'none',
+        database: result.hasDatabase ? `${result.databaseSchema.tables.length} tables (${dbInfo?.isShared ? 'shared' : 'dedicated'})` : 'none',
         github: githubInfo?.repoUrl || 'failed',
-        railway: railwayInfo?.apiUrl || 'none'
+        api: result.hasDatabase ? SHARED_API_URL : 'none'
       }
     })
 
@@ -341,11 +357,12 @@ export async function generateProject({ prompt, jobId, projectId, userNeonProjec
       databaseSchema: result.databaseSchema,
       dbBranchId: dbInfo?.branchId,
       dbConnectionString: dbInfo?.connectionString,
+      dbIsShared: dbInfo?.isShared || false,
       githubRepo: githubInfo?.repoUrl,
       githubRepoFullName: githubInfo?.repoFullName,
       githubCloneUrl: githubInfo?.cloneUrl,
-      railwayService: railwayInfo?.serviceName,
-      railwayApiUrl: railwayInfo?.apiUrl,
+      sharedApiUrl: result.hasDatabase ? SHARED_API_URL : null,
+      projectId: projectId,
       filesCount: result.files.length
     }
 

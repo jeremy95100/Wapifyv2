@@ -579,14 +579,42 @@ TOUS les boutons, formulaires et interactions DOIVENT être VRAIMENT fonctionnel
 ❌ INTERDIT : Boutons sans onClick, formulaires sans onSubmit, données non modifiables
 ✅ REQUIS : Tout doit fonctionner comme une vraie app, même sans backend
 
-5. APPELS API (si database requise) :
-   - TOUJOURS utiliser : const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
-   - Format d'appel : fetch(\`\${API_URL}/api/tasks\`, {...})
+5. APPELS API (si database requise) - ARCHITECTURE MULTITENANT :
+   - TOUJOURS utiliser ces deux variables :
+     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+     const PROJECT_ID = import.meta.env.VITE_PROJECT_ID || 'dev-project'
+
+   - Format d'appel : fetch(\`\${API_URL}/api/\${PROJECT_ID}/tasks\`, {...})
+
    - Exemple complet :
      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
-     const response = await fetch(\`\${API_URL}/api/tasks\`)
+     const PROJECT_ID = import.meta.env.VITE_PROJECT_ID || 'dev-project'
+
+     // GET all tasks
+     const response = await fetch(\`\${API_URL}/api/\${PROJECT_ID}/tasks\`)
+
+     // POST new task
+     await fetch(\`\${API_URL}/api/\${PROJECT_ID}/tasks\`, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ title: 'New task' })
+     })
+
+     // PUT update task
+     await fetch(\`\${API_URL}/api/\${PROJECT_ID}/tasks/\${taskId}\`, {
+       method: 'PUT',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ completed: true })
+     })
+
+     // DELETE task
+     await fetch(\`\${API_URL}/api/\${PROJECT_ID}/tasks/\${taskId}\`, {
+       method: 'DELETE'
+     })
+
    - NE JAMAIS hardcoder l'URL de l'API en dur (ni localhost, ni production)
-   - La variable VITE_API_URL sera définie automatiquement après le déploiement Railway
+   - NE JAMAIS oublier le PROJECT_ID dans les URLs
+   - Les variables VITE_API_URL et VITE_PROJECT_ID seront définies automatiquement après déploiement
 
 ⚠️⚠️⚠️ ERREUR SPREAD OPERATOR (TS2698) - RÈGLE ABSOLUE ⚠️⚠️⚠️
 AVANT d'utiliser l'opérateur spread (...), demande-toi: "Est-ce un OBJET ou une PRIMITIVE?"
@@ -678,12 +706,28 @@ FORMAT DE RÉPONSE (JSON uniquement) :
   ]
 }
 
-⚠️ RÈGLES SCHEMA DATABASE :
+⚠️ RÈGLES SCHEMA DATABASE (ARCHITECTURE MULTITENANT) :
 - Types Supabase valides : uuid, text, integer, decimal, boolean, timestamp, date, jsonb
 - Toujours inclure id (uuid, primaryKey, default: gen_random_uuid())
+- ⚠️ OBLIGATOIRE: Toujours inclure project_id comme DEUXIÈME colonne :
+  { "name": "project_id", "type": "uuid", "nullable": false, "index": true }
 - Toujours inclure created_at (timestamp, default: now())
 - Relations : utilise "references": "table.column" pour les foreign keys
 - Nomme les tables au pluriel (products, orders, users, posts, etc.)
+
+EXEMPLE DE TABLE CORRECTE (avec project_id):
+{
+  "name": "tasks",
+  "columns": [
+    { "name": "id", "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+    { "name": "project_id", "type": "uuid", "nullable": false, "index": true },
+    { "name": "title", "type": "text", "nullable": false },
+    { "name": "completed", "type": "boolean", "default": "false" },
+    { "name": "created_at", "type": "timestamp", "default": "now()" }
+  ]
+}
+
+RÈGLE CRITIQUE: Le project_id permet l'isolation des données entre apps dans la base partagée!
 
 ⚠️ RÈGLES JSON STRICTES (TRÈS IMPORTANT) :
 CHAQUE guillemet, backslash et retour à la ligne dans le code DOIT être échappé !
@@ -784,6 +828,7 @@ Réponds en JSON : { "siteName": "...", "hasDatabase": false, "databaseSchema": 
               name: 'tasks',
               columns: [
                 { name: 'id', type: 'uuid', primaryKey: true, default: 'gen_random_uuid()' },
+                { name: 'project_id', type: 'uuid', nullable: false, index: true },
                 { name: 'title', type: 'text', nullable: false },
                 { name: 'description', type: 'text', nullable: true },
                 { name: 'completed', type: 'boolean', default: 'false' },
@@ -796,6 +841,32 @@ Réponds en JSON : { "siteName": "...", "hasDatabase": false, "databaseSchema": 
         }
       }
     }
+  }
+
+  // VALIDATION POST-GÉNÉRATION: Vérifier que project_id est présent dans TOUTES les tables
+  if (parsed.hasDatabase && parsed.databaseSchema?.tables) {
+    console.log('🔍 Validating project_id in all tables...')
+
+    parsed.databaseSchema.tables.forEach((table: any) => {
+      const hasProjectId = table.columns.some((col: any) => col.name === 'project_id')
+
+      if (!hasProjectId) {
+        console.warn(`⚠️  Table '${table.name}' missing project_id. Adding it automatically.`)
+
+        // Insérer project_id comme deuxième colonne (après id)
+        const idIndex = table.columns.findIndex((col: any) => col.primaryKey)
+        const insertIndex = idIndex >= 0 ? idIndex + 1 : 1
+
+        table.columns.splice(insertIndex, 0, {
+          name: 'project_id',
+          type: 'uuid',
+          nullable: false,
+          index: true
+        })
+      }
+    })
+
+    console.log('✅ All tables validated with project_id')
   }
 
   // Créer un plan minimal pour ensureRequiredFiles

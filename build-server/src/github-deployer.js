@@ -314,26 +314,39 @@ Co-Authored-By: Claude <noreply@anthropic.com>`
 }
 
 /**
- * Add API URL environment variable to repository
- * Called after Railway deployment completes
+ * Add API environment variables to repository
+ * Called after deployment workflow completes
+ *
+ * @param {string} repoFullName - Full repo name (org/repo)
+ * @param {string} apiUrl - Shared API URL
+ * @param {string} projectId - Project ID for data isolation
+ * @param {string} branch - Git branch (default: main)
  */
-export async function addAPIEnvironmentFile(repoFullName, apiUrl, branch = 'main') {
-  console.log(`🔧 Adding API URL to ${repoFullName}...`)
+export async function addAPIEnvironmentFile(repoFullName, apiUrl, projectId, branch = 'main') {
+  console.log(`🔧 Adding API environment variables to ${repoFullName}...`)
 
   const envContent = `# API Configuration
-# Auto-generated after Railway deployment
+# Auto-generated after deployment
+# These variables enable the frontend to connect to the shared API
+
+# Shared API URL (same for all apps)
 VITE_API_URL=${apiUrl}
+
+# Project ID (unique per app - used for data isolation)
+VITE_PROJECT_ID=${projectId}
 `
 
   await createOrUpdateFile(
     repoFullName,
     '.env.production',
     envContent,
-    'Add API URL environment variable',
+    'Add API environment variables (URL + PROJECT_ID)',
     branch
   )
 
-  console.log(`✅ API URL added to repository`)
+  console.log(`✅ API environment variables added:`)
+  console.log(`   VITE_API_URL=${apiUrl}`)
+  console.log(`   VITE_PROJECT_ID=${projectId}`)
 }
 
 /**
