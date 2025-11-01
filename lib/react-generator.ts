@@ -78,16 +78,41 @@ function attemptJsonRepair(jsonText: string): string {
   console.log('🔧 Starting JSON repair...')
   console.log('📏 Original length:', repaired.length)
 
-  // 0. NOUVEAU: Détecter et réparer les backslashes mal échappés en fin de JSON
-  // Pattern: "...texte\" ou "...texte\n" tronqué
+  // 0. NOUVEAU: Nettoyer les backslashes isolés/mal échappés PARTOUT
+  // Pattern problématique: \" seul au milieu du JSON (pas dans une string valide)
+  // On va tenter de les supprimer s'ils causent des erreurs
+
+  // Supprimer les backslashes en fin de JSON
   const trailingBackslashMatch = repaired.match(/\\+$/);
   if (trailingBackslashMatch) {
     console.log('🔧 Detected trailing backslash, removing it')
     repaired = repaired.replace(/\\+$/, '')
   }
 
+  // Détecter et corriger les backslashes isolés qui cassent le JSON
+  // Pattern: "...\<pas-un-caractere-echappement-valide>
+  // On remplace \ par \\ pour l'échapper correctement
+  let backslashFixed = false
+  try {
+    // Tenter de détecter position du backslash problématique
+    JSON.parse(repaired)
+  } catch (e: any) {
+    const errorMsg = e.message || ''
+    const positionMatch = errorMsg.match(/position (\d+)/)
+    if (positionMatch && errorMsg.includes('Unexpected token')) {
+      const position = parseInt(positionMatch[1])
+      console.log(`🔧 Detected error at position ${position}`)
+
+      // Si on trouve un backslash isolé à cette position, le supprimer
+      if (repaired[position] === '\\' || repaired[position - 1] === '\\') {
+        console.log('🔧 Found problematic backslash, removing it')
+        repaired = repaired.substring(0, position - 1) + repaired.substring(position)
+        backslashFixed = true
+      }
+    }
+  }
+
   // Détecter les strings qui se terminent par un backslash sans guillemet fermant
-  // Pattern: "content": "some text\
   const unclosedEscapeMatch = repaired.match(/"content"\s*:\s*"[^"]*\\$/m)
   if (unclosedEscapeMatch) {
     console.log('🔧 Detected unclosed escape sequence, closing string')
@@ -95,11 +120,9 @@ function attemptJsonRepair(jsonText: string): string {
   }
 
   // 1. Détecter les strings non fermées (cause #1 des erreurs)
-  // Chercher les patterns comme: "content": "...texte sans guillemet de fermeture
   const unteriminatedStringMatch = repaired.match(/"content"\s*:\s*"[^"]*$/m)
   if (unteriminatedStringMatch) {
     console.log('🔧 Detected unterminated string, attempting to close it')
-    // Ajouter un guillemet de fermeture et continuer
     repaired += '"'
   }
 
@@ -123,13 +146,16 @@ function attemptJsonRepair(jsonText: string): string {
     repaired += '}'
   }
 
-  // 5. Si le JSON se termine par une virgule suivie d'une accolade, c'est probablement tronqué
+  // 5. Si le JSON se termine par une virgule, la supprimer
   if (repaired.match(/,\s*$/)) {
     console.log('🔧 Removing trailing comma')
     repaired = repaired.replace(/,\s*$/, '')
   }
 
   console.log('✅ Repair complete, new length:', repaired.length)
+  if (backslashFixed) {
+    console.log('✅ Fixed problematic backslash')
+  }
 
   return repaired
 }
@@ -513,8 +539,39 @@ export async function generateReactProject(
 
 /**
  * NOUVEAU : Génération directe en 1 seul appel (sans étape plan)
+ * AVEC RETRY automatique en cas d'échec JSON parsing
  */
 async function generateProjectDirectly(
+  prompt: string,
+  anthropic: any
+): Promise<ReactProjectStructure> {
+  const MAX_RETRIES = 2
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      console.log(`🔄 Generation attempt ${attempt}/${MAX_RETRIES}`)
+      return await generateProjectDirectlyInternal(prompt, anthropic)
+    } catch (error) {
+      lastError = error as Error
+      console.error(`❌ Attempt ${attempt} failed:`, error)
+
+      if (attempt < MAX_RETRIES) {
+        console.log(`🔄 Retrying... (${attempt + 1}/${MAX_RETRIES})`)
+        // Petit délai avant retry
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+    }
+  }
+
+  // Si tous les retries échouent, throw la dernière erreur
+  throw lastError
+}
+
+/**
+ * Fonction interne de génération (peut être retry)
+ */
+async function generateProjectDirectlyInternal(
   prompt: string,
   anthropic: any
 ): Promise<ReactProjectStructure> {
