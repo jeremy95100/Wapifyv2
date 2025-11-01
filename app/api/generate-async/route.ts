@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Queue } from 'bullmq'
 import { Redis } from 'ioredis'
-import { getUserNeonProjectId } from '@/lib/user-neon'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -48,25 +47,14 @@ export async function POST(request: NextRequest) {
     console.log('🎨 Creating async generation job for project:', projectId)
     console.log('📝 Prompt:', prompt.substring(0, 50) + '...')
 
-    // Get or create user's Neon project (1 project per user)
-    let userNeonProjectId = null
-    if (userId) {
-      try {
-        userNeonProjectId = await getUserNeonProjectId(userId)
-        console.log(`✅ User Neon project: ${userNeonProjectId}`)
-      } catch (error) {
-        console.error('⚠️  Failed to get/create user Neon project:', error)
-        // Continue anyway - DB creation will be skipped if needed
-      }
-    }
+    // Note: Neon project creation removed - no database deployment for now
 
     // Create job in queue
     const job = await generateQueue.add('generate-project', {
       prompt,
       conversationHistory,
       userId,
-      projectId,
-      userNeonProjectId
+      projectId
     })
 
     console.log(`✅ Job created with ID: ${job.id}`)
