@@ -802,31 +802,58 @@ EXEMPLE DE TABLE CORRECTE (avec project_id):
 
 RÈGLE CRITIQUE: Le project_id permet l'isolation des données entre apps dans la base partagée!
 
-⚠️ RÈGLES JSON STRICTES (TRÈS IMPORTANT) :
-CHAQUE guillemet, backslash et retour à la ligne dans le code DOIT être échappé !
+⚠️⚠️⚠️ RÈGLES JSON CRITIQUES - ÉCHEC = GÉNÉRATION RATÉE ⚠️⚠️⚠️
 
-Exemples d'échappement CORRECT :
-❌ INCORRECT : "content": "const text = "Hello""
-✅ CORRECT :   "content": "const text = \\"Hello\\""
+🚨 PROBLÈME RÉCURRENT : Les backslashes (\\) mal échappés CASSENT le JSON !
+🚨 CONSÉQUENCE : JSON invalide → Parsing échoue → Génération échoue → Utilisateur frustré
 
-❌ INCORRECT : "content": "import React from 'react'
-export default App"
-✅ CORRECT :   "content": "import React from 'react'\\nexport default App"
+RÈGLES ABSOLUES À SUIVRE (AUCUNE EXCEPTION) :
 
-❌ INCORRECT : "content": "const path = "C:\\folder\\file""
-✅ CORRECT :   "content": "const path = \\"C:\\\\folder\\\\file\\""
+1️⃣ GUILLEMETS dans le code :
+   ❌ "content": "const x = "Hello""
+   ✅ "content": "const x = \\"Hello\\""
+   RÈGLE : Tout " dans le code → \\"
 
-RÈGLES ABSOLUES :
-1. Tout guillemet " dans le code → \\"
-2. Tout backslash \\ dans le code → \\\\
-3. Tout retour à la ligne → \\n
-4. PAS de backticks dans les strings JSON
-5. Ferme TOUTES les strings avec "
-6. Vérifie que chaque { a son } et chaque [ a son ]
+2️⃣ BACKSLASHES dans le code :
+   ❌ "content": "const path = 'C:\\Users\\file'"
+   ✅ "content": "const path = 'C:\\\\Users\\\\file'"
+   RÈGLE : Tout \\ dans le code → \\\\
 
-Si le JSON n'est pas parfaitement valide, la génération ÉCHOUERA !
+   ❌ "content": "const regex = /\\d+/"
+   ✅ "content": "const regex = /\\\\d+/"
+   RÈGLE : Même dans les regex, \\ → \\\\
 
-Réponds UNIQUEMENT avec le JSON, rien d'autre.`
+3️⃣ RETOURS À LA LIGNE :
+   ❌ "content": "import React
+   export default App"
+   ✅ "content": "import React\\nexport default App"
+   RÈGLE : Tout retour à la ligne → \\n
+
+4️⃣ APOSTROPHES :
+   ✅ UNIQUEMENT des apostrophes ASCII standard (')
+   ❌ JAMAIS d'apostrophes typographiques (' ou ')
+   Exemples CORRECTS : "jusqu't", "l'app", "n'est"
+
+5️⃣ STRUCTURE JSON :
+   - Chaque { doit avoir son }
+   - Chaque [ doit avoir son ]
+   - Chaque string doit se fermer avec "
+   - Pas de virgule après le dernier élément d'un array/object
+   - PAS de backticks (\`) dans les strings JSON
+
+6️⃣ VALIDATION FINALE :
+   Avant de retourner le JSON, vérifie mentalement :
+   - Tous les backslashes sont-ils doublés (\\\\) ?
+   - Tous les guillemets sont-ils échappés (\\") ?
+   - Toutes les strings sont-elles fermées ?
+   - La structure est-elle équilibrée ?
+
+💡 ASTUCE : Si tu hésites sur un échappement, DOUBLE-LE toujours.
+Mieux vaut trop échapper que pas assez !
+
+⚠️ RAPPEL : Un seul backslash mal échappé = TOUT le projet échoue !
+
+Réponds UNIQUEMENT avec le JSON valide, rien d'autre.`
 
   const userMessage = `Génère un projet React complet basé sur cette description :
 
