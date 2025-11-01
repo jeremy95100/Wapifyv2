@@ -722,7 +722,7 @@ RÈGLES ABSOLUES :
 
 1️⃣ UTILISE UNIQUEMENT DES ICÔNES VALIDES DE CETTE LISTE :
    ✅ Time & Calendar: Clock, Timer, Hourglass, Calendar, CalendarDays, Watch, AlarmClock
-   ✅ Actions: Play, Pause, Stop, Plus, Minus, X, Check, Edit, Trash, Save, Search, Filter
+   ✅ Actions: Play, Pause, Square, Circle, StopCircle, Plus, Minus, X, Check, Edit, Trash, Save, Search, Filter
    ✅ Navigation: ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ArrowLeft, ArrowRight, Menu
    ✅ UI: Eye, EyeOff, Heart, Star, Bell, Settings, Lock, Unlock, Key
    ✅ User: User, Users, UserPlus, UserMinus
@@ -736,6 +736,8 @@ RÈGLES ABSOLUES :
 
 2️⃣ ICÔNES INVALIDES À NE JAMAIS UTILISER (vont être auto-corrigées) :
    ❌ Stopwatch → Utilise Timer à la place
+   ❌ Stop → Utilise StopCircle ou Square
+   ❌ Target → Utilise Circle
    ❌ Delete/Remove → Utilise Trash
    ❌ Close/Cross → Utilise X
    ❌ Email → Utilise Mail
@@ -1976,7 +1978,7 @@ export function fixInvalidLucideIcons(files: ProjectFile[]): ProjectFile[] {
     'AlarmClock', 'Watch',
 
     // Actions
-    'Play', 'Pause', 'Stop', 'SkipForward', 'SkipBack', 'FastForward', 'Rewind',
+    'Play', 'Pause', 'Square', 'Circle', 'StopCircle', 'SkipForward', 'SkipBack', 'FastForward', 'Rewind',
     'Plus', 'Minus', 'X', 'Check', 'ChevronLeft', 'ChevronRight', 'ChevronUp', 'ChevronDown',
     'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
     'Edit', 'Trash', 'Save', 'Download', 'Upload', 'Copy', 'Clipboard',
@@ -2031,6 +2033,7 @@ export function fixInvalidLucideIcons(files: ProjectFile[]): ProjectFile[] {
     'TimeWatch': 'Clock',
 
     // Actions
+    'Stop': 'StopCircle',
     'Delete': 'Trash',
     'Remove': 'Trash',
     'Cross': 'X',
@@ -2038,6 +2041,7 @@ export function fixInvalidLucideIcons(files: ProjectFile[]): ProjectFile[] {
     'Checkmark': 'Check',
     'Tick': 'Check',
     'Arrow': 'ArrowRight',
+    'Target': 'Circle',
 
     // UI
     'Hamburger': 'Menu',

@@ -1337,7 +1337,7 @@ export function fixInvalidLucideIcons(files) {
     'AlarmClock', 'Watch',
 
     // Actions
-    'Play', 'Pause', 'Stop', 'SkipForward', 'SkipBack', 'FastForward', 'Rewind',
+    'Play', 'Pause', 'Square', 'Circle', 'StopCircle', 'SkipForward', 'SkipBack', 'FastForward', 'Rewind',
     'Plus', 'Minus', 'X', 'Check', 'ChevronLeft', 'ChevronRight', 'ChevronUp', 'ChevronDown',
     'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
     'Edit', 'Trash', 'Save', 'Download', 'Upload', 'Copy', 'Clipboard',
@@ -1392,6 +1392,7 @@ export function fixInvalidLucideIcons(files) {
     'TimeWatch': 'Clock',
 
     // Actions
+    'Stop': 'StopCircle',
     'Delete': 'Trash',
     'Remove': 'Trash',
     'Cross': 'X',
@@ -1399,6 +1400,7 @@ export function fixInvalidLucideIcons(files) {
     'Checkmark': 'Check',
     'Tick': 'Check',
     'Arrow': 'ArrowRight',
+    'Target': 'Circle',
 
     // UI
     'Hamburger': 'Menu',
