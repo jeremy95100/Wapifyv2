@@ -1073,7 +1073,8 @@ Réponds en JSON : { "siteName": "...", "hasDatabase": false, "databaseSchema": 
   let allFiles = ensureRequiredFiles(parsed.files, minimalPlan)
 
   // Valider et corriger les imports d'icônes manquants
-  allFiles = fixMissingIconImports(allFiles)
+  // TEMPORAIREMENT DÉSACTIVÉ pour tester la validation TypeScript Phase 1
+  // allFiles = fixMissingIconImports(allFiles)
 
   console.log(`✅ Base generated: ${allFiles.length} files`)
 
