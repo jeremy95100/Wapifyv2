@@ -396,7 +396,7 @@ Réponds en JSON : { "files": [...] }`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 16000,
+    max_tokens: 32000, // Increased for complex prompts with many features
     temperature: 0.7,
     stream: true,
     system: COMPLETE_SYSTEM_PROMPT,

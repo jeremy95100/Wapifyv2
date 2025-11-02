@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Queue } from 'bullmq'
 import { Redis } from 'ioredis'
 
-// SSE connection - keep it short to avoid timeout on free tier
+// SSE connection - reconnect strategy for long jobs
 // Client will reconnect automatically if connection drops
-export const maxDuration = 60 // 60 seconds - reconnect strategy for long jobs
+export const maxDuration = 300 // 5 minutes - reconnect every 5min for very long generations
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
