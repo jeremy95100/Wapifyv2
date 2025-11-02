@@ -58,16 +58,22 @@ export async function generateProject(options: GenerateOptions): Promise<Generat
   const { jobId } = await createResponse.json()
   console.log('📋 Job created:', jobId)
 
-  // Step 2: Connect to SSE stream for real-time events
+  // Step 2: Connect to SSE stream for real-time events with auto-reconnect
   return new Promise((resolve, reject) => {
-    const eventSource = new EventSource(`/api/jobs/${jobId}/stream`)
+    let eventSource: EventSource | null = null
     let hasResult = false
+    let reconnectAttempts = 0
+    const maxReconnectAttempts = 30 // Allow up to 30 reconnections (30 minutes with 60s intervals)
 
-    eventSource.onopen = () => {
-      console.log('📡 SSE connection opened for job:', jobId)
-    }
+    const connectSSE = () => {
+      eventSource = new EventSource(`/api/jobs/${jobId}/stream`)
 
-    eventSource.onmessage = (event) => {
+      eventSource.onopen = () => {
+        console.log('📡 SSE connection opened for job:', jobId)
+        reconnectAttempts = 0 // Reset on successful connection
+      }
+
+      eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data)
 
@@ -142,22 +148,34 @@ export async function generateProject(options: GenerateOptions): Promise<Generat
       }
     }
 
-    eventSource.onerror = (error) => {
-      console.error('❌ SSE connection error:', error)
-      eventSource.close()
+      eventSource.onerror = (error) => {
+        console.warn('⚠️ SSE connection interrupted (timeout expected on free tier)')
+        eventSource?.close()
 
-      if (!hasResult) {
-        reject(new Error('SSE connection failed'))
+        if (!hasResult) {
+          // Auto-reconnect if job is still in progress
+          if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++
+            console.log(`🔄 Reconnecting... (attempt ${reconnectAttempts}/${maxReconnectAttempts})`)
+            setTimeout(() => connectSSE(), 2000) // Reconnect after 2 seconds
+          } else {
+            console.error('❌ Max reconnection attempts reached')
+            reject(new Error('SSE connection failed after multiple attempts'))
+          }
+        }
       }
     }
 
-    // Timeout after 15 minutes (very generous, should never hit)
+    // Start initial connection
+    connectSSE()
+
+    // Timeout after 30 minutes (allows for very complex generations)
     setTimeout(() => {
       if (!hasResult) {
-        console.error('⏱️ Generation timeout after 15 minutes')
-        eventSource.close()
+        console.error('⏱️ Generation timeout after 30 minutes')
+        eventSource?.close()
         reject(new Error('Generation timeout'))
       }
-    }, 900000)
+    }, 1800000)
   })
 }

@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Queue } from 'bullmq'
 import { Redis } from 'ioredis'
 
+// SSE connection - keep it short to avoid timeout on free tier
+// Client will reconnect automatically if connection drops
+export const maxDuration = 60 // 60 seconds - reconnect strategy for long jobs
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 const redisConnection = new Redis(process.env.REDIS_PUBLIC_URL || process.env.REDIS_URL || 'redis://localhost:6379', {
   maxRetriesPerRequest: null
 })
