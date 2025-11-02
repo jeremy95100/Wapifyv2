@@ -273,6 +273,58 @@ RÈGLES CRITIQUES :
 - Tailwind CSS avec design system shadcn/ui
 - Pas de placeholders ou TODOs
 
+⚠️ RÈGLES DONNÉES MOCKÉES (CRITIQUE) :
+Les applications générées sont des PROTOTYPES FRONTEND ONLY.
+Elles doivent fonctionner SANS backend, SANS serveur, SANS API.
+
+RÈGLES ABSOLUES POUR LES DONNÉES :
+- NE JAMAIS générer d'appels fetch() vers une API backend
+- NE JAMAIS utiliser http://localhost:3001, http://localhost:3000/api, ou toute URL d'API
+- NE JAMAIS importer axios ou autre librairie HTTP
+- TOUTES les données DOIVENT être mockées en LOCAL avec useState
+- Utiliser des données hardcodées directement dans les pages/composants
+- 8-12 items mockés minimum par entité (événements, users, produits, etc.)
+
+PATTERNS À UTILISER (données mockées) :
+
+✅ CORRECT - State local avec données hardcodées :
+const [events, setEvents] = useState([
+  {
+    id: '1',
+    title: 'Conférence Tech 2025',
+    category: 'conférence',
+    start_date: '2025-03-15',
+    location: 'Paris Convention Center',
+    capacity: 200,
+    participants: 156
+  },
+  // ... 7-11 autres événements mockés
+])
+
+✅ CORRECT - Fonctions CRUD locales :
+const addEvent = (newEvent) => {
+  setEvents([...events, { ...newEvent, id: Date.now().toString() }])
+}
+
+const updateEvent = (id, updatedData) => {
+  setEvents(events.map(e => e.id === id ? { ...e, ...updatedData } : e))
+}
+
+const deleteEvent = (id) => {
+  setEvents(events.filter(e => e.id !== id))
+}
+
+❌ INCORRECT - Appels API (NE JAMAIS FAIRE) :
+fetch('http://localhost:3001/api/events')  // NE JAMAIS ÉCRIRE ÇA
+fetch('/api/events')  // NE JAMAIS ÉCRIRE ÇA
+axios.get('/api/events')  // NE JAMAIS ÉCRIRE ÇA
+
+Si besoin de simuler un délai (loading state) :
+const [loading, setLoading] = useState(true)
+useEffect(() => {
+  setTimeout(() => setLoading(false), 500)
+}, [])
+
 ⚠️ RÈGLES TYPESCRIPT/JAVASCRIPT STRICTES (TRÈS IMPORTANT) :
 - Assure-toi que TOUS les noms de propriétés sont utilisés de manière COHÉRENTE
 - Si tu définis const settings = { activeSessions: 3 }, utilise TOUJOURS settings.activeSessions (PAS activeSession)
