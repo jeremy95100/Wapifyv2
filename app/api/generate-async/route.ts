@@ -30,9 +30,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (prompt.length > 2000) {
+    // No length limit - let Claude handle detailed prompts
+    if (prompt.length > 50000) {
       return NextResponse.json(
-        { error: 'Le prompt est trop long (max 2000 caractères)' },
+        { error: 'Le prompt est extrêmement long (max 50000 caractères)' },
         { status: 400 }
       )
     }
