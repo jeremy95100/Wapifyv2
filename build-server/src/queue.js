@@ -154,6 +154,10 @@ export async function setupQueue() {
     {
       connection: redisConnection,
       concurrency: 3, // Process max 3 generations in parallel (slower than builds)
+      lockDuration: 600000, // 10 minutes lock - prevents "stalled" for long Claude API calls
+      settings: {
+        stalledInterval: 120000, // Check for stalled jobs every 2 minutes
+      },
       limiter: {
         max: 5, // Max 5 jobs
         duration: 60000 // per 60 seconds
