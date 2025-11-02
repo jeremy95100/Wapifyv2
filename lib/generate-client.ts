@@ -130,7 +130,7 @@ export async function generateProject(options: GenerateOptions): Promise<Generat
             // Generation completed!
             console.log('✅ Generation complete!')
             hasResult = true
-            eventSource.close()
+            eventSource?.close()
             if (onProgress) onProgress(100)
             resolve(data.data)
             break
@@ -139,7 +139,7 @@ export async function generateProject(options: GenerateOptions): Promise<Generat
             // Error occurred
             console.error('❌ Generation error:', data.data)
             hasResult = true
-            eventSource.close()
+            eventSource?.close()
             reject(new Error(data.data.message || 'Generation failed'))
             break
         }
