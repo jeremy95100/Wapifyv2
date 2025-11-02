@@ -1407,25 +1407,24 @@ ${projectFiles.map(f => `- ${f.path}`).join('\n')}
           {/* Input */}
           <div className="p-4 border-t-2 border-wapify-border flex-shrink-0">
             <form onSubmit={handleSubmit} className="flex gap-2">
-              <input
-                type="text"
+              <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={!generatedCode ? "Ex: Un dashboard e-commerce..." : "Ex: Ajoute un graphique des ventes..."}
-                className="flex-1 px-3 py-2 bg-white border-2 border-wapify-border rounded-lg text-wapify-text placeholder-wapify-text-secondary focus:border-wapify-accent focus:outline-none text-sm"
+                placeholder={!generatedCode ? "Décrivez votre application en détail : fonctionnalités, pages, composants, interactions..." : "Ex: Ajoute un graphique des ventes..."}
+                className="flex-1 px-3 py-2 bg-white border-2 border-wapify-border rounded-lg text-wapify-text placeholder-wapify-text-secondary focus:border-wapify-accent focus:outline-none text-sm resize-y min-h-[80px]"
                 disabled={isGenerating}
-                maxLength={500}
+                rows={3}
               />
               <button
                 type="submit"
                 disabled={isGenerating || !input.trim()}
-                className="px-4 py-2 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed self-end"
               >
                 {isGenerating ? '⏳' : '➤'}
               </button>
             </form>
             <div className="text-xs text-wapify-text-secondary mt-1 text-right">
-              {input.length}/500
+              {input.length} caractères
             </div>
           </div>
         </div>
