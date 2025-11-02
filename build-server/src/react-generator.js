@@ -78,7 +78,36 @@ function attemptJsonRepair(jsonText: string): string {
   console.log('🔧 Starting JSON repair...')
   console.log('📏 Original length:', repaired.length)
 
-  // 1. Détecter les strings non fermées (cause #1 des erreurs)
+  // 1. Détecter et réparer les backslashes mal échappés (NOUVEAU - cause fréquente d'erreurs)
+  // Chercher les patterns problématiques : \"  \'  \n  \t  etc. qui ne sont pas doublés
+  // ATTENTION: ne pas toucher aux séquences déjà correctement échappées comme \\"
+  let backslashesFixed = 0
+
+  // Pattern: cherche un backslash suivi d'un caractère qui n'est pas un backslash
+  // mais qui devrait être échappé dans du code JSON
+  const problematicPatterns = [
+    // "content": "...\n..." → doit être "content": "...\\n..."
+    { pattern: /\\n(?!\\)/g, replacement: '\\\\n', name: 'newline' },
+    { pattern: /\\t(?!\\)/g, replacement: '\\\\t', name: 'tab' },
+    { pattern: /\\r(?!\\)/g, replacement: '\\\\r', name: 'carriage return' },
+    // Chemins Windows: "C:\folder" → "C:\\folder" ou "C:/folder"
+    { pattern: /(['"]\w:)\\(?!\\)/g, replacement: '$1/', name: 'Windows path' },
+  ]
+
+  for (const { pattern, replacement, name } of problematicPatterns) {
+    const before = repaired
+    repaired = repaired.replace(pattern, replacement)
+    if (repaired !== before) {
+      backslashesFixed++
+      console.log(`🔧 Fixed ${name} backslash escaping`)
+    }
+  }
+
+  if (backslashesFixed > 0) {
+    console.log(`🔧 Total backslash fixes: ${backslashesFixed}`)
+  }
+
+  // 2. Détecter les strings non fermées (cause #1 des erreurs après backslashes)
   // Chercher les patterns comme: "content": "...texte sans guillemet de fermeture
   const unteriminatedStringMatch = repaired.match(/"content"\s*:\s*"[^"]*$/m)
   if (unteriminatedStringMatch) {
@@ -87,7 +116,7 @@ function attemptJsonRepair(jsonText: string): string {
     repaired += '"'
   }
 
-  // 2. Vérifier l'équilibre des accolades et crochets
+  // 3. Vérifier l'équilibre des accolades et crochets
   const openBraces = (repaired.match(/\{/g) || []).length
   const closeBraces = (repaired.match(/\}/g) || []).length
   const openBrackets = (repaired.match(/\[/g) || []).length
@@ -95,19 +124,19 @@ function attemptJsonRepair(jsonText: string): string {
 
   console.log('🔧 JSON structure:', { openBraces, closeBraces, openBrackets, closeBrackets })
 
-  // 3. Fermer les tableaux ouverts
+  // 4. Fermer les tableaux ouverts
   for (let i = 0; i < openBrackets - closeBrackets; i++) {
     console.log('🔧 Adding missing ]')
     repaired += ']'
   }
 
-  // 4. Fermer les objets ouverts
+  // 5. Fermer les objets ouverts
   for (let i = 0; i < openBraces - closeBraces; i++) {
     console.log('🔧 Adding missing }')
     repaired += '}'
   }
 
-  // 5. Si le JSON se termine par une virgule suivie d'une accolade, c'est probablement tronqué
+  // 6. Si le JSON se termine par une virgule suivie d'une accolade, c'est probablement tronqué
   if (repaired.match(/,\s*$/)) {
     console.log('🔧 Removing trailing comma')
     repaired = repaired.replace(/,\s*$/, '')
@@ -351,6 +380,11 @@ FORMAT DE RÉPONSE (JSON uniquement) :
 ⚠️ RÈGLES JSON STRICTES (TRÈS IMPORTANT) :
 CHAQUE guillemet, backslash et retour à la ligne dans le code DOIT être échappé !
 
+⚠️ RÈGLE CRITIQUE POUR LES BACKSLASHES :
+N'utilise JAMAIS de chemins Windows avec backslashes (C:\\Users\\).
+Utilise TOUJOURS des chemins Unix avec slashes (C:/Users/).
+Si un backslash est absolument nécessaire (regex, etc.), il DOIT être doublé : \\\\
+
 Exemples d'échappement CORRECT :
 ❌ INCORRECT : "content": "const text = "Hello""
 ✅ CORRECT :   "content": "const text = \\"Hello\\""
@@ -359,16 +393,30 @@ Exemples d'échappement CORRECT :
 export default App"
 ✅ CORRECT :   "content": "import React from 'react'\\nexport default App"
 
-❌ INCORRECT : "content": "const path = "C:\\folder\\file""
-✅ CORRECT :   "content": "const path = \\"C:\\\\folder\\\\file\\""
+❌ INCORRECT : "content": "const path = 'C:\\folder\\file'"
+✅ CORRECT :   "content": "const path = 'C:/folder/file'"  (préféré - pas de backslash)
+OU CORRECT :  "content": "const path = 'C:\\\\folder\\\\file'"  (si backslash requis)
+
+❌ INCORRECT : "content": "const regex = /\\d+/"
+✅ CORRECT :   "content": "const regex = /\\\\d+/"
+
+❌ INCORRECT : "content": "text.split('\n')"
+✅ CORRECT :   "content": "text.split('\\\\n')"
 
 RÈGLES ABSOLUES :
 1. Tout guillemet " dans le code → \\"
-2. Tout backslash \\ dans le code → \\\\
+2. Tout backslash \\ dans le code → \\\\  (DOUBLER OBLIGATOIREMENT)
 3. Tout retour à la ligne → \\n
 4. PAS de backticks dans les strings JSON
 5. Ferme TOUTES les strings avec "
 6. Vérifie que chaque { a son } et chaque [ a son ]
+7. PRÉFÈRE les slashes / aux backslashes \\ (chemins, etc.)
+
+⚠️ ATTENTION SPÉCIALE AUX CAS DIFFICILES :
+- Regex : /\\d+/ devient "/\\\\d+/"
+- Chemins : 'C:\\folder' devient 'C:/folder' OU 'C:\\\\folder'
+- Échappement dans strings : '\n' devient '\\\\n'
+- Template literals : évite-les dans le JSON, utilise concatenation
 
 Si le JSON n'est pas parfaitement valide, la génération ÉCHOUERA !
 
