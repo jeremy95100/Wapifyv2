@@ -1246,30 +1246,30 @@ export default function EditorPage() {
         {/* Right Panel - Preview & Code */}
         <div className="flex-1 flex flex-col bg-wapify-bg relative z-0">
           {/* Top Bar with Share/Publish buttons */}
-          {generatedCode && (
-            <div className="flex items-center justify-end px-4 py-3 border-b border-wapify-border flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    // TODO: Implémenter la fonctionnalité Share
-                    alert('Share functionality coming soon!')
-                  }}
-                  className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition text-sm border border-gray-300"
-                >
-                  Share
-                </button>
-                <button
-                  onClick={() => {
-                    // TODO: Implémenter la fonctionnalité Publish/Deploy
-                    alert('Publish functionality coming soon!')
-                  }}
-                  className="px-3 py-1.5 bg-wapify-accent text-white rounded-lg font-semibold hover:bg-wapify-accent-dark transition shadow-sm text-sm"
-                >
-                  Publish
-                </button>
-              </div>
+          <div className="flex items-center justify-end px-4 py-3 border-b border-wapify-border flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  // TODO: Implémenter la fonctionnalité Share
+                  alert('Share functionality coming soon!')
+                }}
+                disabled={!generatedCode}
+                className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition text-sm border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Share
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: Implémenter la fonctionnalité Publish/Deploy
+                  alert('Publish functionality coming soon!')
+                }}
+                disabled={!generatedCode}
+                className="px-3 py-1.5 bg-wapify-accent text-white rounded-lg font-semibold hover:bg-wapify-accent-dark transition shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Publish
+              </button>
             </div>
-          )}
+          </div>
 
           {/* Content Area */}
           <div className="flex-1 relative overflow-hidden">
