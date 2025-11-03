@@ -753,24 +753,23 @@ export default function Home() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {/* Free Plan */}
+              {/* Starter Plan */}
               <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-8 hover:border-wapify-accent/50 transition-all">
                 <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-wapify-text mb-2">Free</h3>
+                  <h3 className="text-2xl font-bold text-wapify-text mb-2">Starter</h3>
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-5xl font-black text-wapify-text">$0</span>
                     <span className="text-wapify-text-secondary">/month</span>
                   </div>
-                  <p className="text-wapify-text-secondary">Perfect to get started and experiment</p>
+                  <p className="text-wapify-text-secondary">Perfect for getting started and trying out</p>
                 </div>
 
                 <ul className="space-y-3 mb-8">
                   {[
-                    "3 projects",
-                    "Basic AI generation",
-                    "Community support",
-                    "Public projects only",
-                    "Wapify branding"
+                    "50 daily credits (up to 150/month)",
+                    "Public apps only",
+                    "Wapify branding",
+                    "1 app"
                   ].map((feature, i) => (
                     <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
                       <span className="text-wapify-accent text-lg">✓</span>
@@ -787,31 +786,30 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Pro Plan */}
+              {/* Builder Plan */}
               <div className="bg-gradient-to-br from-wapify-accent/5 to-wapify-accent-dark/5 border-2 border-wapify-accent rounded-2xl p-8 relative shadow-xl">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-wapify-accent text-white rounded-full text-sm font-bold">
                   Most Popular
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-wapify-text mb-2">Pro</h3>
+                  <h3 className="text-2xl font-bold text-wapify-text mb-2">Builder</h3>
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-5xl font-black text-wapify-text">$29</span>
                     <span className="text-wapify-text-secondary">/month</span>
                   </div>
-                  <p className="text-wapify-text-secondary">For serious builders and small teams</p>
+                  <p className="text-wapify-text-secondary">Build, deploy and scale your apps</p>
                 </div>
 
                 <ul className="space-y-3 mb-8">
                   {[
-                    "Unlimited projects",
-                    "Advanced AI generation",
-                    "Priority support",
-                    "Private projects",
-                    "Custom domains",
-                    "Remove Wapify branding",
-                    "Advanced analytics",
-                    "Export source code"
+                    "Private Projects",
+                    "Full-Fledged Browser IDE",
+                    "Integrations",
+                    "Connect to Github",
+                    "Custom Domains",
+                    "Up to 8 GB RAM / 4 vCPU per deployed app",
+                    "5 apps max"
                   ].map((feature, i) => (
                     <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
                       <span className="text-wapify-accent text-lg">✓</span>
@@ -824,7 +822,7 @@ export default function Home() {
                   onClick={() => router.push('/auth/signin')}
                   className="w-full px-6 py-3 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all"
                 >
-                  Start Pro Trial
+                  Start Builder Plan
                 </button>
               </div>
             </div>
