@@ -408,16 +408,35 @@ export default function EditorPage() {
     setModifications([])
     hasSavedGeneration.current = false
 
-    // Add initial AI understanding message
-    const understandingMessage: Message = {
-      role: 'assistant',
-      content: `J'ai bien compris ! Je vais créer ${promptText.toLowerCase().includes('app') ? 'votre application' : 'ce projet'} pour vous. Je commence la génération des pages et composants nécessaires...`,
-      id: `msg-understanding-${Date.now()}`,
-      timestamp: new Date()
-    }
-    setMessages(prev => [...prev, understandingMessage])
-
     try {
+      // First, get AI understanding using conversational chat
+      const thinkingStartTime = Date.now()
+      const conversationalResponse = await fetch('/api/conversational-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: promptText,
+          conversationHistory: messages,
+          currentCode: undefined,
+          projectFiles: undefined
+        })
+      })
+
+      if (conversationalResponse.ok) {
+        const { response: aiResponse, thinking } = await conversationalResponse.json()
+        const thinkingTime = Math.round((Date.now() - thinkingStartTime) / 1000)
+
+        // Add AI understanding message with thinking
+        const understandingMessage: Message = {
+          role: 'assistant',
+          content: aiResponse,
+          id: `msg-understanding-${Date.now()}`,
+          timestamp: new Date(),
+          thinkingTime: thinkingTime,
+          thinking: thinking
+        }
+        setMessages(prev => [...prev, understandingMessage])
+      }
       const currentProjectId = projectId || `proj-${Date.now()}-${Math.random().toString(36).substring(7)}`
       if (!projectId) {
         setProjectId(currentProjectId)
