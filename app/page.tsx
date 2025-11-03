@@ -19,12 +19,26 @@ export default function Home() {
   const router = useRouter()
 
   const typingPhrases = [
+    // English
     "A modern e-commerce store with shopping cart...",
     "An analytics dashboard with real-time charts...",
     "A task management app with kanban board...",
-    "A booking system with calendar integration...",
-    "A social media feed with infinite scroll...",
-    "A portfolio website with project showcase..."
+    // French
+    "Une boutique en ligne moderne avec panier d'achat...",
+    "Un tableau de bord analytique avec graphiques en temps réel...",
+    "Une application de gestion de tâches avec tableau kanban...",
+    // German
+    "Ein moderner E-Commerce-Shop mit Warenkorb...",
+    "Ein Analyse-Dashboard mit Echtzeit-Diagrammen...",
+    "Eine Aufgabenverwaltungs-App mit Kanban-Board...",
+    // Chinese
+    "一个现代电子商务商店与购物车...",
+    "一个实时图表分析仪表板...",
+    "一个带看板的任务管理应用...",
+    // Arabic
+    "متجر إلكتروني حديث مع عربة تسوق...",
+    "لوحة تحليلات مع رسوم بيانية فورية...",
+    "تطبيق إدارة مهام مع لوحة كانبان..."
   ]
 
   const allIdeas = [
