@@ -1013,6 +1013,56 @@ export default function EditorPage() {
           <div className="flex items-center gap-2 px-3 py-1.5 bg-wapify-bg rounded-lg">
             <span className="text-sm font-semibold text-wapify-text">{projectName || 'Untitled Project'}</span>
           </div>
+
+          {/* Divider */}
+          <div className="h-8 w-[1px] bg-wapify-border"></div>
+
+          {/* Toggle Sidebar Button */}
+          <button
+            onClick={() => setIsChatCollapsed(!isChatCollapsed)}
+            className="p-1.5 text-gray-500 hover:bg-gray-200 rounded-md transition-colors"
+            title={isChatCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+              <path d="M9 3v18"></path>
+              <path d={isChatCollapsed ? "m14 9 3 3-3 3" : "m16 15-3-3 3-3"}></path>
+            </svg>
+          </button>
+
+          {/* Help Button */}
+          <button
+            onClick={() => window.open('mailto:support@wapify.com?subject=Help Request', '_blank')}
+            className="w-7 h-7 rounded-full border-2 border-gray-300 bg-white hover:bg-gray-100 hover:border-gray-400 transition flex items-center justify-center text-sm font-bold text-gray-600"
+            title="Contact Wapify Support"
+          >
+            ?
+          </button>
+
+          {/* Tabs Container */}
+          <div className="inline-flex items-center justify-center bg-gray-100 p-1 text-gray-500 h-7 rounded-lg">
+            <button
+              onClick={() => setActiveView('preview')}
+              className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
+                activeView === 'preview'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900'
+              }`}
+            >
+              Preview
+            </button>
+
+            <button
+              onClick={() => setActiveView('dashboard')}
+              className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
+                activeView === 'dashboard'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900'
+              }`}
+            >
+              Dashboard
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -1195,60 +1245,9 @@ export default function EditorPage() {
 
         {/* Right Panel - Preview & Code */}
         <div className="flex-1 flex flex-col bg-wapify-bg relative z-0">
-          {/* Top Bar with Tabs */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-wapify-border flex-shrink-0">
-            <div className="flex items-center gap-3">
-              {/* Toggle Sidebar Button */}
-              <button
-                onClick={() => setIsChatCollapsed(!isChatCollapsed)}
-                className="p-1.5 text-gray-500 hover:bg-gray-200 rounded-md transition-colors"
-                title={isChatCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect width="18" height="18" x="3" y="3" rx="2"></rect>
-                  <path d="M9 3v18"></path>
-                  <path d={isChatCollapsed ? "m14 9 3 3-3 3" : "m16 15-3-3 3-3"}></path>
-                </svg>
-              </button>
-
-              {/* Help Button */}
-              <button
-                onClick={() => window.open('mailto:support@wapify.com?subject=Help Request', '_blank')}
-                className="w-7 h-7 rounded-full border-2 border-gray-300 bg-white hover:bg-gray-100 hover:border-gray-400 transition flex items-center justify-center text-sm font-bold text-gray-600"
-                title="Contact Wapify Support"
-              >
-                ?
-              </button>
-
-              {/* Tabs Container */}
-              <div className="inline-flex items-center justify-center bg-gray-100 p-1 text-gray-500 h-7 rounded-lg">
-                {/* Preview Tab */}
-                <button
-                  onClick={() => setActiveView('preview')}
-                  className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
-                    activeView === 'preview'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-900'
-                  }`}
-                >
-                  Preview
-                </button>
-
-                {/* Dashboard Tab */}
-                <button
-                  onClick={() => setActiveView('dashboard')}
-                  className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
-                    activeView === 'dashboard'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-900'
-                  }`}
-                >
-                  Dashboard
-                </button>
-              </div>
-            </div>
-
-            {generatedCode && (
+          {/* Top Bar with Share/Publish buttons */}
+          {generatedCode && (
+            <div className="flex items-center justify-end px-4 py-3 border-b border-wapify-border flex-shrink-0">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
@@ -1269,8 +1268,8 @@ export default function EditorPage() {
                   Publish
                 </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Content Area */}
           <div className="flex-1 relative overflow-hidden">
