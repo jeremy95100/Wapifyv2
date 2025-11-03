@@ -11,6 +11,7 @@ export default function Home() {
   const [typingIndex, setTypingIndex] = useState(0)
   const [isDeleting, setIsDeleting] = useState(false)
   const [loopNum, setLoopNum] = useState(0)
+  const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false)
   const router = useRouter()
 
   const typingPhrases = [
@@ -109,17 +110,42 @@ export default function Home() {
             </Link>
 
             <div className="hidden md:flex items-center gap-6">
-              <Link href="#features" className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition">
-                Features
+              {/* Product Dropdown */}
+              <div
+                className="relative"
+                onMouseEnter={() => setIsProductDropdownOpen(true)}
+                onMouseLeave={() => setIsProductDropdownOpen(false)}
+              >
+                <button className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition flex items-center gap-1">
+                  Product
+                  <svg className={`w-4 h-4 transition-transform ${isProductDropdownOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/>
+                  </svg>
+                </button>
+
+                {isProductDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-wapify-panel border-2 border-wapify-border rounded-xl shadow-xl overflow-hidden">
+                    <Link href="/product/templates" className="block px-4 py-3 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition">
+                      Templates
+                    </Link>
+                    <Link href="/product/features" className="block px-4 py-3 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition">
+                      Features
+                    </Link>
+                    <Link href="/product/integrations" className="block px-4 py-3 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition">
+                      Integrations
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              <Link href="/community" className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition">
+                Community
               </Link>
-              <Link href="#examples" className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition">
-                Examples
-              </Link>
-              <Link href="#pricing" className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition">
+              <Link href="/pricing" className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition">
                 Pricing
               </Link>
-              <Link href="#docs" className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition">
-                Docs
+              <Link href="/enterprise" className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition">
+                Enterprise
               </Link>
             </div>
           </div>
@@ -463,7 +489,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-wapify-border py-16 px-6 relative z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-5 gap-12 mb-12">
+          <div className="grid md:grid-cols-6 gap-12 mb-12">
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
@@ -477,14 +503,15 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Product */}
+            {/* Products */}
             <div>
-              <h4 className="font-bold text-wapify-text mb-4">Product</h4>
+              <h4 className="font-bold text-wapify-text mb-4">Products</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#features" className="text-wapify-text-secondary hover:text-wapify-text transition">Features</a></li>
-                <li><a href="#pricing" className="text-wapify-text-secondary hover:text-wapify-text transition">Pricing</a></li>
-                <li><a href="#" className="text-wapify-text-secondary hover:text-wapify-text transition">Changelog</a></li>
-                <li><a href="#" className="text-wapify-text-secondary hover:text-wapify-text transition">Status</a></li>
+                <li><Link href="/product/templates" className="text-wapify-text-secondary hover:text-wapify-text transition">Templates</Link></li>
+                <li><Link href="/product/features" className="text-wapify-text-secondary hover:text-wapify-text transition">Features</Link></li>
+                <li><Link href="/product/integrations" className="text-wapify-text-secondary hover:text-wapify-text transition">Integrations</Link></li>
+                <li><Link href="/pricing" className="text-wapify-text-secondary hover:text-wapify-text transition">Pricing</Link></li>
+                <li><Link href="/enterprise" className="text-wapify-text-secondary hover:text-wapify-text transition">Enterprise</Link></li>
               </ul>
             </div>
 
@@ -492,10 +519,11 @@ export default function Home() {
             <div>
               <h4 className="font-bold text-wapify-text mb-4">Resources</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#docs" className="text-wapify-text-secondary hover:text-wapify-text transition">Documentation</a></li>
-                <li><a href="#" className="text-wapify-text-secondary hover:text-wapify-text transition">Guides</a></li>
-                <li><a href="#" className="text-wapify-text-secondary hover:text-wapify-text transition">Blog</a></li>
-                <li><a href="#" className="text-wapify-text-secondary hover:text-wapify-text transition">Support</a></li>
+                <li><Link href="/docs" className="text-wapify-text-secondary hover:text-wapify-text transition">Docs & FAQ</Link></li>
+                <li><Link href="/community" className="text-wapify-text-secondary hover:text-wapify-text transition">Community</Link></li>
+                <li><Link href="/blog" className="text-wapify-text-secondary hover:text-wapify-text transition">Blog</Link></li>
+                <li><Link href="/support" className="text-wapify-text-secondary hover:text-wapify-text transition">Support</Link></li>
+                <li><Link href="/changelog" className="text-wapify-text-secondary hover:text-wapify-text transition">Changelog</Link></li>
               </ul>
             </div>
 
@@ -503,10 +531,21 @@ export default function Home() {
             <div>
               <h4 className="font-bold text-wapify-text mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="text-wapify-text-secondary hover:text-wapify-text transition">About</a></li>
-                <li><a href="#" className="text-wapify-text-secondary hover:text-wapify-text transition">Contact</a></li>
-                <li><a href="#" className="text-wapify-text-secondary hover:text-wapify-text transition">Privacy</a></li>
-                <li><a href="#" className="text-wapify-text-secondary hover:text-wapify-text transition">Terms</a></li>
+                <li><Link href="/about" className="text-wapify-text-secondary hover:text-wapify-text transition">About Us</Link></li>
+                <li><Link href="/careers" className="text-wapify-text-secondary hover:text-wapify-text transition">Careers</Link></li>
+                <li><Link href="/affiliate" className="text-wapify-text-secondary hover:text-wapify-text transition">Affiliate Program</Link></li>
+                <li><Link href="/contact" className="text-wapify-text-secondary hover:text-wapify-text transition">Contact</Link></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="font-bold text-wapify-text mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/privacy" className="text-wapify-text-secondary hover:text-wapify-text transition">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="text-wapify-text-secondary hover:text-wapify-text transition">Terms of Service</Link></li>
+                <li><Link href="/cookies" className="text-wapify-text-secondary hover:text-wapify-text transition">Cookie Policy</Link></li>
+                <li><Link href="/gdpr" className="text-wapify-text-secondary hover:text-wapify-text transition">GDPR</Link></li>
               </ul>
             </div>
           </div>
@@ -516,7 +555,9 @@ export default function Home() {
               © 2025 Wapify. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-sm text-wapify-text-secondary">
-              <span>Pages to come: Features • Pricing • Examples • Docs</span>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-wapify-text transition">Twitter</a>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-wapify-text transition">GitHub</a>
+              <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="hover:text-wapify-text transition">Discord</a>
             </div>
           </div>
         </div>
