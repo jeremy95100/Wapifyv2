@@ -8,6 +8,7 @@ interface GenerationTask {
   description: string
   status: 'pending' | 'in_progress' | 'completed'
   type: 'page' | 'component' | 'database' | 'style'
+  progress?: number // Percentage 0-100
   substeps?: Array<{
     id: string
     title: string
@@ -22,69 +23,94 @@ interface GenerationPanelProps {
 }
 
 export default function GenerationPanel({ tasks, isExpanded, onToggle }: GenerationPanelProps) {
-  const [hackLines, setHackLines] = useState<string[]>([])
-  const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
+  const [taskProgress, setTaskProgress] = useState<Record<string, number>>({})
 
-  // Simulated code lines for hacker effect
-  const codeSnippets = [
-    'import React from "react"',
-    'const App = () => {',
-    '  return (',
-    '    <div className="container">',
-    '      <header>',
-    '        <h1>Welcome</h1>',
-    '      </header>',
-    '    </div>',
-    '  )',
-    '}',
-    'export default App',
-    'function HomePage() {',
-    '  const [state, setState] = useState()',
-    '  useEffect(() => {',
-    '    fetchData()',
-    '  }, [])',
-    'return <div>Loading...</div>',
-  ]
-
-  // Generate random code lines for animation
+  // Simulate progress for in-progress tasks
   useEffect(() => {
-    if (!isExpanded) return
-
     const interval = setInterval(() => {
-      const randomLine = codeSnippets[Math.floor(Math.random() * codeSnippets.length)]
-      setHackLines(prev => {
-        const newLines = [...prev, randomLine]
-        return newLines.slice(-8) // Keep only last 8 lines
+      setTaskProgress(prev => {
+        const updated = { ...prev }
+        tasks.forEach(task => {
+          if (task.status === 'in_progress') {
+            const current = updated[task.id] || 0
+            // Progress from 0 to 85% smoothly
+            if (current < 85) {
+              updated[task.id] = Math.min(85, current + Math.random() * 5)
+            }
+          } else if (task.status === 'completed') {
+            updated[task.id] = 100
+          }
+        })
+        return updated
       })
-    }, 150)
+    }, 300)
 
     return () => clearInterval(interval)
-  }, [isExpanded])
-
-  // Update current task based on in_progress status
-  useEffect(() => {
-    const inProgressIndex = tasks.findIndex(t => t.status === 'in_progress')
-    if (inProgressIndex !== -1) {
-      setCurrentTaskIndex(inProgressIndex)
-    }
   }, [tasks])
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'page': return '📄'
-      case 'component': return '🧩'
-      case 'database': return '💾'
-      case 'style': return '🎨'
-      default: return '⚡'
+      case 'page':
+        return (
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        )
+      case 'component':
+        return (
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+          </svg>
+        )
+      case 'database':
+        return (
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+          </svg>
+        )
+      case 'style':
+        return (
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+          </svg>
+        )
+      default:
+        return (
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        )
     }
   }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return '✓'
-      case 'in_progress': return '⏳'
-      case 'pending': return '⏸'
-      default: return '○'
+      case 'completed':
+        return (
+          <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        )
+      case 'in_progress':
+        return (
+          <svg className="w-3 h-3 animate-spin text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+        )
+      case 'pending':
+        return (
+          <svg className="w-3 h-3 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+        )
+      default:
+        return null
     }
   }
 
@@ -97,7 +123,9 @@ export default function GenerationPanel({ tasks, isExpanded, onToggle }: Generat
       >
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded flex items-center justify-center">
-            <span className="text-white text-xs">⚡</span>
+            <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
           </div>
           <div>
             <h3 className="text-xs font-bold text-wapify-text">Plan de génération</h3>
@@ -118,149 +146,111 @@ export default function GenerationPanel({ tasks, isExpanded, onToggle }: Generat
       {/* Expandable content */}
       {isExpanded && (
         <div className="border-t border-wapify-border">
-          {/* Hacker-style code animation panel */}
-          <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-3 overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-wapify-accent/5 to-transparent animate-pulse"></div>
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-[10px] text-green-400 font-mono">Wapify AI coding...</span>
-              </div>
-              <div className="space-y-0.5 font-mono text-[9px] overflow-hidden" style={{ maxHeight: '80px' }}>
-                {hackLines.map((line, idx) => (
-                  <div
-                    key={`${line}-${idx}`}
-                    className="text-green-400/80 animate-fadeIn"
-                    style={{
-                      animationDelay: `${idx * 50}ms`,
-                      textShadow: '0 0 5px rgba(34, 197, 94, 0.5)'
-                    }}
-                  >
-                    <span className="text-green-600/60 mr-2">{'>'}</span>
-                    {line}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
           {/* Tasks list */}
           <div className="p-2.5 space-y-1.5">
-            {tasks.map((task, index) => (
-              <div
-                key={task.id}
-                className={`relative rounded-lg p-2 transition-all ${
-                  task.status === 'in_progress'
-                    ? 'bg-wapify-accent/10 border border-wapify-accent shadow-md scale-[1.01]'
-                    : task.status === 'completed'
-                    ? 'bg-green-50 border border-green-200'
-                    : 'bg-wapify-bg border border-wapify-border'
-                }`}
-              >
-                <div className="flex items-start gap-2">
-                  {/* Status indicator */}
-                  <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    task.status === 'completed'
-                      ? 'bg-green-500 text-white'
-                      : task.status === 'in_progress'
-                      ? 'bg-wapify-accent text-white animate-pulse'
-                      : 'bg-gray-300 text-gray-600'
-                  }`}>
-                    {getStatusIcon(task.status)}
-                  </div>
+            {tasks.map((task, index) => {
+              const progress = taskProgress[task.id] || 0
 
-                  {/* Task content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="text-sm">{getTypeIcon(task.type)}</span>
-                      <h4 className="text-xs font-semibold text-wapify-text">{task.title}</h4>
+              return (
+                <div
+                  key={task.id}
+                  className={`relative rounded-lg p-2.5 transition-all ${
+                    task.status === 'in_progress'
+                      ? 'bg-wapify-accent/10 border border-wapify-accent shadow-md'
+                      : task.status === 'completed'
+                      ? 'bg-green-50 border border-green-200'
+                      : 'bg-wapify-bg border border-wapify-border'
+                  }`}
+                >
+                  <div className="flex items-start gap-2.5">
+                    {/* Status indicator */}
+                    <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
+                      task.status === 'completed'
+                        ? 'bg-green-500'
+                        : task.status === 'in_progress'
+                        ? 'bg-wapify-accent'
+                        : 'bg-gray-300'
+                    }`}>
+                      {getStatusIcon(task.status)}
                     </div>
-                    <p className="text-[10px] text-wapify-text-secondary leading-relaxed">
-                      {task.description}
-                    </p>
 
-                    {/* Progress bar for in-progress tasks */}
-                    {task.status === 'in_progress' && (
-                      <div className="mt-2 relative">
-                        <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                          <div
-                            className="bg-gradient-to-r from-wapify-accent to-wapify-accent-dark h-1.5 rounded-full animate-pulse relative"
-                            style={{
-                              width: '60%',
-                              animation: 'progress 2s ease-in-out infinite'
-                            }}
-                          >
-                            <div className="absolute inset-0 bg-white/30 animate-shimmer"></div>
-                          </div>
+                    {/* Task content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="text-wapify-accent">
+                          {getTypeIcon(task.type)}
                         </div>
+                        <h4 className="text-xs font-semibold text-wapify-text">{task.title}</h4>
                       </div>
-                    )}
+                      <p className="text-[10px] text-wapify-text-secondary leading-relaxed mb-2">
+                        {task.description}
+                      </p>
 
-                    {/* Substeps */}
-                    {task.substeps && task.substeps.length > 0 && (
-                      <div className="mt-3 space-y-1 pl-2 border-l-2 border-gray-200">
-                        {task.substeps.map((substep) => (
-                          <div
-                            key={substep.id}
-                            className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-gray-50 transition-colors"
-                          >
-                            <div className="flex items-center gap-2 flex-1">
-                              {substep.status === 'completed' ? (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="w-4 h-4 text-green-500"
-                                >
-                                  <circle cx="12" cy="12" r="10"></circle>
-                                  <path d="m9 12 2 2 4-4"></path>
-                                </svg>
-                              ) : substep.status === 'in_progress' ? (
-                                <div className="w-4 h-4 rounded-full border-2 border-wapify-accent border-t-transparent animate-spin"></div>
-                              ) : (
-                                <div className="w-4 h-4 rounded-full border-2 border-gray-300"></div>
+                      {/* Progress bar - Always show for in_progress and completed tasks */}
+                      {(task.status === 'in_progress' || task.status === 'completed') && (
+                        <div className="mt-2">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[9px] font-medium text-wapify-text-secondary">
+                              Progression
+                            </span>
+                            <span className="text-[9px] font-bold text-wapify-accent">
+                              {Math.round(progress)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className="bg-gradient-to-r from-wapify-accent to-wapify-accent-dark h-1.5 rounded-full transition-all duration-300 ease-out relative"
+                              style={{ width: `${progress}%` }}
+                            >
+                              {task.status === 'in_progress' && (
+                                <div className="absolute inset-0 bg-white/30 animate-shimmer"></div>
                               )}
-                              <span className="text-xs text-gray-700">{substep.title}</span>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        </div>
+                      )}
+
+                      {/* Substeps */}
+                      {task.substeps && task.substeps.length > 0 && (
+                        <div className="mt-3 space-y-1 pl-2 border-l-2 border-gray-200">
+                          {task.substeps.map((substep) => (
+                            <div
+                              key={substep.id}
+                              className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-gray-50 transition-colors"
+                            >
+                              <div className="flex items-center gap-2 flex-1">
+                                {substep.status === 'completed' ? (
+                                  <svg
+                                    className="w-3.5 h-3.5 text-green-500 flex-shrink-0"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  >
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="m9 12 2 2 4-4"/>
+                                  </svg>
+                                ) : substep.status === 'in_progress' ? (
+                                  <div className="w-3.5 h-3.5 rounded-full border-2 border-wapify-accent border-t-transparent animate-spin flex-shrink-0"></div>
+                                ) : (
+                                  <div className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 flex-shrink-0"></div>
+                                )}
+                                <span className="text-[10px] text-gray-700">{substep.title}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}
 
       <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-5px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes progress {
-          0%, 100% {
-            width: 50%;
-          }
-          50% {
-            width: 80%;
-          }
-        }
-
         @keyframes shimmer {
           0% {
             transform: translateX(-100%);
@@ -268,10 +258,6 @@ export default function GenerationPanel({ tasks, isExpanded, onToggle }: Generat
           100% {
             transform: translateX(100%);
           }
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out forwards;
         }
 
         .animate-shimmer {

@@ -9,6 +9,7 @@ import Editor from '@monaco-editor/react'
 import { GenerationPlan, GenerationStep, ModificationDetail} from '../../lib/anthropic'
 import { generateProject } from '../../lib/generate-client'
 import GenerationPanel from './components/GenerationPanel'
+import CodeGenerationOverlay from './components/CodeGenerationOverlay'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -470,6 +471,7 @@ export default function EditorPage() {
             }
             setMessages(prev => [...prev, chatMessage])
           } else if (event.type === 'step') {
+            // Update generation steps
             setSteps(prev => {
               const existingIndex = prev.findIndex(s => s.step === event.data.step)
               if (existingIndex >= 0) {
@@ -478,6 +480,32 @@ export default function EditorPage() {
                 return newSteps
               }
               return [...prev, event.data]
+            })
+
+            // Update generation tasks in the plan based on step events
+            setGenerationTasks(prevTasks => {
+              if (prevTasks.length === 0) return prevTasks
+
+              // Map step names to task updates
+              const stepName = event.data.step.toLowerCase()
+              const status = event.data.status
+
+              return prevTasks.map((task, index) => {
+                // Logic to match steps to tasks
+                // If step is in progress or completed, update corresponding task
+                if (status === 'in_progress') {
+                  // Mark first pending task as in_progress
+                  if (task.status === 'pending') {
+                    return { ...task, status: 'in_progress' }
+                  }
+                } else if (status === 'completed') {
+                  // Mark first in_progress task as completed
+                  if (task.status === 'in_progress') {
+                    return { ...task, status: 'completed' }
+                  }
+                }
+                return task
+              })
             })
           } else if (event.type === 'substep') {
             lastProgressUpdateTime.current = Date.now()
@@ -530,6 +558,11 @@ export default function EditorPage() {
         setIsMultiFile(false)
         setGeneratedCode(result.files[0]?.content || '')
       }
+
+      // Mark all tasks as completed when generation succeeds
+      setGenerationTasks(prevTasks =>
+        prevTasks.map(task => ({ ...task, status: 'completed' as const }))
+      )
 
       const assistantMessage: Message = {
         role: 'assistant',
@@ -1294,53 +1327,22 @@ export default function EditorPage() {
                 />
               )}
 
-              {isGenerating && (
+              {/* Error Detection - Only show if there's an error */}
+              {error && isGenerating && (
                 <div className="flex justify-start animate-fadeIn">
                   <div className="w-7 h-7 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-xs shadow-md mr-2 flex-shrink-0 mt-1">
                     ⚡
                   </div>
                   <div className="bg-white border border-wapify-border rounded-xl p-3 max-w-[85%]">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-wapify-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-wapify-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-wapify-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                      <span className="text-xs text-wapify-text-secondary ml-2">Génération en cours...</span>
-                    </div>
-
-                    {/* Generation Progress Box */}
-                    {steps.length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        <div className="text-xs font-semibold text-wapify-text mb-2">📝 Pages en cours de génération:</div>
-                        {steps.map((step, index) => (
-                          <div key={index} className="bg-wapify-bg rounded-lg p-2 border border-wapify-border">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-medium text-wapify-text">{step.step}</span>
-                              <span className="text-[10px] text-wapify-accent font-semibold">
-                                {step.status === 'completed' ? '✓ Terminé' : step.status === 'in_progress' ? '⏳ En cours' : '⏸ En attente'}
-                              </span>
-                            </div>
-                            {step.status === 'in_progress' && (
-                              <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
-                                <div className="bg-wapify-accent h-1 rounded-full animate-pulse" style={{ width: '50%' }}></div>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Error Detection */}
-                    {error && (
-                      <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-2">
-                        <div className="flex items-start gap-2">
-                          <span className="text-red-500 text-sm">⚠️</span>
-                          <div>
-                            <p className="text-xs font-semibold text-red-700">Erreur détectée</p>
-                            <p className="text-xs text-red-600 mt-1">Je suis en train de résoudre le problème...</p>
-                          </div>
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-2">
+                      <div className="flex items-start gap-2">
+                        <span className="text-red-500 text-sm">⚠️</span>
+                        <div>
+                          <p className="text-xs font-semibold text-red-700">Erreur détectée</p>
+                          <p className="text-xs text-red-600 mt-1">Je suis en train de résoudre le problème...</p>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -1446,6 +1448,9 @@ export default function EditorPage() {
           <div className="flex-1 relative overflow-hidden">
             {activeView === 'preview' ? (
               <>
+                {/* Code Generation Overlay - Shows during generation */}
+                {isGenerating && <CodeGenerationOverlay />}
+
                 {generatedCode ? (
                   isMultiFile && projectFiles.length > 0 ? (
                     <div className={`h-full flex flex-col items-center justify-center bg-white ${
