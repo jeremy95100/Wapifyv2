@@ -59,3 +59,6 @@ list-all-project-files.js
 test-local-generation.js
 trigger-rebuild.js
 upload-test-to-wapify.js
+
+# dev resources (local only - docs, tools, archives)
+dev-resources/
