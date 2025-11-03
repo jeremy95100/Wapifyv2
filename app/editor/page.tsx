@@ -69,6 +69,7 @@ export default function EditorPage() {
   const [chatWidth, setChatWidth] = useState(420) // Default width in pixels
   const [isResizing, setIsResizing] = useState(false)
   const [showResourceMonitor, setShowResourceMonitor] = useState(false)
+  const [isChatHovered, setIsChatHovered] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -1165,6 +1166,8 @@ export default function EditorPage() {
           <div
             className="bg-wapify-panel border-r border-wapify-border flex flex-col relative z-0"
             style={{ width: `${chatWidth}px` }}
+            onMouseEnter={() => setIsChatHovered(true)}
+            onMouseLeave={() => setIsChatHovered(false)}
           >
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-3 space-y-2 pt-3 relative">
@@ -1401,7 +1404,9 @@ export default function EditorPage() {
 
             {/* Resize Handle */}
             <div
-              className="absolute right-0 top-0 bottom-0 w-[1px] bg-gray-200 hover:bg-wapify-accent cursor-col-resize group"
+              className={`absolute right-0 top-0 bottom-0 w-[1px] cursor-col-resize transition-opacity ${
+                isChatHovered ? 'opacity-30 bg-gray-300' : 'opacity-0 bg-gray-300'
+              } hover:opacity-100 hover:bg-wapify-accent`}
               onMouseDown={handleMouseDown}
             >
               <div className="absolute inset-y-0 -right-1 -left-1"></div>
