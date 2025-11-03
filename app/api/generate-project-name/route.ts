@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     // Use Claude to generate a short, descriptive project name
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-3-5-sonnet-20250219',
       max_tokens: 100,
       messages: [
         {
