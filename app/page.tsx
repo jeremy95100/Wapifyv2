@@ -231,19 +231,15 @@ export default function Home() {
       <main className="relative z-10">
         {/* Hero Section */}
         <section className="pt-32 pb-16 px-6">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <div className="inline-block mb-6 px-4 py-2 bg-wapify-accent/10 border border-wapify-accent/20 rounded-full animate-fadeIn">
-                <span className="text-wapify-accent font-semibold text-sm">
-                  ⚡ Generate apps in under 5 minutes
-                </span>
-              </div>
-
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-wapify-text mb-8 leading-[1.1] tracking-tight animate-fadeIn whitespace-nowrap">
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-wapify-text mb-8 leading-[1.1] tracking-tight animate-fadeIn">
                 Build Apps in <span className="text-wapify-accent">Minutes</span>
+                <br />
+                <span className="text-wapify-text-secondary">, Not Months</span>
               </h1>
 
-              <p className="text-xl md:text-2xl text-wapify-text-secondary mb-16 max-w-3xl mx-auto leading-relaxed animate-fadeIn">
+              <p className="text-xl md:text-2xl text-wapify-text-secondary mb-16 max-w-4xl mx-auto leading-relaxed animate-fadeIn">
                 Describe your idea in any language. AI builds a complete, production-ready web app with database and hosting included.
               </p>
             </div>
@@ -277,7 +273,6 @@ export default function Home() {
                   onClick={() => setIsStyleModalOpen(true)}
                   className="flex items-center gap-2 text-sm text-wapify-accent hover:text-wapify-accent-dark transition font-semibold"
                 >
-                  <span>🎨</span>
                   <span>Choose your style</span>
                 </button>
 
@@ -331,12 +326,12 @@ export default function Home() {
             <div className="grid md:grid-cols-3 gap-12">
               <div className="relative">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-wapify-accent/20 to-wapify-accent/5 rounded-2xl flex items-center justify-center mb-6 border-2 border-wapify-accent/20">
-                    <span className="text-4xl">✍️</span>
+                  <div className="w-16 h-16 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-2xl flex items-center justify-center mb-6 text-white font-black text-3xl">
+                    1
                   </div>
-                  <div className="absolute top-10 left-1/2 w-full h-0.5 bg-gradient-to-r from-wapify-accent/50 to-transparent hidden md:block" style={{transform: 'translateX(50%)'}}></div>
+                  <div className="absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-wapify-accent/50 to-transparent hidden md:block" style={{transform: 'translateX(50%)'}}></div>
                   <h3 className="text-2xl font-bold text-wapify-text mb-3">
-                    1. Describe Your App
+                    Describe Your App
                   </h3>
                   <p className="text-wapify-text-secondary leading-relaxed">
                     Tell us what you want to build in any language. No technical knowledge needed.
@@ -346,12 +341,12 @@ export default function Home() {
 
               <div className="relative">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-wapify-accent/20 to-wapify-accent/5 rounded-2xl flex items-center justify-center mb-6 border-2 border-wapify-accent/20">
-                    <span className="text-4xl">🤖</span>
+                  <div className="w-16 h-16 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-2xl flex items-center justify-center mb-6 text-white font-black text-3xl">
+                    2
                   </div>
-                  <div className="absolute top-10 left-1/2 w-full h-0.5 bg-gradient-to-r from-wapify-accent/50 to-transparent hidden md:block" style={{transform: 'translateX(50%)'}}></div>
+                  <div className="absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-wapify-accent/50 to-transparent hidden md:block" style={{transform: 'translateX(50%)'}}></div>
                   <h3 className="text-2xl font-bold text-wapify-text mb-3">
-                    2. AI Generates Code
+                    AI Generates Code
                   </h3>
                   <p className="text-wapify-text-secondary leading-relaxed">
                     Our AI creates production-ready code, sets up your database, and configures everything.
@@ -361,11 +356,11 @@ export default function Home() {
 
               <div className="relative">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-wapify-accent/20 to-wapify-accent/5 rounded-2xl flex items-center justify-center mb-6 border-2 border-wapify-accent/20">
-                    <span className="text-4xl">🚀</span>
+                  <div className="w-16 h-16 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-2xl flex items-center justify-center mb-6 text-white font-black text-3xl">
+                    3
                   </div>
                   <h3 className="text-2xl font-bold text-wapify-text mb-3">
-                    3. Deploy Instantly
+                    Deploy Instantly
                   </h3>
                   <p className="text-wapify-text-secondary leading-relaxed">
                     Your app goes live immediately with hosting, SSL, and a custom domain ready to connect.
@@ -391,32 +386,26 @@ export default function Home() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
                 {
-                  icon: "🧠",
                   title: "AI-Powered Generation",
                   description: "Advanced AI understands your requirements and generates clean, maintainable code with modern best practices."
                 },
                 {
-                  icon: "🌍",
                   title: "Multi-Language Input",
                   description: "Describe your app in English, French, Spanish, or any language. AI understands them all."
                 },
                 {
-                  icon: "🗄️",
                   title: "PostgreSQL Database",
                   description: "Fully configured database with schemas, relationships, and API endpoints generated automatically."
                 },
                 {
-                  icon: "🎨",
                   title: "Beautiful UI",
                   description: "Modern, responsive designs with Tailwind CSS. Every component looks great on any device."
                 },
                 {
-                  icon: "🔒",
                   title: "Secure by Default",
                   description: "SSL certificates, authentication ready, and security best practices built in from day one."
                 },
                 {
-                  icon: "⚡",
                   title: "Instant Deployment",
                   description: "Your app goes live in seconds with automatic scaling, CDN, and global edge network."
                 }
@@ -425,9 +414,6 @@ export default function Home() {
                   key={i}
                   className="group bg-wapify-panel/60 backdrop-blur-sm p-8 rounded-2xl border-2 border-wapify-border hover:border-wapify-accent/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-wapify-accent/20 to-wapify-accent/5 rounded-xl flex items-center justify-center text-4xl mb-6 group-hover:scale-110 transition-transform">
-                    {feature.icon}
-                  </div>
                   <h3 className="text-2xl font-bold text-wapify-text mb-4">
                     {feature.title}
                   </h3>
@@ -442,7 +428,7 @@ export default function Home() {
 
         {/* Examples - Bolt Style */}
         <section id="examples" className="py-24 px-6">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-wapify-text mb-4">
                 Get Inspired
@@ -487,7 +473,7 @@ export default function Home() {
 
         {/* Final CTA */}
         <section className="py-24 px-6 bg-wapify-panel/30">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-5xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bold text-wapify-text mb-6">
               Ready to Build Something Amazing?
             </h2>
@@ -592,7 +578,7 @@ export default function Home() {
           ></div>
 
           {/* Modal Content */}
-          <div className="relative bg-wapify-panel border-2 border-wapify-border rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto shadow-2xl">
+          <div className="relative bg-wapify-panel border-2 border-wapify-border rounded-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto shadow-2xl">
             {/* Header */}
             <div className="sticky top-0 bg-wapify-panel border-b border-wapify-border px-8 py-6 flex justify-between items-center z-10">
               <div>
