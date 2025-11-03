@@ -42,7 +42,7 @@ export default function CodeGenerationOverlay() {
   }, [])
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/95 backdrop-blur-sm z-50">
+    <div className="absolute inset-0 flex items-center justify-center z-50">
       <div className="w-full max-w-2xl p-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">

@@ -25,6 +25,46 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Create streaming response
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          await handleStreamingChat(controller, encoder, message, conversationHistory, currentCode, projectFiles)
+        } catch (error) {
+          console.error('Streaming error:', error)
+          const errorEvent = { type: 'error', data: { message: 'Failed to process chat' } }
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(errorEvent)}\n\n`))
+          controller.close()
+        }
+      }
+    })
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    })
+  } catch (error) {
+    console.error('Error in chat route:', error)
+    return NextResponse.json(
+      { error: 'Failed to process chat message' },
+      { status: 500 }
+    )
+  }
+}
+
+async function handleStreamingChat(
+  controller: ReadableStreamDefaultController,
+  encoder: TextEncoder,
+  message: string,
+  conversationHistory: any,
+  currentCode: any,
+  projectFiles: any
+) {
+
     // Detect user language
     const detectLanguage = (text: string): string => {
       const frenchWords = ['le', 'la', 'les', 'un', 'une', 'des', 'je', 'tu', 'il', 'elle', 'nous', 'vous', 'ils', 'elles', 'est', 'sont', 'avoir', 'être', 'faire', 'créer', 'modifier', 'ajouter', 'bouton', 'page', 'couleur']
@@ -49,14 +89,20 @@ Ton rôle :
 - Ajouter de nouvelles fonctionnalités
 - Répondre de manière simple et naturelle, SANS jargon technique
 
-IMPORTANT :
-- Réponds en français de manière conversationnelle
-- Sois concis et direct (2-4 phrases maximum)
-- NE RETOURNE JAMAIS DE CODE dans ta réponse
-- Explique simplement ce que tu vas créer ou modifier
-- Ne pose des questions que si vraiment nécessaire pour clarifier
-- N'utilise PAS de termes techniques compliqués
-- Le code sera généré automatiquement après ta réponse
+RÈGLES STRICTES - ABSOLUMENT OBLIGATOIRES :
+1. NE RETOURNE JAMAIS, JAMAIS, JAMAIS DE CODE (ni \`\`\`, ni \`, ni aucun code)
+2. Réponds UNIQUEMENT avec du texte conversationnel en français
+3. Sois concis et direct (2-4 phrases maximum)
+4. Explique simplement ce que tu vas créer ou modifier
+5. Le code sera généré AUTOMATIQUEMENT après ta réponse par un autre système
+6. N'utilise PAS de termes techniques compliqués (API, composants, hooks, etc)
+7. Parle comme si tu expliquais à quelqu'un qui ne connaît pas la programmation
+
+EXEMPLE de bonne réponse:
+"Je vais créer une application de liste de tâches pour toi ! Elle aura une zone pour ajouter des nouvelles tâches, une liste qui affiche toutes tes tâches avec des cases à cocher pour les marquer comme terminées, et un bouton pour supprimer les tâches. Le design sera moderne et épuré avec des couleurs agréables."
+
+MAUVAIS exemple (NE JAMAIS FAIRE):
+"Voici le code: \`\`\`tsx..."
 
 `
       : `You are Wapify AI, an assistant specialized in generating and modifying React applications.
@@ -67,14 +113,20 @@ Your role:
 - Add new features
 - Respond in a simple and natural way, WITHOUT technical jargon
 
-IMPORTANT:
-- Respond in English in a conversational manner
-- Be concise and direct (2-4 sentences maximum)
-- NEVER return code in your response
-- Simply explain what you will create or modify
-- Only ask questions if really necessary for clarification
-- Do NOT use complicated technical terms
-- The code will be generated automatically after your response
+STRICT RULES - ABSOLUTELY MANDATORY:
+1. NEVER, EVER, EVER return code (no \`\`\`, no \`, no code at all)
+2. Respond ONLY with conversational text in English
+3. Be concise and direct (2-4 sentences maximum)
+4. Simply explain what you will create or modify
+5. The code will be generated AUTOMATICALLY after your response by another system
+6. Do NOT use complicated technical terms (API, components, hooks, etc)
+7. Talk as if explaining to someone who doesn't know programming
+
+GOOD example response:
+"I'll create a todo list app for you! It will have an input area to add new tasks, a list displaying all your tasks with checkboxes to mark them as complete, and a delete button. The design will be modern and clean with pleasant colors."
+
+BAD example (NEVER DO THIS):
+"Here's the code: \`\`\`tsx..."
 
 `
 
@@ -128,6 +180,13 @@ Use simple language, no technical jargon. Be concise (3-4 points maximum).`
       thinking = thinkingContent.text
     }
 
+    // Stream the thinking event first
+    const thinkingEvent = {
+      type: 'thinking',
+      data: { thinking }
+    }
+    controller.enqueue(encoder.encode(`data: ${JSON.stringify(thinkingEvent)}\n\n`))
+
     // Build conversation history for Claude
     const messages: Anthropic.MessageParam[] = []
 
@@ -147,44 +206,62 @@ Use simple language, no technical jargon. Be concise (3-4 points maximum).`
       content: message
     })
 
-    // Now call Claude for the actual response
-    const response = await anthropic.messages.create({
+    // Now call Claude with streaming for the actual response
+    const stream = await anthropic.messages.stream({
       model: 'claude-sonnet-4-5',
       max_tokens: 2000,
       system: systemPrompt,
       messages: messages
     })
 
-    const content = response.content[0]
     let aiResponse = ''
 
-    if (content.type === 'text') {
-      aiResponse = content.text
+    // Stream the text token by token
+    for await (const chunk of stream) {
+      if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+        const text = chunk.delta.text
+        aiResponse += text
+
+        // Stream each token to the client
+        const textEvent = {
+          type: 'text_delta',
+          data: { text }
+        }
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(textEvent)}\n\n`))
+      }
     }
+
+    // Remove any code blocks from the final response
+    aiResponse = aiResponse.replace(/```[\s\S]*?```/g, '').trim()
+    aiResponse = aiResponse.replace(/`[^`]+`/g, '').trim()
+
+    // Stream the complete text event
+    const completeTextEvent = {
+      type: 'text_complete',
+      data: { text: aiResponse }
+    }
+    controller.enqueue(encoder.encode(`data: ${JSON.stringify(completeTextEvent)}\n\n`))
 
     // Detect if this is asking for code generation/modification
     const needsCodeGeneration = detectCodeGenerationIntent(message, aiResponse)
 
     // Generate detailed plan if code generation is needed
-    let generationPlan = null
     if (needsCodeGeneration) {
-      generationPlan = await generateDetailedPlan(message, anthropic)
+      const generationPlan = await generateDetailedPlan(message, anthropic)
+
+      if (generationPlan) {
+        const planEvent = {
+          type: 'plan',
+          data: generationPlan
+        }
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(planEvent)}\n\n`))
+      }
     }
 
-    return NextResponse.json({
-      response: aiResponse,
-      thinking: thinking,
-      needsCodeGeneration,
-      generationPlan
-    })
-
-  } catch (error) {
-    console.error('Error in chat:', error)
-    return NextResponse.json(
-      { error: 'Failed to process chat message' },
-      { status: 500 }
-    )
-  }
+    // Close the stream
+    const doneEvent = { type: 'done', data: {} }
+    controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneEvent)}\n\n`))
+    controller.close()
 }
 
 // Detect if the user's message requires actual code generation/modification

@@ -433,7 +433,7 @@ export default function EditorPage() {
     hasSavedGeneration.current = false
 
     try {
-      // First, get AI understanding using conversational chat
+      // First, get AI understanding using conversational chat with streaming
       const thinkingStartTime = Date.now()
       const conversationalResponse = await fetch('/api/conversational-chat', {
         method: 'POST',
@@ -446,25 +446,80 @@ export default function EditorPage() {
         })
       })
 
-      if (conversationalResponse.ok) {
-        const { response: aiResponse, thinking, generationPlan } = await conversationalResponse.json()
-        const thinkingTime = Math.round((Date.now() - thinkingStartTime) / 1000)
+      if (conversationalResponse.ok && conversationalResponse.body) {
+        const reader = conversationalResponse.body.getReader()
+        const decoder = new TextDecoder()
 
-        // Add AI understanding message with thinking
-        const understandingMessage: Message = {
-          role: 'assistant',
-          content: aiResponse,
-          id: `msg-understanding-${Date.now()}`,
-          timestamp: new Date(),
-          thinkingTime: thinkingTime,
-          thinking: thinking
-        }
-        setMessages(prev => [...prev, understandingMessage])
+        let thinking = ''
+        let streamedText = ''
+        let finalText = ''
+        let currentMessageId = `msg-understanding-${Date.now()}`
+        let thinkingTime = 0
 
-        // Show generation plan if available
-        if (generationPlan && generationPlan.tasks) {
-          setGenerationTasks(generationPlan.tasks)
-          setIsPanelExpanded(true)
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value)
+          const lines = chunk.split('\n')
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const event = JSON.parse(line.slice(6))
+
+                if (event.type === 'thinking') {
+                  thinking = event.data.thinking
+                  thinkingTime = Math.round((Date.now() - thinkingStartTime) / 1000)
+
+                  // Create message with thinking immediately
+                  const thinkingMessage: Message = {
+                    role: 'assistant',
+                    content: '',
+                    id: currentMessageId,
+                    timestamp: new Date(),
+                    thinkingTime: thinkingTime,
+                    thinking: thinking
+                  }
+                  setMessages(prev => [...prev, thinkingMessage])
+
+                } else if (event.type === 'text_delta') {
+                  // Stream text token by token
+                  streamedText += event.data.text
+
+                  // Update the message content in real-time
+                  setMessages(prev => prev.map(msg =>
+                    msg.id === currentMessageId
+                      ? { ...msg, content: streamedText }
+                      : msg
+                  ))
+
+                } else if (event.type === 'text_complete') {
+                  finalText = event.data.text
+
+                  // Final update with cleaned text
+                  setMessages(prev => prev.map(msg =>
+                    msg.id === currentMessageId
+                      ? { ...msg, content: finalText }
+                      : msg
+                  ))
+
+                } else if (event.type === 'plan') {
+                  // Show generation plan
+                  setTimeout(() => {
+                    setGenerationTasks(event.data.tasks)
+                    setIsPanelExpanded(true)
+                  }, 300)
+
+                } else if (event.type === 'done') {
+                  // Stream complete
+                  break
+                }
+              } catch (e) {
+                console.error('Error parsing SSE event:', e)
+              }
+            }
+          }
         }
       }
       const currentProjectId = projectId || `proj-${Date.now()}-${Math.random().toString(36).substring(7)}`
@@ -495,6 +550,12 @@ export default function EditorPage() {
             setMessages(prev => [...prev, chatMessage])
           } else if (event.type === 'step') {
             // Update generation steps
+            // Add type checking to ensure event.data.step exists and is a string
+            if (!event.data || typeof event.data.step !== 'string') {
+              console.warn('Invalid step event data:', event.data)
+              return
+            }
+
             setSteps(prev => {
               const existingIndex = prev.findIndex(s => s.step === event.data.step)
               if (existingIndex >= 0) {
@@ -509,26 +570,30 @@ export default function EditorPage() {
             setGenerationTasks(prevTasks => {
               if (prevTasks.length === 0) return prevTasks
 
-              // Map step names to task updates
-              const stepName = event.data.step.toLowerCase()
               const status = event.data.status
+              const newTasks = [...prevTasks]
 
-              return prevTasks.map((task, index) => {
-                // Logic to match steps to tasks
-                // If step is in progress or completed, update corresponding task
-                if (status === 'in_progress') {
-                  // Mark first pending task as in_progress
-                  if (task.status === 'pending') {
-                    return { ...task, status: 'in_progress' }
-                  }
-                } else if (status === 'completed') {
-                  // Mark first in_progress task as completed
-                  if (task.status === 'in_progress') {
-                    return { ...task, status: 'completed' }
+              if (status === 'in_progress') {
+                // Mark FIRST pending task as in_progress
+                const pendingIndex = newTasks.findIndex(t => t.status === 'pending')
+                if (pendingIndex !== -1) {
+                  newTasks[pendingIndex] = { ...newTasks[pendingIndex], status: 'in_progress' }
+                }
+              } else if (status === 'completed') {
+                // Mark FIRST in_progress task as completed
+                const inProgressIndex = newTasks.findIndex(t => t.status === 'in_progress')
+                if (inProgressIndex !== -1) {
+                  newTasks[inProgressIndex] = { ...newTasks[inProgressIndex], status: 'completed' }
+
+                  // Automatically start next pending task
+                  const nextPendingIndex = newTasks.findIndex(t => t.status === 'pending')
+                  if (nextPendingIndex !== -1) {
+                    newTasks[nextPendingIndex] = { ...newTasks[nextPendingIndex], status: 'in_progress' }
                   }
                 }
-                return task
-              })
+              }
+
+              return newTasks
             })
           } else if (event.type === 'substep') {
             lastProgressUpdateTime.current = Date.now()
