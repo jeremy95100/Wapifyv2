@@ -1016,53 +1016,6 @@ export default function EditorPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Toggle Sidebar Button */}
-          <button
-            onClick={() => setIsChatCollapsed(!isChatCollapsed)}
-            className="p-1.5 text-gray-500 hover:bg-gray-200 rounded-md transition-colors"
-            title={isChatCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
-              <path d="M9 3v18"></path>
-              <path d={isChatCollapsed ? "m14 9 3 3-3 3" : "m16 15-3-3 3-3"}></path>
-            </svg>
-          </button>
-
-          {/* Help Button */}
-          <button
-            onClick={() => window.open('mailto:support@wapify.com?subject=Help Request', '_blank')}
-            className="w-7 h-7 rounded-full border-2 border-gray-300 bg-white hover:bg-gray-100 hover:border-gray-400 transition flex items-center justify-center text-sm font-bold text-gray-600"
-            title="Contact Wapify Support"
-          >
-            ?
-          </button>
-
-          {/* Tabs Container */}
-          <div className="inline-flex items-center justify-center bg-gray-100 p-1 text-gray-500 h-7 rounded-lg">
-            <button
-              onClick={() => setActiveView('preview')}
-              className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
-                activeView === 'preview'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              Preview
-            </button>
-
-            <button
-              onClick={() => setActiveView('dashboard')}
-              className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
-                activeView === 'dashboard'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              Dashboard
-            </button>
-          </div>
-
           {lastSaved && (
             <div className="text-xs text-wapify-text-secondary flex items-center gap-2">
               {isSaving ? (
@@ -1264,31 +1217,24 @@ export default function EditorPage() {
                 className="p-1.5 text-gray-500 hover:bg-gray-200 rounded-md transition-colors"
                 title={isChatCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                  <path d="M9 3v18"></path>
+                  <path d={isChatCollapsed ? "m14 9 3 3-3 3" : "m16 15-3-3 3-3"}></path>
                 </svg>
               </button>
 
-              {/* Divider */}
-              <div className="h-6 w-[2px] bg-gray-200"></div>
+              {/* Help Button */}
+              <button
+                onClick={() => window.open('mailto:support@wapify.com?subject=Help Request', '_blank')}
+                className="w-7 h-7 rounded-full border-2 border-gray-300 bg-white hover:bg-gray-100 hover:border-gray-400 transition flex items-center justify-center text-sm font-bold text-gray-600"
+                title="Contact Wapify Support"
+              >
+                ?
+              </button>
 
               {/* Tabs Container */}
               <div className="inline-flex items-center justify-center bg-gray-100 p-1 text-gray-500 h-7 rounded-lg">
-                {/* Dashboard Tab */}
-                <button
-                  onClick={() => setActiveView('dashboard')}
-                  className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
-                    activeView === 'dashboard'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-900'
-                  }`}
-                >
-                  Dashboard
-                </button>
-
-                {/* Divider */}
-                <div className="h-6 w-[2px] bg-gray-200"></div>
-
                 {/* Preview Tab */}
                 <button
                   onClick={() => setActiveView('preview')}
@@ -1300,77 +1246,19 @@ export default function EditorPage() {
                 >
                   Preview
                 </button>
+
+                {/* Dashboard Tab */}
+                <button
+                  onClick={() => setActiveView('dashboard')}
+                  className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
+                    activeView === 'dashboard'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  Dashboard
+                </button>
               </div>
-
-              {/* Divider */}
-              <div className="h-6 w-[2px] bg-gray-200"></div>
-
-              {/* Help Button */}
-              <button
-                onClick={() => window.open('mailto:support@wapify.com?subject=Help Request', '_blank')}
-                className="w-7 h-7 rounded-full border-2 border-gray-300 bg-white hover:bg-gray-100 hover:border-gray-400 transition flex items-center justify-center text-sm font-bold text-gray-600"
-                title="Contact Wapify Support"
-              >
-                ?
-              </button>
-
-              {/* Workspace Monitor */}
-              {activeView === 'preview' && (
-                <div className="relative">
-                  <button
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-sm"
-                    onMouseEnter={() => setShowResourceMonitor(true)}
-                    onMouseLeave={() => setShowResourceMonitor(false)}
-                  >
-                    <span className="text-gray-600">Workspace</span>
-                    <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/>
-                    </svg>
-                  </button>
-
-                  {showResourceMonitor && (
-                    <div className="absolute top-full left-0 mt-2 w-64 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 z-30">
-                      <h3 className="text-sm font-bold text-gray-900 mb-3">Build Resources</h3>
-                      <div className="space-y-3">
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-gray-600">CPU Usage</span>
-                            <span className="text-xs font-semibold text-gray-900">{buildStatus === 'building' ? '65%' : '12%'}</span>
-                          </div>
-                          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div className={`h-full bg-wapify-accent transition-all duration-500`} style={{ width: buildStatus === 'building' ? '65%' : '12%' }}></div>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-gray-600">Memory</span>
-                            <span className="text-xs font-semibold text-gray-900">{buildStatus === 'building' ? '180 MB' : '45 MB'}</span>
-                          </div>
-                          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div className={`h-full bg-green-500 transition-all duration-500`} style={{ width: buildStatus === 'building' ? '45%' : '11%' }}></div>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-gray-600">Status</span>
-                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                              buildStatus === 'completed' ? 'bg-green-100 text-green-700' :
-                              buildStatus === 'building' ? 'bg-blue-100 text-blue-700' :
-                              buildStatus === 'failed' ? 'bg-red-100 text-red-700' :
-                              'bg-gray-100 text-gray-700'
-                            }`}>
-                              {buildStatus === 'completed' ? 'Ready' :
-                               buildStatus === 'building' ? 'Building' :
-                               buildStatus === 'failed' ? 'Failed' :
-                               'Idle'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             {activeView === 'preview' && generatedCode && (
