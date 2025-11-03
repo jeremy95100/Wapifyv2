@@ -1016,6 +1016,53 @@ export default function EditorPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Toggle Sidebar Button */}
+          <button
+            onClick={() => setIsChatCollapsed(!isChatCollapsed)}
+            className="p-1.5 text-gray-500 hover:bg-gray-200 rounded-md transition-colors"
+            title={isChatCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+              <path d="M9 3v18"></path>
+              <path d={isChatCollapsed ? "m14 9 3 3-3 3" : "m16 15-3-3 3-3"}></path>
+            </svg>
+          </button>
+
+          {/* Help Button */}
+          <button
+            onClick={() => window.open('mailto:support@wapify.com?subject=Help Request', '_blank')}
+            className="w-7 h-7 rounded-full border-2 border-gray-300 bg-white hover:bg-gray-100 hover:border-gray-400 transition flex items-center justify-center text-sm font-bold text-gray-600"
+            title="Contact Wapify Support"
+          >
+            ?
+          </button>
+
+          {/* Tabs Container */}
+          <div className="inline-flex items-center justify-center bg-gray-100 p-1 text-gray-500 h-7 rounded-lg">
+            <button
+              onClick={() => setActiveView('preview')}
+              className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
+                activeView === 'preview'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900'
+              }`}
+            >
+              Preview
+            </button>
+
+            <button
+              onClick={() => setActiveView('dashboard')}
+              className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
+                activeView === 'dashboard'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900'
+              }`}
+            >
+              Dashboard
+            </button>
+          </div>
+
           {lastSaved && (
             <div className="text-xs text-wapify-text-secondary flex items-center gap-2">
               {isSaving ? (
@@ -1046,6 +1093,19 @@ export default function EditorPage() {
               >
                 New Project
               </button>
+              {activeView === 'preview' && (
+                <button
+                  onClick={() => {
+                    if (buildUrl) {
+                      window.open(buildUrl, '_blank')
+                    }
+                  }}
+                  disabled={!buildUrl}
+                  className="px-3 py-1.5 bg-wapify-accent text-white rounded-lg font-semibold hover:bg-wapify-accent-dark transition shadow-md disabled:opacity-50 text-sm"
+                >
+                  🚀 Publish
+                </button>
+              )}
             </>
           )}
         </div>
@@ -1121,8 +1181,8 @@ export default function EditorPage() {
                       placeholder={!generatedCode ? "Describe your application..." : "Request a modification..."}
                       className="w-full px-3 py-3 pr-12 bg-transparent text-wapify-text placeholder-wapify-text-secondary focus:outline-none text-sm resize-none"
                       disabled={isGenerating}
-                      rows={6}
-                      style={{ minHeight: '120px' }}
+                      rows={4}
+                      style={{ minHeight: '100px' }}
                     />
 
                     {/* Send Button - Top Right */}
@@ -1141,31 +1201,33 @@ export default function EditorPage() {
                   </div>
 
                   {/* Bottom Action Bar */}
-                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-100">
-                    {/* Attach Button */}
-                    <button
-                      type="button"
-                      className="p-1.5 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition"
-                      title="Attach files"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                    </button>
+                  <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-gray-100">
+                    <div className="flex items-center gap-2">
+                      {/* Attach Button */}
+                      <button
+                        type="button"
+                        className="p-1.5 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition"
+                        title="Attach files"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
 
-                    {/* Settings Button */}
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs"
-                      title="Settings"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </button>
+                      {/* Settings Button */}
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs"
+                        title="Settings"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </button>
+                    </div>
 
-                    {/* Visual Edit Button */}
+                    {/* Visual Edit Button - Moved to right */}
                     <button
                       type="button"
                       className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs font-medium"
@@ -1183,7 +1245,7 @@ export default function EditorPage() {
 
             {/* Resize Handle */}
             <div
-              className="absolute right-0 top-0 bottom-0 w-[2px] bg-gray-200 hover:bg-wapify-accent cursor-col-resize group"
+              className="absolute right-0 top-0 bottom-0 w-[1px] bg-gray-200 hover:bg-wapify-accent cursor-col-resize group"
               onMouseDown={handleMouseDown}
             >
               <div className="absolute inset-y-0 -right-1 -left-1"></div>
