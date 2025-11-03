@@ -14,7 +14,7 @@ export default function Home() {
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false)
   const [isStyleModalOpen, setIsStyleModalOpen] = useState(false)
   const [selectedStyle, setSelectedStyle] = useState('')
-  const [currentIdeas, setCurrentIdeas] = useState<string[]>([])
+  const [currentIdeas, setCurrentIdeas] = useState<Array<{title: string, prompt: string}>>([])
   const router = useRouter()
 
   const typingPhrases = [
@@ -27,31 +27,91 @@ export default function Home() {
   ]
 
   const allIdeas = [
-    "Task manager with drag-and-drop",
-    "Recipe sharing platform",
-    "Fitness tracking app",
-    "Event planning tool",
-    "Budget tracker",
-    "Blog with comments",
-    "Portfolio website",
-    "Job board",
-    "E-commerce store",
-    "Booking system",
-    "Social media dashboard",
-    "Quiz app",
-    "Weather app",
-    "Music player",
-    "Note-taking app",
-    "Chat application",
-    "Survey builder",
-    "Real estate listing",
-    "Restaurant menu",
-    "Gym management system"
+    {
+      title: "Task Manager",
+      prompt: "A task management app with drag-and-drop kanban board, priority labels, due dates, task assignments, and progress tracking"
+    },
+    {
+      title: "Recipe Platform",
+      prompt: "A recipe sharing platform with ingredient lists, step-by-step cooking instructions, user ratings, reviews, and save favorites"
+    },
+    {
+      title: "Fitness Tracker",
+      prompt: "A fitness tracking app with workout logs, exercise library, progress charts, goal setting, and calendar view"
+    },
+    {
+      title: "Event Planner",
+      prompt: "An event planning tool with calendar integration, guest lists, RSVP management, budget tracking, and task checklists"
+    },
+    {
+      title: "Budget Tracker",
+      prompt: "A personal budget tracker with expense categories, income tracking, monthly reports, savings goals, and spending analytics"
+    },
+    {
+      title: "Blog Platform",
+      prompt: "A blog platform with rich text editor, markdown support, comments system, categories, tags, and social media sharing"
+    },
+    {
+      title: "Portfolio Site",
+      prompt: "A portfolio website with project showcase, image gallery, skills section, about page, and contact form"
+    },
+    {
+      title: "Job Board",
+      prompt: "A job board with advanced filters by location and salary, application tracking, company profiles, and saved searches"
+    },
+    {
+      title: "E-commerce Store",
+      prompt: "An e-commerce store with product catalog, shopping cart, checkout flow, payment integration, and order tracking"
+    },
+    {
+      title: "Booking System",
+      prompt: "A booking system with calendar availability, time slot selection, appointment reminders, customer profiles, and booking history"
+    },
+    {
+      title: "Social Dashboard",
+      prompt: "A social media dashboard with post scheduling, analytics charts, engagement metrics, and multi-platform support"
+    },
+    {
+      title: "Quiz App",
+      prompt: "A quiz app with multiple choice questions, timer, score tracking, leaderboard, and quiz categories"
+    },
+    {
+      title: "Weather App",
+      prompt: "A weather app with 7-day forecast, hourly predictions, location search, weather alerts, and interactive maps"
+    },
+    {
+      title: "Music Player",
+      prompt: "A music player with playlist management, audio controls, song search, favorites, and album artwork display"
+    },
+    {
+      title: "Note-Taking App",
+      prompt: "A note-taking app with folders, tags, rich text formatting, code syntax highlighting, and full-text search"
+    },
+    {
+      title: "Chat Application",
+      prompt: "A real-time chat application with group channels, direct messages, file sharing, emoji reactions, and online status"
+    },
+    {
+      title: "Survey Builder",
+      prompt: "A survey builder with custom questions, multiple choice options, conditional logic, response analytics, and export data"
+    },
+    {
+      title: "Real Estate Site",
+      prompt: "A real estate listing site with property search, advanced filters, photo galleries, virtual tours, and agent profiles"
+    },
+    {
+      title: "Restaurant Menu",
+      prompt: "A restaurant menu with dish photos, descriptions, dietary filters (vegan, gluten-free), online ordering, and cart system"
+    },
+    {
+      title: "Gym Management",
+      prompt: "A gym management system with member profiles, class schedules, attendance tracking, payment history, and trainer assignments"
+    }
   ]
 
   const generateRandomIdeas = () => {
     const shuffled = [...allIdeas].sort(() => 0.5 - Math.random())
-    return shuffled.slice(0, 4)
+    return shuffled.slice(0, 5)
   }
 
   useEffect(() => {
@@ -126,7 +186,7 @@ export default function Home() {
         "Neutral color palette with accent colors",
         "Perfect for SaaS, portfolios, and corporate sites"
       ],
-      preview: "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&auto=format&fit=crop&q=80",
+      preview: "https://images.unsplash.com/photo-1618004912476-29818d81ae2e?w=1200&auto=format&fit=crop&q=80",
       color: "from-blue-500/10 to-cyan-500/10",
       styleInstructions: "Use a modern minimalist design with generous whitespace, clean sans-serif typography, subtle animations, and a neutral color palette with accent colors."
     },
@@ -141,7 +201,7 @@ export default function Home() {
         "Modern glassmorphism and blur effects",
         "Ideal for creative agencies and startups"
       ],
-      preview: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=1200&auto=format&fit=crop&q=80",
+      preview: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=1200&auto=format&fit=crop&q=80",
       color: "from-purple-500/10 to-pink-500/10",
       styleInstructions: "Use bold gradient backgrounds with vibrant colors, smooth color transitions, animated elements with hover effects, and modern glassmorphism with blur effects."
     },
@@ -156,7 +216,7 @@ export default function Home() {
         "Reduced eye strain for long sessions",
         "Great for dashboards, dev tools, and gaming"
       ],
-      preview: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
+      preview: "https://images.unsplash.com/photo-1618004652321-13a63e576b80?w=1200&auto=format&fit=crop&q=80",
       color: "from-gray-800/10 to-slate-900/10",
       styleInstructions: "Use a dark mode design with dark backgrounds, neon accent colors for CTAs, high contrast for readability, and strategic highlights."
     },
@@ -171,7 +231,7 @@ export default function Home() {
         "Intentionally rough and direct aesthetic",
         "Perfect for portfolios and bold brands"
       ],
-      preview: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&auto=format&fit=crop&q=80",
+      preview: "https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=1200&auto=format&fit=crop&q=80",
       color: "from-yellow-500/10 to-orange-500/10",
       styleInstructions: "Use a brutalist design with heavy black borders, bold geometric shapes, strong typography hierarchy, and high contrast black and white colors."
     },
@@ -186,7 +246,7 @@ export default function Home() {
         "Modern, clean, and sophisticated look",
         "Excellent for premium and luxury brands"
       ],
-      preview: "https://images.unsplash.com/photo-1559028012-481c04fa702d?w=1200&auto=format&fit=crop&q=80",
+      preview: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200&auto=format&fit=crop&q=80",
       color: "from-teal-500/10 to-emerald-500/10",
       styleInstructions: "Use glassmorphism design with frosted glass blur effects on cards, soft drop shadows, translucent backgrounds with vibrant colors, and depth layers."
     }
@@ -320,7 +380,7 @@ export default function Home() {
 
       <main className="relative z-10">
         {/* Hero Section */}
-        <section className="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 py-16">
+        <section className="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 py-8 pt-32">
           <div className="w-full max-w-5xl mx-auto">
             <div className="text-center mb-10">
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-wapify-text mb-6 leading-[1.1] tracking-tight animate-fadeIn">
@@ -392,34 +452,12 @@ export default function Home() {
                 {currentIdeas.map((idea, index) => (
                   <button
                     key={index}
-                    onClick={() => setPrompt(idea)}
-                    className="px-4 py-2 bg-wapify-panel border border-wapify-border rounded-lg text-sm text-wapify-text-secondary hover:text-wapify-text hover:border-wapify-accent/50 transition"
+                    onClick={() => setPrompt(idea.prompt)}
+                    className="px-4 py-2 bg-wapify-panel border border-wapify-border rounded-lg text-sm text-wapify-text-secondary hover:text-wapify-text hover:border-wapify-accent/50 transition text-left"
                   >
-                    {idea}
+                    {idea.title}
                   </button>
                 ))}
-              </div>
-            </div>
-
-            {/* Benefits bar */}
-            <div className="flex justify-center gap-8 text-sm text-wapify-text-secondary flex-wrap animate-fadeIn mt-8">
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                </svg>
-                <span>No credit card required</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                </svg>
-                <span>Multi-language support</span>
-              </div>
-              <div className="flex items-center gap-2 opacity-60">
-                <kbd className="px-2 py-1 bg-wapify-border/50 rounded text-xs">⌘</kbd>
-                <span>+</span>
-                <kbd className="px-2 py-1 bg-wapify-border/50 rounded text-xs">Enter</kbd>
-                <span>to generate</span>
               </div>
             </div>
           </div>
