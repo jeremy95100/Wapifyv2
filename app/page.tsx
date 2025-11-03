@@ -345,18 +345,28 @@ export default function Home() {
       {isInputSticky && (
         <div className="fixed top-20 left-0 right-0 z-40 px-6 py-4 bg-wapify-panel/95 backdrop-blur-md border-b border-wapify-border animate-fadeIn">
           <div className="max-w-4xl mx-auto flex items-center gap-4">
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="What are you building?"
-              className="flex-1 min-h-[50px] bg-wapify-bg border border-wapify-border rounded-xl px-4 py-3 outline-none text-wapify-text placeholder-wapify-text-secondary/50 resize-none text-sm focus:border-wapify-accent transition"
-              rows={1}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                  handleGenerate()
-                }
-              }}
-            />
+            <div className="flex-1 flex items-center gap-2">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="What are you building?"
+                className="flex-1 min-h-[50px] bg-wapify-bg border border-wapify-border rounded-xl px-4 py-3 outline-none text-wapify-text placeholder-wapify-text-secondary/50 resize-none text-sm focus:border-wapify-accent transition"
+                rows={1}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                    handleGenerate()
+                  }
+                }}
+              />
+              {selectedStyle && (
+                <button
+                  onClick={() => setIsStyleModalOpen(true)}
+                  className="px-3 py-2 bg-wapify-accent/10 border border-wapify-accent/30 rounded-lg text-xs font-semibold text-wapify-accent hover:bg-wapify-accent/20 transition whitespace-nowrap"
+                >
+                  ✨ {designStyles.find(s => s.id === selectedStyle)?.name}
+                </button>
+              )}
+            </div>
             <button
               onClick={handleGenerate}
               disabled={!prompt.trim()}
@@ -406,13 +416,20 @@ export default function Home() {
               </div>
 
               <div className="flex items-center justify-between gap-4 flex-wrap">
-                <button
-                  onClick={() => setIsStyleModalOpen(true)}
-                  className="flex items-center gap-2 text-sm text-wapify-accent hover:text-wapify-accent-dark transition font-semibold"
-                >
-                  <span>✨</span>
-                  <span>Choose your style</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setIsStyleModalOpen(true)}
+                    className="flex items-center gap-2 text-sm text-wapify-accent hover:text-wapify-accent-dark transition font-semibold"
+                  >
+                    <span>✨</span>
+                    <span>Choose your style</span>
+                  </button>
+                  {selectedStyle && (
+                    <span className="px-3 py-1 bg-wapify-accent/10 border border-wapify-accent/30 rounded-lg text-xs font-semibold text-wapify-accent">
+                      {designStyles.find(s => s.id === selectedStyle)?.name}
+                    </span>
+                  )}
+                </div>
 
                 <button
                   onClick={handleGenerate}
