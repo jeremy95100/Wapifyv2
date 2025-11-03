@@ -1039,30 +1039,6 @@ export default function EditorPage() {
               <path d="M14 8L11 12L14 16" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
-
-          {/* Tabs Container */}
-          <div className="inline-flex bg-wapify-panel border border-wapify-border rounded-lg overflow-hidden">
-            <button
-              onClick={() => setActiveView('preview')}
-              className={`px-3 py-1.5 text-xs font-semibold transition ${
-                activeView === 'preview'
-                  ? 'bg-wapify-accent text-white'
-                  : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
-              }`}
-            >
-              Preview
-            </button>
-            <button
-              onClick={() => setActiveView('dashboard')}
-              className={`px-3 py-1.5 text-xs font-semibold transition border-l border-wapify-border ${
-                activeView === 'dashboard'
-                  ? 'bg-wapify-accent text-white'
-                  : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
-              }`}
-            >
-              Dashboard
-            </button>
-          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -1280,6 +1256,34 @@ export default function EditorPage() {
         <div className="flex-1 flex flex-col bg-wapify-bg relative z-0">
           {/* Content Area */}
           <div className="flex-1 relative overflow-hidden">
+            {/* Floating Device View Buttons - Center of Preview */}
+            {generatedCode && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-2 bg-wapify-panel border-2 border-wapify-border rounded-xl p-2 shadow-2xl">
+                <button
+                  onClick={() => setDeviceView('desktop')}
+                  className={`p-3 rounded-lg transition ${
+                    deviceView === 'desktop' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+                  }`}
+                  title="Desktop View"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 14h14v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setDeviceView('mobile')}
+                  className={`p-3 rounded-lg transition ${
+                    deviceView === 'mobile' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+                  }`}
+                  title="Mobile View"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M7 3a2 2 0 00-2 2v10a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2H7zm3 12a1 1 0 100-2 1 1 0 000 2z" />
+                  </svg>
+                </button>
+              </div>
+            )}
+
             {activeView === 'preview' ? (
               <>
                 {generatedCode ? (
@@ -1329,34 +1333,6 @@ export default function EditorPage() {
                         ) : (
                           <div className="animate-spin rounded-full h-12 w-12 border-4 border-wapify-accent border-t-transparent"></div>
                         )}
-                      </div>
-
-                      {/* Device View Selector - Bottom Center */}
-                      <div className="flex items-center justify-center pb-4 pt-2">
-                        <div className="flex items-center gap-1 bg-wapify-panel border-2 border-wapify-border rounded-lg p-1 shadow-lg">
-                          <button
-                            onClick={() => setDeviceView('mobile')}
-                            className={`p-2 rounded transition ${
-                              deviceView === 'mobile' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
-                            }`}
-                            title="Mobile"
-                          >
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M7 3a2 2 0 00-2 2v10a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2H7zm3 12a1 1 0 100-2 1 1 0 000 2z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => setDeviceView('desktop')}
-                            className={`p-2 rounded transition ${
-                              deviceView === 'desktop' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
-                            }`}
-                            title="Desktop"
-                          >
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 14h14v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" />
-                            </svg>
-                          </button>
-                        </div>
                       </div>
                     </div>
                   ) : (
