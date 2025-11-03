@@ -12,6 +12,8 @@ export default function Home() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [loopNum, setLoopNum] = useState(0)
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false)
+  const [isStyleModalOpen, setIsStyleModalOpen] = useState(false)
+  const [selectedStyle, setSelectedStyle] = useState('')
   const router = useRouter()
 
   const typingPhrases = [
@@ -61,6 +63,44 @@ export default function Home() {
       router.push(`/editor?prompt=${encodeURIComponent(prompt)}`)
     }
   }
+
+  const designStyles = [
+    {
+      id: "modern",
+      name: "Modern Minimalist",
+      description: "Clean lines, ample white space, and a focus on typography. Perfect for professional and elegant applications.",
+      preview: "/previews/modern.png",
+      color: "from-blue-500/20 to-cyan-500/20"
+    },
+    {
+      id: "gradient",
+      name: "Gradient & Vibrant",
+      description: "Bold colors, smooth gradients, and eye-catching animations. Ideal for creative and energetic brands.",
+      preview: "/previews/gradient.png",
+      color: "from-purple-500/20 to-pink-500/20"
+    },
+    {
+      id: "dark",
+      name: "Dark Mode",
+      description: "Sleek dark theme with neon accents. Great for tech products and modern dashboards.",
+      preview: "/previews/dark.png",
+      color: "from-gray-700/20 to-gray-900/20"
+    },
+    {
+      id: "brutalist",
+      name: "Brutalist",
+      description: "Raw, bold, and unapologetically direct. Strong borders, heavy fonts, and high contrast.",
+      preview: "/previews/brutalist.png",
+      color: "from-yellow-500/20 to-orange-500/20"
+    },
+    {
+      id: "glassmorphism",
+      name: "Glassmorphism",
+      description: "Frosted glass effects, soft shadows, and translucent layers. Modern and sophisticated.",
+      preview: "/previews/glass.png",
+      color: "from-teal-500/20 to-emerald-500/20"
+    }
+  ]
 
   const examples = [
     {
@@ -199,8 +239,8 @@ export default function Home() {
                 </span>
               </div>
 
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-wapify-text mb-8 leading-[1.1] tracking-tight animate-fadeIn">
-                Build Apps in <span className="text-wapify-accent">Minutes</span>, Not Months
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-wapify-text mb-8 leading-[1.1] tracking-tight animate-fadeIn whitespace-nowrap">
+                Build Apps in <span className="text-wapify-accent">Minutes</span>
               </h1>
 
               <p className="text-xl md:text-2xl text-wapify-text-secondary mb-16 max-w-3xl mx-auto leading-relaxed animate-fadeIn">
@@ -233,9 +273,13 @@ export default function Home() {
               </div>
 
               <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-2 text-sm text-wapify-text-secondary">
-                  <span className="opacity-70">💡 Pro tip: Be specific about features</span>
-                </div>
+                <button
+                  onClick={() => setIsStyleModalOpen(true)}
+                  className="flex items-center gap-2 text-sm text-wapify-accent hover:text-wapify-accent-dark transition font-semibold"
+                >
+                  <span>🎨</span>
+                  <span>Choose your style</span>
+                </button>
 
                 <button
                   onClick={handleGenerate}
@@ -267,31 +311,6 @@ export default function Home() {
                 <span>+</span>
                 <kbd className="px-2 py-1 bg-wapify-border/50 rounded text-xs">Enter</kbd>
                 <span>to generate</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="py-16 px-6 bg-wapify-panel/30">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-8">
-              <div className="text-center p-8 bg-wapify-panel/60 backdrop-blur-sm rounded-2xl border-2 border-wapify-border">
-                <div className="text-5xl md:text-6xl font-black text-wapify-accent mb-2">
-                  1,000+
-                </div>
-                <div className="text-lg text-wapify-text-secondary font-semibold">
-                  Apps Built
-                </div>
-              </div>
-
-              <div className="text-center p-8 bg-wapify-panel/60 backdrop-blur-sm rounded-2xl border-2 border-wapify-border">
-                <div className="text-5xl md:text-6xl font-black text-wapify-accent mb-2">
-                  &lt;5min
-                </div>
-                <div className="text-lg text-wapify-text-secondary font-semibold">
-                  Average Build Time
-                </div>
               </div>
             </div>
           </div>
@@ -562,6 +581,98 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Style Selector Modal */}
+      {isStyleModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsStyleModalOpen(false)}
+          ></div>
+
+          {/* Modal Content */}
+          <div className="relative bg-wapify-panel border-2 border-wapify-border rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            {/* Header */}
+            <div className="sticky top-0 bg-wapify-panel border-b border-wapify-border px-8 py-6 flex justify-between items-center z-10">
+              <div>
+                <h2 className="text-3xl font-black text-wapify-text mb-2">Choose Your Style</h2>
+                <p className="text-sm text-wapify-text-secondary">Select a design style for your app</p>
+              </div>
+              <button
+                onClick={() => setIsStyleModalOpen(false)}
+                className="w-10 h-10 rounded-xl bg-wapify-bg hover:bg-wapify-border transition flex items-center justify-center text-wapify-text-secondary hover:text-wapify-text"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Styles Grid */}
+            <div className="p-8 space-y-6">
+              {designStyles.map((style) => (
+                <div
+                  key={style.id}
+                  className={`border-2 rounded-2xl overflow-hidden transition-all ${
+                    selectedStyle === style.id
+                      ? 'border-wapify-accent shadow-xl'
+                      : 'border-wapify-border hover:border-wapify-accent/50'
+                  }`}
+                >
+                  <div className="grid md:grid-cols-2 gap-8 p-8">
+                    {/* Left: Description */}
+                    <div className="flex flex-col justify-center">
+                      <h3 className="text-2xl font-bold text-wapify-text mb-4">
+                        {style.name}
+                      </h3>
+                      <p className="text-wapify-text-secondary leading-relaxed mb-6">
+                        {style.description}
+                      </p>
+                      <button
+                        onClick={() => {
+                          setSelectedStyle(style.id)
+                          setIsStyleModalOpen(false)
+                        }}
+                        className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                          selectedStyle === style.id
+                            ? 'bg-wapify-accent text-white'
+                            : 'bg-wapify-bg text-wapify-text hover:bg-wapify-accent hover:text-white'
+                        }`}
+                      >
+                        {selectedStyle === style.id ? '✓ Selected' : 'Choose this style'}
+                      </button>
+                    </div>
+
+                    {/* Right: Preview */}
+                    <div className={`bg-gradient-to-br ${style.color} rounded-xl p-8 flex items-center justify-center min-h-[300px] border-2 border-wapify-border`}>
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">🎨</div>
+                        <p className="text-sm text-wapify-text-secondary font-semibold">
+                          Preview coming soon
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="sticky bottom-0 bg-wapify-panel border-t border-wapify-border px-8 py-6">
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-wapify-text-secondary">
+                  {selectedStyle ? `Selected: ${designStyles.find(s => s.id === selectedStyle)?.name}` : 'No style selected (default will be used)'}
+                </p>
+                <button
+                  onClick={() => setIsStyleModalOpen(false)}
+                  className="px-6 py-3 bg-wapify-bg hover:bg-wapify-border text-wapify-text rounded-xl font-semibold transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
