@@ -505,11 +505,11 @@ export default function EditorPage() {
                   ))
 
                 } else if (event.type === 'plan') {
-                  // Show generation plan
-                  setTimeout(() => {
-                    setGenerationTasks(event.data.tasks)
-                    setIsPanelExpanded(true)
-                  }, 300)
+                  // Temporarily disabled - plan generation not working correctly
+                  // setTimeout(() => {
+                  //   setGenerationTasks(event.data.tasks)
+                  //   setIsPanelExpanded(true)
+                  // }, 300)
 
                 } else if (event.type === 'done') {
                   // Stream complete
@@ -550,20 +550,26 @@ export default function EditorPage() {
             setMessages(prev => [...prev, chatMessage])
           } else if (event.type === 'step') {
             // Update generation steps
-            // Add type checking to ensure event.data.step exists and is a string
-            if (!event.data || typeof event.data.step !== 'string') {
+            // Add type checking to ensure event.data exists
+            if (!event.data) {
               console.warn('Invalid step event data:', event.data)
               return
             }
 
+            // Convert step to string if it's a number
+            const stepData = {
+              ...event.data,
+              step: String(event.data.step)
+            }
+
             setSteps(prev => {
-              const existingIndex = prev.findIndex(s => s.step === event.data.step)
+              const existingIndex = prev.findIndex(s => s.step === stepData.step)
               if (existingIndex >= 0) {
                 const newSteps = [...prev]
-                newSteps[existingIndex] = event.data
+                newSteps[existingIndex] = stepData
                 return newSteps
               }
-              return [...prev, event.data]
+              return [...prev, stepData]
             })
 
             // Update generation tasks in the plan based on step events
@@ -652,13 +658,7 @@ export default function EditorPage() {
         prevTasks.map(task => ({ ...task, status: 'completed' as const }))
       )
 
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: 'Application generated successfully! You can see it in the preview and request modifications.',
-        id: `msg-${Date.now()}`,
-        timestamp: new Date()
-      }
-      setMessages(prev => [...prev, assistantMessage])
+      // Don't add success message - the AI already provided a conversational response
 
     } catch (err) {
       console.error('Generation error:', err)
@@ -849,7 +849,7 @@ export default function EditorPage() {
       // Track thinking time
       const thinkingStartTime = Date.now()
 
-      // First, call conversational endpoint to get AI response
+      // First, call conversational endpoint to get AI response with streaming
       const conversationalResponse = await fetch('/api/conversational-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -865,38 +865,78 @@ export default function EditorPage() {
         throw new Error('Communication error with AI')
       }
 
-      const { response: aiResponse, thinking, needsCodeGeneration, generationPlan } = await conversationalResponse.json()
+      // Handle streaming response
+      if (conversationalResponse.body) {
+        const reader = conversationalResponse.body.getReader()
+        const decoder = new TextDecoder()
 
-      // Calculate thinking time
-      const thinkingTime = Math.round((Date.now() - thinkingStartTime) / 1000)
+        let thinking = ''
+        let streamedText = ''
+        let finalText = ''
+        let currentMessageId = `msg-understanding-${Date.now()}`
 
-      // Add AI conversational response
-      const aiMessage: Message = {
-        role: 'assistant',
-        content: aiResponse,
-        id: `msg-${Date.now()}`,
-        timestamp: new Date(),
-        thinkingTime: thinkingTime,
-        thinking: thinking // What the AI understood
-      }
-      setMessages(prev => [...prev, aiMessage])
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
 
-      // If AI determines code generation is needed, show the plan
-      if (needsCodeGeneration) {
-        // Set generation tasks from plan
-        if (generationPlan && generationPlan.tasks) {
-          setGenerationTasks(generationPlan.tasks)
-          setIsPanelExpanded(true)
+          const chunk = decoder.decode(value)
+          const lines = chunk.split('\n')
 
-          // TODO: Implement actual code modification via proper API
-          // For now, just show the plan
-          const planMessage: Message = {
-            role: 'assistant',
-            content: 'Voici ce que je vais créer pour vous. Le système de modification est en cours de finalisation.',
-            id: `msg-${Date.now()}`,
-            timestamp: new Date()
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const event = JSON.parse(line.slice(6))
+
+                if (event.type === 'thinking') {
+                  thinking = event.data.thinking
+                  const thinkingTime = Math.round((Date.now() - thinkingStartTime) / 1000)
+
+                  // Create message with thinking immediately
+                  const thinkingMessage: Message = {
+                    role: 'assistant',
+                    content: '',
+                    id: currentMessageId,
+                    timestamp: new Date(),
+                    thinkingTime: thinkingTime,
+                    thinking: thinking
+                  }
+                  setMessages(prev => [...prev, thinkingMessage])
+
+                } else if (event.type === 'text_delta') {
+                  // Stream text token by token
+                  streamedText += event.data.text
+
+                  // Update the message content in real-time
+                  setMessages(prev => prev.map(msg =>
+                    msg.id === currentMessageId
+                      ? { ...msg, content: streamedText }
+                      : msg
+                  ))
+
+                } else if (event.type === 'text_complete') {
+                  finalText = event.data.text
+
+                  // Final update with cleaned text
+                  setMessages(prev => prev.map(msg =>
+                    msg.id === currentMessageId
+                      ? { ...msg, content: finalText }
+                      : msg
+                  ))
+
+                } else if (event.type === 'plan') {
+                  // Temporarily disabled - plan not working correctly
+                  // setGenerationTasks(event.data.tasks)
+                  // setIsPanelExpanded(true)
+
+                } else if (event.type === 'done') {
+                  // Stream complete
+                  break
+                }
+              } catch (e) {
+                console.error('Error parsing SSE event:', e)
+              }
+            }
           }
-          setMessages(prev => [...prev, planMessage])
         }
       }
     } catch (err) {
