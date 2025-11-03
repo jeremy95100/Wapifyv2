@@ -92,7 +92,7 @@ IMPORTANT:
       : `Analyze this request and briefly explain what you understood (2-3 sentences max, simple language):\n\n"${message}"\n\nRespond only with your analysis, no formalities.`
 
     const thinkingResponse = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20250219',
+      model: 'claude-sonnet-4-5',
       max_tokens: 200,
       messages: [{
         role: 'user',
@@ -127,7 +127,7 @@ IMPORTANT:
 
     // Now call Claude for the actual response
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20250219',
+      model: 'claude-sonnet-4-5',
       max_tokens: 2000,
       system: systemPrompt,
       messages: messages
@@ -286,7 +286,7 @@ Exemple pour "créer une app de blog":
 }`
 
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20250219',
+      model: 'claude-sonnet-4-5',
       max_tokens: 1500,
       messages: [{
         role: 'user',
