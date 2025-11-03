@@ -924,7 +924,7 @@ export default function EditorPage() {
 
       {/* Top Navigation */}
       <nav className="h-14 bg-wapify-panel border-b-2 border-wapify-border flex items-center justify-between px-4 flex-shrink-0 relative z-50">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-1">
           {!isChatCollapsed && (
             <>
               {/* Wapify Logo Dropdown */}
@@ -1015,11 +1015,11 @@ export default function EditorPage() {
               <div className="flex items-center gap-2 px-3 py-1.5 bg-wapify-bg rounded-lg">
                 <span className="text-sm font-semibold text-wapify-text">{projectName || 'Untitled Project'}</span>
               </div>
-
-              {/* Divider */}
-              <div className="h-8 w-[1px] bg-wapify-border"></div>
             </>
           )}
+
+          {/* Spacer - Push controls to align with preview area */}
+          <div style={{ width: isChatCollapsed ? '0px' : `${chatWidth - 300}px` }}></div>
 
           {/* Toggle Sidebar Button */}
           <button
