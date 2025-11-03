@@ -83,16 +83,73 @@ Demande de modification: ${modification}
           }
 
           console.log('Modified code length:', modifiedCode.length)
+          console.log('Is multi-file project:', isMultiFile)
 
-          // Send completion event
-          const completeEvent = {
-            type: 'complete',
-            data: {
-              code: modifiedCode,
-              isMultiFile: false
+          // For multi-file projects, we need to handle modifications differently
+          if (isMultiFile && projectFiles && projectFiles.length > 0) {
+            console.log('Processing multi-file modification')
+
+            // Ask Claude which file was modified and return all files with the modification
+            const fileIdentificationPrompt = `Based on the user's modification request: "${modification}"
+
+Which file should be modified? Return ONLY the file path from this list:
+${projectFiles.map((f: any) => f.path).join('\n')}
+
+If it's a style/color change, it's likely in: src/App.tsx or src/index.css
+If it's about adding features, it's likely in: src/App.tsx or relevant component files
+
+Return ONLY the file path, nothing else.`
+
+            const fileIdentification = await anthropic.messages.create({
+              model: 'claude-sonnet-4-5',
+              max_tokens: 100,
+              messages: [{
+                role: 'user',
+                content: fileIdentificationPrompt
+              }]
+            })
+
+            let targetFilePath = 'src/App.tsx' // Default
+            const fileContent = fileIdentification.content[0]
+            if (fileContent.type === 'text') {
+              targetFilePath = fileContent.text.trim()
+              console.log('Target file identified:', targetFilePath)
             }
+
+            // Update the target file with the modified code
+            const updatedFiles = projectFiles.map((file: any) => {
+              if (file.path === targetFilePath) {
+                return {
+                  ...file,
+                  content: modifiedCode
+                }
+              }
+              return file
+            })
+
+            console.log('Updated files count:', updatedFiles.length)
+
+            // Send completion event with updated files
+            const completeEvent = {
+              type: 'complete',
+              data: {
+                files: updatedFiles,
+                isMultiFile: true
+              }
+            }
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(completeEvent)}\n\n`))
+          } else {
+            // Single-file project
+            console.log('Processing single-file modification')
+            const completeEvent = {
+              type: 'complete',
+              data: {
+                code: modifiedCode,
+                isMultiFile: false
+              }
+            }
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(completeEvent)}\n\n`))
           }
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(completeEvent)}\n\n`))
 
           controller.close()
         } catch (error) {
