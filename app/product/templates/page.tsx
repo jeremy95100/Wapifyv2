@@ -175,8 +175,10 @@ export default function TemplatesPage() {
           {/* Custom Design CTA */}
           <div className="max-w-4xl mx-auto">
             <div className="bg-gradient-to-br from-wapify-accent/10 to-wapify-accent-dark/10 border-2 border-wapify-accent rounded-2xl p-12 text-center">
-              <div className="w-16 h-16 bg-wapify-accent rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg">
-                ✨
+              <div className="w-16 h-16 bg-wapify-accent rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg text-white">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
               </div>
               <h2 className="text-3xl font-black text-wapify-text mb-4">
                 Don't See What You Want?

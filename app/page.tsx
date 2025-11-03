@@ -256,28 +256,44 @@ export default function Home() {
       title: "Analytics Dashboard",
       description: "Real-time charts, KPI cards, and data tables with filtering",
       prompt: "A modern analytics dashboard with real-time charts showing revenue trends, KPI cards for key metrics, and a data table with search and filters",
-      icon: "📊",
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
       color: "from-blue-500/20 to-purple-500/20"
     },
     {
       title: "E-commerce Store",
       description: "Product catalog, shopping cart, and checkout flow",
       prompt: "An e-commerce product page with image gallery, add to cart, product variations, reviews section, and related products",
-      icon: "🛍️",
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        </svg>
+      ),
       color: "from-green-500/20 to-emerald-500/20"
     },
     {
       title: "Task Manager",
       description: "Kanban board with drag-and-drop and filters",
       prompt: "A task management app with drag and drop kanban board, task details modal, priority labels, and team member assignments",
-      icon: "✅",
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+      ),
       color: "from-orange-500/20 to-red-500/20"
     },
     {
       title: "SaaS Landing Page",
       description: "Modern landing with features, pricing, and testimonials",
       prompt: "A landing page for a SaaS product with hero section, features grid, pricing table, customer testimonials, and FAQ section",
-      icon: "🚀",
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      ),
       color: "from-purple-500/20 to-pink-500/20"
     }
   ]
@@ -292,8 +308,10 @@ export default function Home() {
         <div className="w-full px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center text-xl shadow-lg">
-                ⚡
+              <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center shadow-lg text-white">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
               </div>
               <span className="text-2xl font-bold text-wapify-text">Wapify</span>
             </Link>
@@ -371,9 +389,12 @@ export default function Home() {
                 <div className="flex items-center gap-1 px-3 py-2 bg-wapify-accent/10 border border-wapify-accent/30 rounded-lg">
                   <button
                     onClick={() => setIsStyleModalOpen(true)}
-                    className="text-xs font-semibold text-wapify-accent hover:text-wapify-accent-dark transition whitespace-nowrap"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-wapify-accent hover:text-wapify-accent-dark transition whitespace-nowrap"
                   >
-                    ✨ {designStyles.find(s => s.id === selectedStyle)?.name}
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                    {designStyles.find(s => s.id === selectedStyle)?.name}
                   </button>
                   <button
                     onClick={() => setSelectedStyle('')}
@@ -439,7 +460,9 @@ export default function Home() {
                     onClick={() => setIsStyleModalOpen(true)}
                     className="flex items-center gap-2 text-sm text-wapify-accent hover:text-wapify-accent-dark transition font-semibold"
                   >
-                    <span>✨</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
                     <span>Choose your style</span>
                   </button>
                   {selectedStyle && (
@@ -930,8 +953,10 @@ export default function Home() {
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center text-xl shadow-lg">
-                  ⚡
+                <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center shadow-lg text-white">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
                 </div>
                 <span className="text-2xl font-bold text-wapify-text">Wapify</span>
               </div>

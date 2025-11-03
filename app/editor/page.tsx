@@ -1153,22 +1153,27 @@ export default function EditorPage() {
                       </svg>
                     </button>
 
-                    {/* Settings Button with emoji */}
+                    {/* Settings Button */}
                     <button
                       type="button"
                       className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs"
                       title="Settings"
                     >
-                      <span>⚙️</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
                     </button>
 
-                    {/* Visual Edit Button with emoji */}
+                    {/* Visual Edit Button */}
                     <button
                       type="button"
                       className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs font-medium"
                       title="Visual Edit"
                     >
-                      <span>✏️</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
                       <span>Visual Edit</span>
                     </button>
                   </div>
@@ -1363,9 +1368,12 @@ export default function EditorPage() {
                                   triggerBuild(projectFiles, `temp-${Date.now()}`)
                                 }
                               }}
-                              className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition shadow-md"
+                              className="flex items-center gap-2 px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition shadow-md"
                             >
-                              🔄 Retry
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                              Retry
                             </button>
                           </div>
                         ) : (
@@ -1413,7 +1421,9 @@ export default function EditorPage() {
                 ) : (
                   <div className="flex items-center justify-center h-full text-center p-8">
                     <div>
-                      <div className="text-6xl mb-4 opacity-50">🚀</div>
+                      <svg className="w-24 h-24 mx-auto mb-4 text-wapify-accent opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
                       <h3 className="text-2xl font-bold text-wapify-text mb-2">Ready to Build?</h3>
                       <p className="text-wapify-text-secondary max-w-md">
                         Describe your app in the chat and AI will automatically choose the best framework and style
@@ -1518,28 +1528,36 @@ export default function EditorPage() {
               <div className="w-full h-full flex items-center justify-center bg-wapify-bg p-8">
                 <div className="max-w-4xl w-full">
                   <div className="text-center mb-8">
-                    <div className="text-6xl mb-4">📊</div>
+                    <svg className="w-24 h-24 mx-auto mb-4 text-wapify-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
                     <h2 className="text-3xl font-bold text-wapify-text mb-2">Dashboard</h2>
                     <p className="text-wapify-text-secondary">Coming soon - Monitor your app's performance and analytics</p>
                   </div>
 
                   <div className="grid md:grid-cols-3 gap-6">
                     <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-6 text-center">
-                      <div className="text-3xl mb-3">🚀</div>
+                      <svg className="w-12 h-12 mx-auto mb-3 text-wapify-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
                       <h3 className="text-lg font-bold text-wapify-text mb-1">Deployments</h3>
                       <p className="text-2xl font-bold text-wapify-accent mb-2">-</p>
                       <p className="text-xs text-wapify-text-secondary">Total builds</p>
                     </div>
 
                     <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-6 text-center">
-                      <div className="text-3xl mb-3">👥</div>
+                      <svg className="w-12 h-12 mx-auto mb-3 text-wapify-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
                       <h3 className="text-lg font-bold text-wapify-text mb-1">Users</h3>
                       <p className="text-2xl font-bold text-wapify-accent mb-2">-</p>
                       <p className="text-xs text-wapify-text-secondary">Active users</p>
                     </div>
 
                     <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-6 text-center">
-                      <div className="text-3xl mb-3">⚡</div>
+                      <svg className="w-12 h-12 mx-auto mb-3 text-wapify-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
                       <h3 className="text-lg font-bold text-wapify-text mb-1">Performance</h3>
                       <p className="text-2xl font-bold text-wapify-accent mb-2">-</p>
                       <p className="text-xs text-wapify-text-secondary">Avg load time</p>

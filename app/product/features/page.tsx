@@ -8,73 +8,121 @@ export default function FeaturesPage() {
 
   const features = [
     {
-      icon: '🤖',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      ),
       title: 'AI-Powered Generation',
       description: 'Describe your app in plain English, and our AI creates production-ready code instantly.',
       highlights: ['Natural language input', 'Smart code generation', 'Context-aware suggestions']
     },
     {
-      icon: '💻',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+        </svg>
+      ),
       title: 'Full-Stack Applications',
       description: 'Build complete applications with frontend, backend, and database - all in one place.',
       highlights: ['React/Next.js frontend', 'Node.js backend', 'PostgreSQL database']
     },
     {
-      icon: '🎨',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>
+      ),
       title: 'Beautiful Design System',
       description: 'Choose from professional design styles or describe your own custom look.',
       highlights: ['6+ pre-built styles', 'Custom designs', 'Responsive by default']
     },
     {
-      icon: '⚡',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      ),
       title: 'Instant Deployment',
       description: 'Your app goes live immediately with hosting, SSL, and global CDN included.',
       highlights: ['One-click deploy', 'Free SSL certificates', 'Global edge network']
     },
     {
-      icon: '🔧',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+      ),
       title: 'Browser IDE',
       description: 'Edit code, manage files, and preview changes in real-time without leaving your browser.',
       highlights: ['Syntax highlighting', 'File management', 'Live preview']
     },
     {
-      icon: '🔄',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      ),
       title: 'Real-time Collaboration',
       description: 'Work together with your team in real-time on shared projects.',
       highlights: ['Live editing', 'Team permissions', 'Project sharing']
     },
     {
-      icon: '🌐',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+        </svg>
+      ),
       title: 'Custom Domains',
       description: 'Connect your own domain name with just a few clicks.',
       highlights: ['Easy DNS setup', 'Automatic SSL', 'Domain verification']
     },
     {
-      icon: '🔌',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+        </svg>
+      ),
       title: 'Integrations',
       description: 'Connect with popular services and APIs to extend your app\'s functionality.',
       highlights: ['Payment gateways', 'Email services', 'Analytics tools']
     },
     {
-      icon: '💻',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      ),
       title: 'Responsive Design',
       description: 'Every app works perfectly on desktop, tablet, and mobile devices.',
       highlights: ['Mobile-first', 'Adaptive layouts', 'Touch-optimized']
     },
     {
-      icon: '🔒',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      ),
       title: 'Built-in Authentication',
       description: 'Add user authentication with just a prompt - no complex setup required.',
       highlights: ['Email/password', 'Social login', 'JWT tokens']
     },
     {
-      icon: '📊',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+        </svg>
+      ),
       title: 'Database Management',
       description: 'Automatically create and manage databases with an intuitive interface.',
       highlights: ['PostgreSQL', 'Schema generation', 'Data browser']
     },
     {
-      icon: '🚀',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+        </svg>
+      ),
       title: 'Export Source Code',
       description: 'Download your complete source code and host it anywhere you want.',
       highlights: ['Full code access', 'No vendor lock-in', 'Self-hosting ready']
@@ -167,7 +215,7 @@ export default function FeaturesPage() {
                 key={index}
                 className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-8 hover:border-wapify-accent/50 transition-all hover:scale-105"
               >
-                <div className="w-14 h-14 bg-wapify-accent/10 rounded-xl flex items-center justify-center text-3xl mb-4">
+                <div className="w-14 h-14 bg-wapify-accent/10 rounded-xl flex items-center justify-center mb-4 text-wapify-accent">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-bold text-wapify-text mb-3">{feature.title}</h3>

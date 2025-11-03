@@ -9,7 +9,11 @@ export default function IntegrationsPage() {
   const integrations = [
     {
       category: 'Payments',
-      icon: '💳',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+      ),
       items: [
         { name: 'Stripe', description: 'Accept payments and manage subscriptions' },
         { name: 'PayPal', description: 'Global payment processing' },
@@ -18,7 +22,11 @@ export default function IntegrationsPage() {
     },
     {
       category: 'Authentication',
-      icon: '🔐',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      ),
       items: [
         { name: 'Auth0', description: 'Enterprise authentication platform' },
         { name: 'Google OAuth', description: 'Sign in with Google' },
@@ -27,7 +35,11 @@ export default function IntegrationsPage() {
     },
     {
       category: 'Email',
-      icon: '📧',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      ),
       items: [
         { name: 'SendGrid', description: 'Email delivery and marketing' },
         { name: 'Mailgun', description: 'Transactional email API' },
@@ -36,7 +48,11 @@ export default function IntegrationsPage() {
     },
     {
       category: 'Analytics',
-      icon: '📊',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
       items: [
         { name: 'Google Analytics', description: 'Web analytics and reporting' },
         { name: 'Mixpanel', description: 'Product analytics' },
@@ -45,7 +61,11 @@ export default function IntegrationsPage() {
     },
     {
       category: 'Storage',
-      icon: '📦',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+        </svg>
+      ),
       items: [
         { name: 'AWS S3', description: 'Object storage service' },
         { name: 'Cloudinary', description: 'Media management platform' },
@@ -54,7 +74,11 @@ export default function IntegrationsPage() {
     },
     {
       category: 'Communication',
-      icon: '💬',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      ),
       items: [
         { name: 'Twilio', description: 'SMS and voice communications' },
         { name: 'Slack', description: 'Team messaging and notifications' },
@@ -63,7 +87,11 @@ export default function IntegrationsPage() {
     },
     {
       category: 'Database',
-      icon: '🗄️',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+        </svg>
+      ),
       items: [
         { name: 'PostgreSQL', description: 'Relational database (built-in)' },
         { name: 'Redis', description: 'In-memory data store' },
@@ -72,7 +100,11 @@ export default function IntegrationsPage() {
     },
     {
       category: 'AI/ML',
-      icon: '🤖',
+      icon: (
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      ),
       items: [
         { name: 'OpenAI', description: 'GPT models and DALL-E' },
         { name: 'Anthropic', description: 'Claude AI models' },
@@ -168,7 +200,7 @@ export default function IntegrationsPage() {
                 className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-8 hover:border-wapify-accent/50 transition-all"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-wapify-accent/10 rounded-xl flex items-center justify-center text-2xl">
+                  <div className="w-12 h-12 bg-wapify-accent/10 rounded-xl flex items-center justify-center text-wapify-accent">
                     {category.icon}
                   </div>
                   <h3 className="text-2xl font-bold text-wapify-text">{category.category}</h3>
@@ -191,8 +223,10 @@ export default function IntegrationsPage() {
           {/* Custom Integration CTA */}
           <div className="max-w-4xl mx-auto mb-16">
             <div className="bg-gradient-to-br from-wapify-accent/10 to-wapify-accent-dark/10 border-2 border-wapify-accent rounded-2xl p-12 text-center">
-              <div className="w-16 h-16 bg-wapify-accent rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg">
-                🔌
+              <div className="w-16 h-16 bg-wapify-accent rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg text-white">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                </svg>
               </div>
               <h2 className="text-3xl font-black text-wapify-text mb-4">
                 Need a Custom Integration?
@@ -216,8 +250,8 @@ export default function IntegrationsPage() {
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="w-16 h-16 bg-wapify-accent/10 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
-                  1️⃣
+                <div className="w-16 h-16 bg-wapify-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl font-black text-wapify-accent">1</span>
                 </div>
                 <h3 className="text-xl font-bold text-wapify-text mb-3">Describe What You Need</h3>
                 <p className="text-wapify-text-secondary">
@@ -226,8 +260,8 @@ export default function IntegrationsPage() {
               </div>
 
               <div className="text-center">
-                <div className="w-16 h-16 bg-wapify-accent/10 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
-                  2️⃣
+                <div className="w-16 h-16 bg-wapify-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl font-black text-wapify-accent">2</span>
                 </div>
                 <h3 className="text-xl font-bold text-wapify-text mb-3">AI Sets It Up</h3>
                 <p className="text-wapify-text-secondary">
@@ -236,8 +270,8 @@ export default function IntegrationsPage() {
               </div>
 
               <div className="text-center">
-                <div className="w-16 h-16 bg-wapify-accent/10 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
-                  3️⃣
+                <div className="w-16 h-16 bg-wapify-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl font-black text-wapify-accent">3</span>
                 </div>
                 <h3 className="text-xl font-bold text-wapify-text mb-3">Start Using It</h3>
                 <p className="text-wapify-text-secondary">
