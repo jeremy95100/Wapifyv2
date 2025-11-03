@@ -557,56 +557,355 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Features */}
-        <section id="features" className="py-24 px-6 bg-wapify-panel/30">
+        {/* Consider Yourself Limitless */}
+        <section className="py-32 px-6 bg-wapify-panel/30">
+          <div className="max-w-6xl mx-auto text-center">
+            <h2 className="text-5xl md:text-6xl font-black text-wapify-text mb-6 leading-tight">
+              Consider Yourself <span className="text-wapify-accent">Limitless</span>
+            </h2>
+            <p className="text-xl text-wapify-text-secondary max-w-3xl mx-auto mb-12">
+              No coding barriers. No technical limits. Just your ideas brought to life instantly with the power of AI.
+            </p>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="px-8 py-4 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-bold hover:shadow-xl hover:scale-105 transition-all duration-200"
+            >
+              Start Building Now
+            </button>
+          </div>
+        </section>
+
+        {/* Feature Section 1: Build Anything */}
+        <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl font-bold text-wapify-text mb-4">
-                Everything You Need
+            <div className="grid md:grid-cols-2 gap-16 items-center">
+              <div>
+                <h3 className="text-4xl md:text-5xl font-black text-wapify-text mb-6">
+                  Build <span className="text-wapify-accent">Anything</span> You Can Imagine
+                </h3>
+                <p className="text-xl text-wapify-text-secondary mb-8 leading-relaxed">
+                  From simple landing pages to complex SaaS platforms. E-commerce stores, dashboards, portfolios, booking systems - if you can describe it, we can build it.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  {[
+                    "Full-stack web applications with database",
+                    "Beautiful, responsive UI components",
+                    "Real-time features and interactions",
+                    "Authentication and user management",
+                    "Payment integration ready"
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
+                      <span className="text-wapify-accent text-xl">✓</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition"
+                >
+                  Start Building
+                </button>
+              </div>
+              <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-8 shadow-xl">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-2 border-blue-500/20 rounded-xl p-6 text-center">
+                    <div className="text-4xl mb-3">🛍️</div>
+                    <div className="font-bold text-wapify-text text-sm">E-commerce</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-2 border-green-500/20 rounded-xl p-6 text-center">
+                    <div className="text-4xl mb-3">📊</div>
+                    <div className="font-bold text-wapify-text text-sm">Dashboard</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border-2 border-orange-500/20 rounded-xl p-6 text-center">
+                    <div className="text-4xl mb-3">💼</div>
+                    <div className="font-bold text-wapify-text text-sm">Portfolio</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-2 border-purple-500/20 rounded-xl p-6 text-center">
+                    <div className="text-4xl mb-3">📅</div>
+                    <div className="font-bold text-wapify-text text-sm">Booking</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Section 2: Beautiful Design */}
+        <section className="py-24 px-6 bg-wapify-panel/30">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-16 items-center">
+              <div className="order-2 md:order-1">
+                <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl overflow-hidden shadow-xl">
+                  <div className="p-8 bg-gradient-to-br from-wapify-accent/5 to-wapify-accent-dark/5">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 p-4 bg-white rounded-xl border-2 border-wapify-border">
+                        <div className="w-12 h-12 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg"></div>
+                        <div className="flex-1">
+                          <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+                          <div className="h-2 bg-gray-100 rounded w-1/2"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-4 bg-white rounded-xl border-2 border-wapify-border">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg"></div>
+                        <div className="flex-1">
+                          <div className="h-3 bg-gray-200 rounded w-2/3 mb-2"></div>
+                          <div className="h-2 bg-gray-100 rounded w-1/3"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-4 bg-white rounded-xl border-2 border-wapify-border">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg"></div>
+                        <div className="flex-1">
+                          <div className="h-3 bg-gray-200 rounded w-4/5 mb-2"></div>
+                          <div className="h-2 bg-gray-100 rounded w-2/5"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="order-1 md:order-2">
+                <h3 className="text-4xl md:text-5xl font-black text-wapify-text mb-6">
+                  <span className="text-wapify-accent">Beautiful Design</span> Out of the Box
+                </h3>
+                <p className="text-xl text-wapify-text-secondary mb-8 leading-relaxed">
+                  Every component is crafted with attention to detail. Modern, responsive designs that look stunning on every device. Choose from multiple design styles or let AI decide.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  {[
+                    "5+ professional design styles",
+                    "Responsive on all screen sizes",
+                    "Modern animations & interactions",
+                    "Dark mode support built-in",
+                    "Customizable color schemes"
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
+                      <span className="text-wapify-accent text-xl">✓</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition"
+                >
+                  Start Building
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Section 3: Deploy Instantly */}
+        <section className="py-24 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-16 items-center">
+              <div>
+                <h3 className="text-4xl md:text-5xl font-black text-wapify-text mb-6">
+                  Deploy <span className="text-wapify-accent">Instantly</span> to the World
+                </h3>
+                <p className="text-xl text-wapify-text-secondary mb-8 leading-relaxed">
+                  Your app goes live in seconds with global hosting, SSL certificates, and a CDN. No DevOps, no configuration, no headaches. Just click and ship.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  {[
+                    "Automatic SSL & security",
+                    "Global CDN for fast loading",
+                    "Automatic scaling & backups",
+                    "Custom domain ready",
+                    "99.9% uptime guarantee"
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
+                      <span className="text-wapify-accent text-xl">✓</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition"
+                >
+                  Start Building
+                </button>
+              </div>
+              <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-8 shadow-xl">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-4 bg-green-500/10 border-2 border-green-500/30 rounded-xl">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="font-semibold text-wapify-text">Production Ready</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-4 bg-blue-500/10 border-2 border-blue-500/30 rounded-xl">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span className="font-semibold text-wapify-text">SSL Configured</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-4 bg-purple-500/10 border-2 border-purple-500/30 rounded-xl">
+                    <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                    <span className="font-semibold text-wapify-text">Database Connected</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-4 bg-orange-500/10 border-2 border-orange-500/30 rounded-xl">
+                    <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                    <span className="font-semibold text-wapify-text">CDN Active</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section className="py-24 px-6 bg-wapify-panel/30">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-black text-wapify-text mb-4">
+                Simple, Transparent Pricing
               </h2>
               <p className="text-xl text-wapify-text-secondary">
-                Full-stack development, simplified
+                Start free, upgrade when you're ready
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              {/* Free Plan */}
+              <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-8 hover:border-wapify-accent/50 transition-all">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-wapify-text mb-2">Free</h3>
+                  <div className="flex items-baseline gap-2 mb-4">
+                    <span className="text-5xl font-black text-wapify-text">$0</span>
+                    <span className="text-wapify-text-secondary">/month</span>
+                  </div>
+                  <p className="text-wapify-text-secondary">Perfect to get started and experiment</p>
+                </div>
+
+                <ul className="space-y-3 mb-8">
+                  {[
+                    "3 projects",
+                    "Basic AI generation",
+                    "Community support",
+                    "Public projects only",
+                    "Wapify branding"
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
+                      <span className="text-wapify-accent text-lg">✓</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => router.push('/auth/signin')}
+                  className="w-full px-6 py-3 bg-wapify-bg border-2 border-wapify-border text-wapify-text rounded-xl font-semibold hover:bg-wapify-border transition"
+                >
+                  Get Started Free
+                </button>
+              </div>
+
+              {/* Pro Plan */}
+              <div className="bg-gradient-to-br from-wapify-accent/5 to-wapify-accent-dark/5 border-2 border-wapify-accent rounded-2xl p-8 relative shadow-xl">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-wapify-accent text-white rounded-full text-sm font-bold">
+                  Most Popular
+                </div>
+
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-wapify-text mb-2">Pro</h3>
+                  <div className="flex items-baseline gap-2 mb-4">
+                    <span className="text-5xl font-black text-wapify-text">$29</span>
+                    <span className="text-wapify-text-secondary">/month</span>
+                  </div>
+                  <p className="text-wapify-text-secondary">For serious builders and small teams</p>
+                </div>
+
+                <ul className="space-y-3 mb-8">
+                  {[
+                    "Unlimited projects",
+                    "Advanced AI generation",
+                    "Priority support",
+                    "Private projects",
+                    "Custom domains",
+                    "Remove Wapify branding",
+                    "Advanced analytics",
+                    "Export source code"
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
+                      <span className="text-wapify-accent text-lg">✓</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => router.push('/auth/signin')}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all"
+                >
+                  Start Pro Trial
+                </button>
+              </div>
+            </div>
+
+            <p className="text-center text-sm text-wapify-text-secondary mt-12">
+              Need more? <Link href="/enterprise" className="text-wapify-accent hover:underline font-semibold">Contact us for Enterprise pricing</Link>
+            </p>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-24 px-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-black text-wapify-text mb-4">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-xl text-wapify-text-secondary">
+                Everything you need to know about Wapify
+              </p>
+            </div>
+
+            <div className="space-y-6">
               {[
                 {
-                  title: "AI-Powered Generation",
-                  description: "Advanced AI understands your requirements and generates clean, maintainable code with modern best practices."
+                  question: "Do I need coding experience to use Wapify?",
+                  answer: "Not at all! Wapify is designed for everyone. Just describe what you want to build in plain language, and our AI handles all the technical details. No coding knowledge required."
                 },
                 {
-                  title: "Multi-Language Input",
-                  description: "Describe your app in English, French, Spanish, or any language. AI understands them all."
+                  question: "What kind of apps can I build?",
+                  answer: "You can build almost anything: e-commerce stores, dashboards, portfolios, booking systems, SaaS platforms, landing pages, and more. If you can describe it, we can build it."
                 },
                 {
-                  title: "PostgreSQL Database",
-                  description: "Fully configured database with schemas, relationships, and API endpoints generated automatically."
+                  question: "Can I export the source code?",
+                  answer: "Yes! Pro and Enterprise plans include full source code export. You own your code and can host it anywhere you want."
                 },
                 {
-                  title: "Beautiful UI",
-                  description: "Modern, responsive designs with Tailwind CSS. Every component looks great on any device."
+                  question: "What technologies does Wapify use?",
+                  answer: "We generate modern web apps using React, Next.js, Tailwind CSS, and PostgreSQL. Your apps are built with production-ready, industry-standard technologies."
                 },
                 {
-                  title: "Secure by Default",
-                  description: "SSL certificates, authentication ready, and security best practices built in from day one."
+                  question: "Is there a free trial?",
+                  answer: "Yes! Our Free plan lets you create up to 3 projects with no credit card required. Pro plan includes a 14-day free trial."
                 },
                 {
-                  title: "Instant Deployment",
-                  description: "Your app goes live in seconds with automatic scaling, CDN, and global edge network."
+                  question: "Can I use my own domain?",
+                  answer: "Absolutely! Pro and Enterprise plans support custom domains. You can connect your domain in just a few clicks."
+                },
+                {
+                  question: "What kind of support do you offer?",
+                  answer: "Free users get community support via Discord. Pro users get priority email support with 24-hour response time. Enterprise customers get dedicated support with SLA."
+                },
+                {
+                  question: "Can I collaborate with my team?",
+                  answer: "Yes! Pro plans support team collaboration with shared projects and role-based permissions. Enterprise plans offer advanced team features."
                 }
-              ].map((feature, i) => (
-                <div
+              ].map((faq, i) => (
+                <details
                   key={i}
-                  className="group bg-wapify-panel/60 backdrop-blur-sm p-8 rounded-2xl border-2 border-wapify-border hover:border-wapify-accent/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                  className="group bg-wapify-panel border-2 border-wapify-border rounded-xl p-6 hover:border-wapify-accent/50 transition-all"
                 >
-                  <h3 className="text-2xl font-bold text-wapify-text mb-4">
-                    {feature.title}
-                  </h3>
-                  <p className="text-wapify-text-secondary leading-relaxed">
-                    {feature.description}
+                  <summary className="font-bold text-lg text-wapify-text cursor-pointer list-none flex items-center justify-between">
+                    <span>{faq.question}</span>
+                    <span className="text-wapify-accent group-open:rotate-45 transition-transform text-2xl">+</span>
+                  </summary>
+                  <p className="text-wapify-text-secondary mt-4 leading-relaxed">
+                    {faq.answer}
                   </p>
-                </div>
+                </details>
               ))}
             </div>
           </div>
