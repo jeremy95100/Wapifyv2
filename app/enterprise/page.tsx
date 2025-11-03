@@ -201,11 +201,79 @@ export default function EnterprisePage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-wapify-border py-12 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-wapify-text-secondary">
-            © 2025 Wapify. All rights reserved.
-          </p>
+      <footer className="border-t border-wapify-border py-16 px-6 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-6 gap-12 mb-12">
+            {/* Brand */}
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center text-xl shadow-lg">
+                  ⚡
+                </div>
+                <span className="text-2xl font-bold text-wapify-text">Wapify</span>
+              </div>
+              <p className="text-sm text-wapify-text-secondary leading-relaxed mb-4">
+                Web App Simplify. Build complete web applications in minutes using AI. No coding required.
+              </p>
+            </div>
+
+            {/* Products */}
+            <div>
+              <h4 className="font-bold text-wapify-text mb-4">Products</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/product/templates" className="text-wapify-text-secondary hover:text-wapify-text transition">Templates</Link></li>
+                <li><Link href="/product/features" className="text-wapify-text-secondary hover:text-wapify-text transition">Features</Link></li>
+                <li><Link href="/product/integrations" className="text-wapify-text-secondary hover:text-wapify-text transition">Integrations</Link></li>
+                <li><Link href="/pricing" className="text-wapify-text-secondary hover:text-wapify-text transition">Pricing</Link></li>
+                <li><Link href="/enterprise" className="text-wapify-text-secondary hover:text-wapify-text transition">Enterprise</Link></li>
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div>
+              <h4 className="font-bold text-wapify-text mb-4">Resources</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/docs" className="text-wapify-text-secondary hover:text-wapify-text transition">Docs & FAQ</Link></li>
+                <li><Link href="/community" className="text-wapify-text-secondary hover:text-wapify-text transition">Community</Link></li>
+                <li><Link href="/blog" className="text-wapify-text-secondary hover:text-wapify-text transition">Blog</Link></li>
+                <li><Link href="/support" className="text-wapify-text-secondary hover:text-wapify-text transition">Support</Link></li>
+                <li><Link href="/changelog" className="text-wapify-text-secondary hover:text-wapify-text transition">Changelog</Link></li>
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="font-bold text-wapify-text mb-4">Company</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/about" className="text-wapify-text-secondary hover:text-wapify-text transition">About Us</Link></li>
+                <li><Link href="/careers" className="text-wapify-text-secondary hover:text-wapify-text transition">Careers</Link></li>
+                <li><Link href="/affiliate" className="text-wapify-text-secondary hover:text-wapify-text transition">Affiliate Program</Link></li>
+                <li><Link href="/contact" className="text-wapify-text-secondary hover:text-wapify-text transition">Contact</Link></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="font-bold text-wapify-text mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/privacy" className="text-wapify-text-secondary hover:text-wapify-text transition">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="text-wapify-text-secondary hover:text-wapify-text transition">Terms of Service</Link></li>
+                <li><Link href="/cookies" className="text-wapify-text-secondary hover:text-wapify-text transition">Cookie Policy</Link></li>
+                <li><Link href="/gdpr" className="text-wapify-text-secondary hover:text-wapify-text transition">GDPR</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-wapify-border flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-wapify-text-secondary">
+              © 2025 Wapify. All rights reserved.
+            </p>
+            <div className="flex items-center gap-4 text-sm text-wapify-text-secondary">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-wapify-text transition">Twitter</a>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-wapify-text transition">GitHub</a>
+              <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="hover:text-wapify-text transition">Discord</a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
