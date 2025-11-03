@@ -16,8 +16,32 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Build context for Claude
-    let systemPrompt = `Tu es Wapify AI, un assistant spécialisé dans la génération et modification d'applications React.
+    // Check if API key is configured
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error('ANTHROPIC_API_KEY not configured')
+      return NextResponse.json(
+        { error: 'AI service not configured. Please contact support.' },
+        { status: 503 }
+      )
+    }
+
+    // Detect user language
+    const detectLanguage = (text: string): string => {
+      const frenchWords = ['le', 'la', 'les', 'un', 'une', 'des', 'je', 'tu', 'il', 'elle', 'nous', 'vous', 'ils', 'elles', 'est', 'sont', 'avoir', 'être', 'faire', 'créer', 'modifier', 'ajouter', 'bouton', 'page', 'couleur']
+      const englishWords = ['the', 'a', 'an', 'is', 'are', 'can', 'will', 'create', 'add', 'modify', 'button', 'page', 'color', 'make', 'change']
+
+      const lowerText = text.toLowerCase()
+      const frenchCount = frenchWords.filter(word => lowerText.includes(word)).length
+      const englishCount = englishWords.filter(word => lowerText.includes(word)).length
+
+      return frenchCount > englishCount ? 'fr' : 'en'
+    }
+
+    const userLanguage = detectLanguage(message)
+
+    // Build context for Claude based on detected language
+    let systemPrompt = userLanguage === 'fr'
+      ? `Tu es Wapify AI, un assistant spécialisé dans la génération et modification d'applications React.
 
 Ton rôle :
 - Générer des applications React complètes à partir de descriptions
@@ -31,6 +55,22 @@ IMPORTANT :
 - Ne pose des questions que si vraiment nécessaire pour clarifier
 - Quand tu modifies du code, explique simplement ce que tu fais
 - N'utilise PAS de termes techniques compliqués
+
+`
+      : `You are Wapify AI, an assistant specialized in generating and modifying React applications.
+
+Your role:
+- Generate complete React applications from descriptions
+- Modify existing applications (colors, styles, text, structure)
+- Add new features
+- Respond in a simple and natural way, WITHOUT technical jargon
+
+IMPORTANT:
+- Respond in English in a conversational manner
+- Be concise and direct
+- Only ask questions if really necessary for clarification
+- When you modify code, explain simply what you're doing
+- Do NOT use complicated technical terms
 
 `
 

@@ -15,6 +15,7 @@ interface Message {
   content: string
   id: string
   timestamp: Date
+  thinkingTime?: number // Time in seconds the AI thought about the response
 }
 
 interface ProjectFile {
@@ -83,6 +84,7 @@ export default function EditorPage() {
     type: 'page' | 'component' | 'database' | 'style'
   }>>([])
   const [isPanelExpanded, setIsPanelExpanded] = useState(true)
+  const [expandedThoughts, setExpandedThoughts] = useState<Set<string>>(new Set())
   const hasInitialized = useRef(false)
   const lastProgressUpdateTime = useRef<number>(Date.now())
   const stuckMessageTimer = useRef<NodeJS.Timeout | null>(null)
@@ -696,6 +698,9 @@ export default function EditorPage() {
     setError('')
 
     try {
+      // Track thinking time
+      const thinkingStartTime = Date.now()
+
       // First, call conversational endpoint to get AI response
       const conversationalResponse = await fetch('/api/conversational-chat', {
         method: 'POST',
@@ -714,12 +719,16 @@ export default function EditorPage() {
 
       const { response: aiResponse, needsCodeGeneration, generationPlan } = await conversationalResponse.json()
 
+      // Calculate thinking time
+      const thinkingTime = Math.round((Date.now() - thinkingStartTime) / 1000)
+
       // Add AI conversational response
       const aiMessage: Message = {
         role: 'assistant',
         content: aiResponse,
         id: `msg-${Date.now()}`,
-        timestamp: new Date()
+        timestamp: new Date(),
+        thinkingTime: thinkingTime
       }
       setMessages(prev => [...prev, aiMessage])
 
@@ -926,7 +935,7 @@ export default function EditorPage() {
       <div className="grain-texture"></div>
 
       {/* Top Navigation */}
-      <nav className="h-14 bg-wapify-panel border-b-2 border-wapify-border flex items-center justify-between px-4 flex-shrink-0 relative z-50">
+      <nav className="h-14 bg-wapify-panel border-b border-wapify-border flex items-center justify-between px-4 flex-shrink-0 relative z-50">
         <div className="flex items-center gap-4 flex-1">
           {!isChatCollapsed && (
             <>
@@ -1154,11 +1163,11 @@ export default function EditorPage() {
         {/* Left Panel - Chat Interface */}
         {!isChatCollapsed && (
           <div
-            className="bg-wapify-panel border-r-2 border-wapify-border flex flex-col relative z-0"
+            className="bg-wapify-panel border-r border-wapify-border flex flex-col relative z-0"
             style={{ width: `${chatWidth}px` }}
           >
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 pt-4 relative">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2 pt-3 relative">
               {messages.length === 0 && (
                 <div className="text-center py-12">
                   <div className="text-5xl mb-4 opacity-50">✨</div>
@@ -1171,23 +1180,79 @@ export default function EditorPage() {
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}
+                  className={`${msg.role === 'user' ? 'flex justify-end' : ''} animate-fadeIn`}
                 >
-                  {msg.role === 'assistant' && (
-                    <div className="w-7 h-7 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-xs shadow-md mr-2 flex-shrink-0 mt-1">
-                      ⚡
+                  {msg.role === 'user' ? (
+                    <div className="max-w-[85%] rounded-xl p-3 shadow-sm bg-wapify-accent text-white">
+                      <p className="text-xs whitespace-pre-wrap">{msg.content}</p>
+                      <p className="text-[9px] mt-1 opacity-60">{msg.timestamp.toLocaleTimeString()}</p>
+                    </div>
+                  ) : (
+                    <div className="max-w-[85%]">
+                      {/* Wapify Logo at top */}
+                      <div className="mb-1.5">
+                        <div className="w-7 h-7 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-xs shadow-md">
+                          ⚡
+                        </div>
+                      </div>
+
+                      {/* Thought indicator */}
+                      {msg.thinkingTime && msg.thinkingTime > 0 && (
+                        <div className="mb-2">
+                          <div className="inline-flex items-start gap-2">
+                            <button
+                              onClick={() => {
+                                const newExpanded = new Set(expandedThoughts)
+                                if (expandedThoughts.has(msg.id)) {
+                                  newExpanded.delete(msg.id)
+                                } else {
+                                  newExpanded.add(msg.id)
+                                }
+                                setExpandedThoughts(newExpanded)
+                              }}
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all bg-slate-50 hover:bg-slate-100 text-slate-600"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className={`h-3 w-3 transition-transform ${expandedThoughts.has(msg.id) ? 'rotate-180' : ''}`}
+                              >
+                                <path d="m6 9 6 6 6-6"></path>
+                              </svg>
+                              <span className="text-xs font-medium">
+                                Thought <span className="text-xs text-slate-500">for {msg.thinkingTime}s</span>
+                              </span>
+                            </button>
+                          </div>
+
+                          {/* Expanded thought content */}
+                          {expandedThoughts.has(msg.id) && (
+                            <div className="mt-2 ml-0 animate-in slide-in-from-top-1 duration-200">
+                              <div className="relative pl-4 py-2 pr-3 rounded-md bg-gradient-to-r from-slate-50 to-transparent">
+                                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-orange-300 to-teal-300 rounded-full"></div>
+                                <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">
+                                  {msg.content.split('\n\n')[0]}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Message content */}
+                      <div className="bg-white border border-wapify-border rounded-xl p-3 shadow-sm text-wapify-text">
+                        <p className="text-xs whitespace-pre-wrap">{msg.content}</p>
+                        <p className="text-[9px] mt-1 opacity-60">{msg.timestamp.toLocaleTimeString()}</p>
+                      </div>
                     </div>
                   )}
-                  <div
-                    className={`max-w-[85%] rounded-xl p-3 shadow-sm ${
-                      msg.role === 'user'
-                        ? 'bg-wapify-accent text-white'
-                        : 'bg-white border-2 border-wapify-border text-wapify-text'
-                    }`}
-                  >
-                    <p className="text-xs whitespace-pre-wrap">{msg.content}</p>
-                    <p className="text-[9px] mt-1 opacity-60">{msg.timestamp.toLocaleTimeString()}</p>
-                  </div>
                 </div>
               ))}
 
@@ -1205,7 +1270,7 @@ export default function EditorPage() {
                   <div className="w-7 h-7 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-xs shadow-md mr-2 flex-shrink-0 mt-1">
                     ⚡
                   </div>
-                  <div className="bg-white border-2 border-wapify-border rounded-xl p-3 max-w-[85%]">
+                  <div className="bg-white border border-wapify-border rounded-xl p-3 max-w-[85%]">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-2 h-2 bg-wapify-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                       <div className="w-2 h-2 bg-wapify-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>

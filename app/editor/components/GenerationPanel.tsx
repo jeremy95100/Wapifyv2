@@ -8,6 +8,11 @@ interface GenerationTask {
   description: string
   status: 'pending' | 'in_progress' | 'completed'
   type: 'page' | 'component' | 'database' | 'style'
+  substeps?: Array<{
+    id: string
+    title: string
+    status: 'pending' | 'in_progress' | 'completed'
+  }>
 }
 
 interface GenerationPanelProps {
@@ -84,10 +89,10 @@ export default function GenerationPanel({ tasks, isExpanded, onToggle }: Generat
   }
 
   return (
-    <div className="action-component action-group bg-white rounded-lg my-3 overflow-hidden border-2 border-wapify-border shadow-sm">
+    <div className="action-component action-group bg-white rounded-lg my-2 overflow-hidden border border-wapify-border shadow-sm">
       {/* Header - Always visible */}
       <div
-        className="p-3 cursor-pointer hover:bg-wapify-bg/50 transition flex items-center justify-between"
+        className="p-2.5 cursor-pointer hover:bg-wapify-bg/50 transition flex items-center justify-between"
         onClick={onToggle}
       >
         <div className="flex items-center gap-2">
@@ -140,13 +145,13 @@ export default function GenerationPanel({ tasks, isExpanded, onToggle }: Generat
           </div>
 
           {/* Tasks list */}
-          <div className="p-3 space-y-2">
+          <div className="p-2.5 space-y-1.5">
             {tasks.map((task, index) => (
               <div
                 key={task.id}
-                className={`relative rounded-lg p-2.5 transition-all ${
+                className={`relative rounded-lg p-2 transition-all ${
                   task.status === 'in_progress'
-                    ? 'bg-wapify-accent/10 border-2 border-wapify-accent shadow-md scale-[1.02]'
+                    ? 'bg-wapify-accent/10 border border-wapify-accent shadow-md scale-[1.01]'
                     : task.status === 'completed'
                     ? 'bg-green-50 border border-green-200'
                     : 'bg-wapify-bg border border-wapify-border'
@@ -188,6 +193,43 @@ export default function GenerationPanel({ tasks, isExpanded, onToggle }: Generat
                             <div className="absolute inset-0 bg-white/30 animate-shimmer"></div>
                           </div>
                         </div>
+                      </div>
+                    )}
+
+                    {/* Substeps */}
+                    {task.substeps && task.substeps.length > 0 && (
+                      <div className="mt-3 space-y-1 pl-2 border-l-2 border-gray-200">
+                        {task.substeps.map((substep) => (
+                          <div
+                            key={substep.id}
+                            className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-gray-50 transition-colors"
+                          >
+                            <div className="flex items-center gap-2 flex-1">
+                              {substep.status === 'completed' ? (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="w-4 h-4 text-green-500"
+                                >
+                                  <circle cx="12" cy="12" r="10"></circle>
+                                  <path d="m9 12 2 2 4-4"></path>
+                                </svg>
+                              ) : substep.status === 'in_progress' ? (
+                                <div className="w-4 h-4 rounded-full border-2 border-wapify-accent border-t-transparent animate-spin"></div>
+                              ) : (
+                                <div className="w-4 h-4 rounded-full border-2 border-gray-300"></div>
+                              )}
+                              <span className="text-xs text-gray-700">{substep.title}</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
