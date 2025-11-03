@@ -50,7 +50,7 @@ export default function EditorPage() {
   const [githubRepo, setGithubRepo] = useState<string | null>(null)
   const [githubRepoFullName, setGithubRepoFullName] = useState<string | null>(null)
   const [githubCloneUrl, setGithubCloneUrl] = useState<string | null>(null)
-  const [activeView, setActiveView] = useState<'preview' | 'code'>('preview')
+  const [activeView, setActiveView] = useState<'preview' | 'code' | 'dashboard'>('preview')
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [fileContent, setFileContent] = useState<string>('')
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['src', 'public']))
@@ -1023,14 +1023,15 @@ export default function EditorPage() {
             ?
           </button>
 
-          {/* Toggle Chat Button */}
+          {/* Toggle Sidebar Button */}
           <button
             onClick={() => setIsChatCollapsed(!isChatCollapsed)}
-            className="px-3 py-1.5 bg-wapify-bg text-wapify-text-secondary hover:text-wapify-text rounded-lg font-medium hover:bg-wapify-border transition text-sm flex items-center gap-2"
-            title={isChatCollapsed ? 'Show Chat' : 'Hide Chat'}
+            className="w-8 h-8 flex items-center justify-center text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-border rounded-lg transition"
+            title={isChatCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
           >
-            {isChatCollapsed ? '→' : '←'}
-            <span className="hidden md:inline">{isChatCollapsed ? 'Show Chat' : 'Hide Chat'}</span>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           </button>
         </div>
 
@@ -1078,17 +1079,9 @@ export default function EditorPage() {
             className="bg-wapify-panel border-r-2 border-wapify-border flex flex-col relative z-0"
             style={{ width: `${chatWidth}px` }}
           >
-            {/* Chat Header */}
-            <div className="p-4 border-b-2 border-wapify-border flex-shrink-0">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 bg-wapify-accent/10 rounded-lg flex items-center justify-center text-lg">
-                  💬
-                </div>
-                <h2 className="text-lg font-bold text-wapify-text">Chat</h2>
-              </div>
-              <p className="text-xs text-wapify-text-secondary">
-                {!generatedCode ? 'Describe the app you want to create' : 'Ask for modifications'}
-              </p>
+            {/* Chat Header - Simplified */}
+            <div className="px-4 py-3 border-b border-wapify-border flex-shrink-0 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-wapify-text">Chat</h2>
             </div>
 
             {/* Messages Area */}
@@ -1135,9 +1128,9 @@ export default function EditorPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
-            <div className="p-4 border-t-2 border-wapify-border flex-shrink-0 bg-wapify-bg">
-              <form onSubmit={handleSubmit} className="space-y-2">
+            {/* Input Area - Full Height */}
+            <div className="border-t border-wapify-border flex-shrink-0 bg-wapify-bg p-3">
+              <form onSubmit={handleSubmit} className="relative">
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -1148,17 +1141,64 @@ export default function EditorPage() {
                     }
                   }}
                   placeholder={!generatedCode ? "Describe your application..." : "Request a modification..."}
-                  className="w-full px-3 py-2 bg-white border-2 border-wapify-border rounded-xl text-wapify-text placeholder-wapify-text-secondary focus:border-wapify-accent focus:outline-none text-sm resize-none"
+                  className="w-full px-3 py-3 pr-24 bg-white border border-wapify-border rounded-lg text-wapify-text placeholder-wapify-text-secondary focus:border-wapify-accent focus:outline-none text-sm resize-none"
                   disabled={isGenerating}
-                  rows={3}
+                  rows={1}
+                  style={{ minHeight: '44px' }}
                 />
-                <button
-                  type="submit"
-                  disabled={isGenerating || !input.trim()}
-                  className="w-full px-4 py-2 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                >
-                  {isGenerating ? '⏳ Generating...' : '✨ Send'}
-                </button>
+
+                {/* Bottom Action Bar */}
+                <div className="flex items-center justify-between mt-2 px-1">
+                  <div className="flex items-center gap-2">
+                    {/* Attach Button */}
+                    <button
+                      type="button"
+                      className="p-2 text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-border rounded-lg transition"
+                      title="Attach files"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+
+                    {/* Send Button */}
+                    <button
+                      type="submit"
+                      disabled={isGenerating || !input.trim()}
+                      className="p-2 text-wapify-accent hover:bg-wapify-accent/10 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Send message"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {/* Settings Button */}
+                    <button
+                      type="button"
+                      className="p-2 text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-border rounded-lg transition"
+                      title="Settings"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/>
+                      </svg>
+                    </button>
+
+                    {/* Divider */}
+                    <div className="w-px h-5 bg-wapify-border"></div>
+
+                    {/* Visual Edit Button */}
+                    <button
+                      type="button"
+                      className="px-3 py-1.5 text-xs font-medium text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-border rounded-lg transition"
+                      title="Visual Edit"
+                    >
+                      Visual Edit
+                    </button>
+                  </div>
+                </div>
               </form>
             </div>
 
@@ -1176,29 +1216,54 @@ export default function EditorPage() {
         <div className="flex-1 flex flex-col bg-wapify-bg relative z-0">
           {/* Top Bar with Tabs */}
           <div className="bg-wapify-panel border-b-2 border-wapify-border flex items-center justify-between px-4 flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setActiveView('preview')}
-                className={`px-4 py-3 font-semibold transition text-sm ${
-                  activeView === 'preview'
-                    ? 'text-wapify-accent border-b-2 border-wapify-accent'
-                    : 'text-wapify-text-secondary hover:text-wapify-text'
-                }`}
-              >
-                👁️ Preview
-              </button>
+            <div className="flex items-center gap-1">
+              {/* Code Tab */}
               {isMultiFile && (
                 <button
                   onClick={() => setActiveView('code')}
-                  className={`px-4 py-3 font-semibold transition text-sm ${
+                  className={`px-4 py-3 font-medium transition text-sm flex items-center gap-2 ${
                     activeView === 'code'
                       ? 'text-wapify-accent border-b-2 border-wapify-accent'
                       : 'text-wapify-text-secondary hover:text-wapify-text'
                   }`}
                 >
-                  💻 Code
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                  Code
                 </button>
               )}
+
+              {/* Preview Tab */}
+              <button
+                onClick={() => setActiveView('preview')}
+                className={`px-4 py-3 font-medium transition text-sm flex items-center gap-2 ${
+                  activeView === 'preview'
+                    ? 'text-wapify-accent border-b-2 border-wapify-accent'
+                    : 'text-wapify-text-secondary hover:text-wapify-text'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Preview
+              </button>
+
+              {/* Dashboard Tab */}
+              <button
+                onClick={() => setActiveView('dashboard')}
+                className={`px-4 py-3 font-medium transition text-sm flex items-center gap-2 ${
+                  activeView === 'dashboard'
+                    ? 'text-wapify-accent border-b-2 border-wapify-accent'
+                    : 'text-wapify-text-secondary hover:text-wapify-text'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Dashboard
+              </button>
 
               {/* Workspace Monitor */}
               {activeView === 'preview' && (
@@ -1382,7 +1447,7 @@ export default function EditorPage() {
                   </div>
                 )}
               </>
-            ) : (
+            ) : activeView === 'code' ? (
               <div className="w-full h-full flex">
                 <div className="w-64 bg-wapify-panel border-r-2 border-wapify-border overflow-auto">
                   <div className="p-2 border-b-2 border-wapify-border">
@@ -1472,6 +1537,39 @@ export default function EditorPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-wapify-bg p-8">
+                <div className="max-w-4xl w-full">
+                  <div className="text-center mb-8">
+                    <div className="text-6xl mb-4">📊</div>
+                    <h2 className="text-3xl font-bold text-wapify-text mb-2">Dashboard</h2>
+                    <p className="text-wapify-text-secondary">Coming soon - Monitor your app's performance and analytics</p>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-6 text-center">
+                      <div className="text-3xl mb-3">🚀</div>
+                      <h3 className="text-lg font-bold text-wapify-text mb-1">Deployments</h3>
+                      <p className="text-2xl font-bold text-wapify-accent mb-2">-</p>
+                      <p className="text-xs text-wapify-text-secondary">Total builds</p>
+                    </div>
+
+                    <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-6 text-center">
+                      <div className="text-3xl mb-3">👥</div>
+                      <h3 className="text-lg font-bold text-wapify-text mb-1">Users</h3>
+                      <p className="text-2xl font-bold text-wapify-accent mb-2">-</p>
+                      <p className="text-xs text-wapify-text-secondary">Active users</p>
+                    </div>
+
+                    <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-6 text-center">
+                      <div className="text-3xl mb-3">⚡</div>
+                      <h3 className="text-lg font-bold text-wapify-text mb-1">Performance</h3>
+                      <p className="text-2xl font-bold text-wapify-accent mb-2">-</p>
+                      <p className="text-xs text-wapify-text-secondary">Avg load time</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
