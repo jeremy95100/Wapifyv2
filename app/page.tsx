@@ -58,6 +58,23 @@ export default function Home() {
     return () => clearTimeout(timer)
   }, [typingIndex, isDeleting, loopNum, prompt])
 
+  // Auto-insert style instructions when a style is selected
+  useEffect(() => {
+    if (selectedStyle) {
+      const style = designStyles.find(s => s.id === selectedStyle)
+      if (style) {
+        setPrompt(prevPrompt => {
+          // If there's already a prompt, append the style instruction
+          if (prevPrompt.trim()) {
+            return `${prevPrompt.trim()} ${style.styleInstructions}`
+          }
+          // Otherwise just set the style instruction
+          return style.styleInstructions
+        })
+      }
+    }
+  }, [selectedStyle])
+
   const handleGenerate = () => {
     if (prompt.trim()) {
       router.push(`/editor?prompt=${encodeURIComponent(prompt)}`)
@@ -77,7 +94,8 @@ export default function Home() {
         "Perfect for SaaS, portfolios, and corporate sites"
       ],
       preview: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60",
-      color: "from-blue-500/10 to-cyan-500/10"
+      color: "from-blue-500/10 to-cyan-500/10",
+      styleInstructions: "Use a modern minimalist design with generous whitespace, clean sans-serif typography, subtle animations, and a neutral color palette with accent colors."
     },
     {
       id: "gradient",
@@ -91,7 +109,8 @@ export default function Home() {
         "Ideal for creative agencies and startups"
       ],
       preview: "https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=800&auto=format&fit=crop&q=60",
-      color: "from-purple-500/10 to-pink-500/10"
+      color: "from-purple-500/10 to-pink-500/10",
+      styleInstructions: "Use bold gradient backgrounds with vibrant colors, smooth color transitions, animated elements with hover effects, and modern glassmorphism with blur effects."
     },
     {
       id: "dark",
@@ -105,7 +124,8 @@ export default function Home() {
         "Great for dashboards, dev tools, and gaming"
       ],
       preview: "https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?w=800&auto=format&fit=crop&q=60",
-      color: "from-gray-800/10 to-slate-900/10"
+      color: "from-gray-800/10 to-slate-900/10",
+      styleInstructions: "Use a dark mode design with dark backgrounds, neon accent colors for CTAs, high contrast for readability, and strategic highlights."
     },
     {
       id: "brutalist",
@@ -119,7 +139,8 @@ export default function Home() {
         "Perfect for portfolios and bold brands"
       ],
       preview: "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=800&auto=format&fit=crop&q=60",
-      color: "from-yellow-500/10 to-orange-500/10"
+      color: "from-yellow-500/10 to-orange-500/10",
+      styleInstructions: "Use a brutalist design with heavy black borders, bold geometric shapes, strong typography hierarchy, and high contrast black and white colors."
     },
     {
       id: "glassmorphism",
@@ -133,7 +154,8 @@ export default function Home() {
         "Excellent for premium and luxury brands"
       ],
       preview: "https://images.unsplash.com/photo-1618761714954-0b8cd0026356?w=800&auto=format&fit=crop&q=60",
-      color: "from-teal-500/10 to-emerald-500/10"
+      color: "from-teal-500/10 to-emerald-500/10",
+      styleInstructions: "Use glassmorphism design with frosted glass blur effects on cards, soft drop shadows, translucent backgrounds with vibrant colors, and depth layers."
     }
   ]
 
@@ -265,13 +287,13 @@ export default function Home() {
 
       <main className="relative z-10">
         {/* Hero Section */}
-        <section className="pt-32 pb-16 px-6">
+        <section className="pt-24 pb-16 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12">
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-wapify-text mb-6 leading-[1.1] tracking-tight animate-fadeIn">
                 Build Apps in <span className="text-wapify-accent">Minutes</span>
                 <br />
-                <span className="text-wapify-text-secondary">, Not Months</span>
+                <span className="text-wapify-text">, Not Months</span>
               </h1>
 
               <p className="text-lg md:text-xl text-wapify-text-secondary mb-12 max-w-3xl mx-auto leading-relaxed animate-fadeIn">
@@ -282,11 +304,8 @@ export default function Home() {
             {/* Input Card with Typing Effect */}
             <div className="bg-wapify-panel/60 backdrop-blur-sm border-2 border-wapify-border rounded-2xl p-8 shadow-2xl mb-8 hover:border-wapify-accent/30 transition-all duration-300 animate-fadeIn relative">
               <div className="mb-4 relative">
-                <label className="text-sm font-semibold text-wapify-text-secondary mb-2 block">
-                  What are you building?
-                </label>
                 {!prompt && (
-                  <div className="absolute top-12 left-4 text-lg text-wapify-text-secondary/40 pointer-events-none font-mono">
+                  <div className="absolute top-4 left-4 text-lg text-wapify-text-secondary/40 pointer-events-none font-mono">
                     {typingText}<span className="animate-pulse">|</span>
                   </div>
                 )}
@@ -315,10 +334,9 @@ export default function Home() {
                 <button
                   onClick={handleGenerate}
                   disabled={!prompt.trim()}
-                  className="px-8 py-4 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-bold hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-3 group"
+                  className="px-8 py-4 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-bold hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   <span>Start Building</span>
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
                 </button>
               </div>
             </div>
