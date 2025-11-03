@@ -938,7 +938,7 @@ export default function EditorPage() {
       <div className="grain-texture"></div>
 
       {/* Top Navigation */}
-      <nav className="h-14 bg-wapify-panel border-b border-wapify-border flex items-center justify-between px-4 flex-shrink-0 relative z-50">
+      <nav className="h-14 bg-wapify-panel flex items-center justify-between px-4 flex-shrink-0 relative z-50">
         <div className="flex items-center gap-4 flex-1">
           {!isChatCollapsed && (
             <>
@@ -1166,7 +1166,7 @@ export default function EditorPage() {
         {/* Left Panel - Chat Interface */}
         {!isChatCollapsed && (
           <div
-            className="bg-wapify-panel border-r border-wapify-border flex flex-col relative z-0"
+            className="bg-wapify-panel flex flex-col relative z-0"
             style={{ width: `${chatWidth}px` }}
             onMouseEnter={() => setIsChatHovered(true)}
             onMouseLeave={() => setIsChatHovered(false)}
@@ -1324,7 +1324,7 @@ export default function EditorPage() {
             </div>
 
             {/* Input Area - Integrated */}
-            <div className="border-t border-wapify-border flex-shrink-0 bg-wapify-bg p-4">
+            <div className="flex-shrink-0 bg-wapify-bg p-4">
               <form onSubmit={handleSubmit} className="relative">
                 <div className="bg-white border-2 border-wapify-border rounded-xl p-3 focus-within:border-wapify-accent transition">
                   {/* Textarea with Send Button */}
