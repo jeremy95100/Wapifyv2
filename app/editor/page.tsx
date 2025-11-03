@@ -924,146 +924,98 @@ export default function EditorPage() {
 
       {/* Top Navigation */}
       <nav className="h-14 bg-wapify-panel border-b-2 border-wapify-border flex items-center justify-between px-4 flex-shrink-0 relative z-50">
-        <div className="flex items-center gap-4">
-          {/* Wapify Logo Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-2 hover:opacity-80 transition group"
-            >
-              <div className="w-8 h-8 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-base shadow-md">
-                ⚡
-              </div>
-              <svg className={`w-4 h-4 text-wapify-text-secondary transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/>
-              </svg>
-            </button>
-
-            {/* Dropdown Menu */}
-            {isUserMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setIsUserMenuOpen(false)}></div>
-                <div className="absolute top-full left-0 mt-2 w-56 bg-wapify-panel border-2 border-wapify-border rounded-xl shadow-2xl overflow-hidden z-20">
-                  <Link
-                    href="/dashboard"
-                    className="flex items-center gap-3 px-4 py-3 text-sm text-wapify-text hover:bg-wapify-bg transition border-b border-wapify-border"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    <span>←</span>
-                    <span>Back to Workspace</span>
-                  </Link>
-
-                  <div className="px-4 py-3 bg-wapify-bg border-b border-wapify-border">
-                    <div className="text-xs text-wapify-text-secondary mb-1">Signed in as</div>
-                    <div className="text-sm font-semibold text-wapify-text truncate">{session?.user?.email}</div>
-                  </div>
-
-                  <div className="px-4 py-3 bg-wapify-bg border-b border-wapify-border">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-wapify-text-secondary">Credits</span>
-                      <span className="text-sm font-bold text-wapify-accent">∞</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-wapify-text-secondary">Plan</span>
-                      <span className="text-xs font-semibold text-wapify-text bg-wapify-accent/10 px-2 py-0.5 rounded-full">Free Trial</span>
-                    </div>
-                  </div>
-
-                  <Link href="/docs" className="flex items-center gap-3 px-4 py-2.5 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition" onClick={() => setIsUserMenuOpen(false)}>
-                    <span>📖</span>
-                    <span>Documentation</span>
-                  </Link>
-
-                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition text-left">
-                    <span>⚙️</span>
-                    <span>Settings</span>
-                  </button>
-
-                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition text-left">
-                    <span>💳</span>
-                    <span>Billing</span>
-                  </button>
-
-                  <Link href="/support" className="flex items-center gap-3 px-4 py-2.5 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition" onClick={() => setIsUserMenuOpen(false)}>
-                    <span>💬</span>
-                    <span>Help Center</span>
-                  </Link>
-
-                  <Link href="/pricing" className="flex items-center gap-3 px-4 py-2.5 text-sm text-wapify-accent hover:bg-wapify-bg transition font-semibold border-t border-wapify-border" onClick={() => setIsUserMenuOpen(false)}>
-                    <span>⭐</span>
-                    <span>Upgrade Plan</span>
-                  </Link>
-
-                  <button
-                    onClick={() => {
-                      setIsUserMenuOpen(false)
-                      signOut({ callbackUrl: '/' })
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition text-left border-t border-wapify-border"
-                  >
-                    <span>🚪</span>
-                    <span>Sign Out</span>
-                  </button>
+        {!isChatCollapsed && (
+          <div className="flex items-center gap-4">
+            {/* Wapify Logo Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center gap-2 hover:opacity-80 transition group"
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-base shadow-md">
+                  ⚡
                 </div>
-              </>
-            )}
+                <svg className={`w-4 h-4 text-wapify-text-secondary transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/>
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              {isUserMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setIsUserMenuOpen(false)}></div>
+                  <div className="absolute top-full left-0 mt-2 w-56 bg-wapify-panel border-2 border-wapify-border rounded-xl shadow-2xl overflow-hidden z-20">
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-wapify-text hover:bg-wapify-bg transition border-b border-wapify-border"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      <span>←</span>
+                      <span>Back to Workspace</span>
+                    </Link>
+
+                    <div className="px-4 py-3 bg-wapify-bg border-b border-wapify-border">
+                      <div className="text-xs text-wapify-text-secondary mb-1">Signed in as</div>
+                      <div className="text-sm font-semibold text-wapify-text truncate">{session?.user?.email}</div>
+                    </div>
+
+                    <div className="px-4 py-3 bg-wapify-bg border-b border-wapify-border">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-wapify-text-secondary">Credits</span>
+                        <span className="text-sm font-bold text-wapify-accent">∞</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-wapify-text-secondary">Plan</span>
+                        <span className="text-xs font-semibold text-wapify-text bg-wapify-accent/10 px-2 py-0.5 rounded-full">Free Trial</span>
+                      </div>
+                    </div>
+
+                    <Link href="/docs" className="flex items-center gap-3 px-4 py-2.5 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition" onClick={() => setIsUserMenuOpen(false)}>
+                      <span>📖</span>
+                      <span>Documentation</span>
+                    </Link>
+
+                    <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition text-left">
+                      <span>⚙️</span>
+                      <span>Settings</span>
+                    </button>
+
+                    <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition text-left">
+                      <span>💳</span>
+                      <span>Billing</span>
+                    </button>
+
+                    <Link href="/support" className="flex items-center gap-3 px-4 py-2.5 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition" onClick={() => setIsUserMenuOpen(false)}>
+                      <span>💬</span>
+                      <span>Help Center</span>
+                    </Link>
+
+                    <Link href="/pricing" className="flex items-center gap-3 px-4 py-2.5 text-sm text-wapify-accent hover:bg-wapify-bg transition font-semibold border-t border-wapify-border" onClick={() => setIsUserMenuOpen(false)}>
+                      <span>⭐</span>
+                      <span>Upgrade Plan</span>
+                    </Link>
+
+                    <button
+                      onClick={() => {
+                        setIsUserMenuOpen(false)
+                        signOut({ callbackUrl: '/' })
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition text-left border-t border-wapify-border"
+                    >
+                      <span>🚪</span>
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Project Name */}
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-wapify-bg rounded-lg">
+              <span className="text-sm font-semibold text-wapify-text">{projectName || 'Untitled Project'}</span>
+            </div>
           </div>
-
-          {/* Project Name */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-wapify-bg rounded-lg">
-            <span className="text-sm font-semibold text-wapify-text">{projectName || 'Untitled Project'}</span>
-          </div>
-
-          {/* Divider */}
-          <div className="h-8 w-[1px] bg-wapify-border"></div>
-
-          {/* Toggle Sidebar Button */}
-          <button
-            onClick={() => setIsChatCollapsed(!isChatCollapsed)}
-            className="p-1.5 text-gray-500 hover:bg-gray-200 rounded-md transition-colors"
-            title={isChatCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
-              <path d="M9 3v18"></path>
-              <path d={isChatCollapsed ? "m14 9 3 3-3 3" : "m16 15-3-3 3-3"}></path>
-            </svg>
-          </button>
-
-          {/* Help Button */}
-          <button
-            onClick={() => window.open('mailto:support@wapify.com?subject=Help Request', '_blank')}
-            className="w-7 h-7 rounded-full border-2 border-gray-300 bg-white hover:bg-gray-100 hover:border-gray-400 transition flex items-center justify-center text-sm font-bold text-gray-600"
-            title="Contact Wapify Support"
-          >
-            ?
-          </button>
-
-          {/* Tabs Container */}
-          <div className="inline-flex items-center justify-center bg-gray-100 p-1 text-gray-500 h-7 rounded-lg">
-            <button
-              onClick={() => setActiveView('preview')}
-              className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
-                activeView === 'preview'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              Preview
-            </button>
-
-            <button
-              onClick={() => setActiveView('dashboard')}
-              className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
-                activeView === 'dashboard'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              Dashboard
-            </button>
-          </div>
-        </div>
+        )}
 
         <div className="flex items-center gap-3">
           {lastSaved && (
@@ -1110,7 +1062,16 @@ export default function EditorPage() {
             style={{ width: `${chatWidth}px` }}
           >
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 pt-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 pt-4 relative">
+              {/* Floating Help Button - Top Right Corner of Chat */}
+              <button
+                onClick={() => window.open('mailto:support@wapify.com?subject=Wapify Help Request', '_blank')}
+                className="absolute right-4 top-4 z-10 w-8 h-8 bg-wapify-accent text-white rounded-full flex items-center justify-center font-bold shadow-lg hover:bg-wapify-accent-dark transition"
+                title="Help"
+              >
+                ?
+              </button>
+
               {messages.length === 0 && (
                 <div className="text-center py-12">
                   <div className="text-5xl mb-4 opacity-50">✨</div>
@@ -1245,8 +1206,53 @@ export default function EditorPage() {
 
         {/* Right Panel - Preview & Code */}
         <div className="flex-1 flex flex-col bg-wapify-bg relative z-0">
-          {/* Top Bar with Share/Publish buttons */}
-          <div className="flex items-center justify-end px-4 py-3 border-b border-wapify-border flex-shrink-0">
+          {/* Top Bar with Toggle, Preview, Dashboard on left and Share/Publish on right */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-wapify-border flex-shrink-0">
+            <div className="flex items-center gap-2">
+              {/* Toggle Sidebar Button */}
+              <button
+                onClick={() => setIsChatCollapsed(!isChatCollapsed)}
+                className="p-1.5 text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg rounded-lg transition"
+                title="Toggle Sidebar"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ transform: isChatCollapsed ? 'scaleX(-1)' : 'none' }}
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="9" y1="3" x2="9" y2="21" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M14 8L11 12L14 16" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+
+              {/* Tabs Container */}
+              <div className="inline-flex bg-wapify-panel border border-wapify-border rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setActiveView('preview')}
+                  className={`px-3 py-1.5 text-xs font-semibold transition ${
+                    activeView === 'preview'
+                      ? 'bg-wapify-accent text-white'
+                      : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+                  }`}
+                >
+                  Preview
+                </button>
+                <button
+                  onClick={() => setActiveView('dashboard')}
+                  className={`px-3 py-1.5 text-xs font-semibold transition border-l border-wapify-border ${
+                    activeView === 'dashboard'
+                      ? 'bg-wapify-accent text-white'
+                      : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+                  }`}
+                >
+                  Dashboard
+                </button>
+              </div>
+            </div>
+
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
