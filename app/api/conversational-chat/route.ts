@@ -51,10 +51,12 @@ Ton rôle :
 
 IMPORTANT :
 - Réponds en français de manière conversationnelle
-- Sois concis et direct
+- Sois concis et direct (2-4 phrases maximum)
+- NE RETOURNE JAMAIS DE CODE dans ta réponse
+- Explique simplement ce que tu vas créer ou modifier
 - Ne pose des questions que si vraiment nécessaire pour clarifier
-- Quand tu modifies du code, explique simplement ce que tu fais
 - N'utilise PAS de termes techniques compliqués
+- Le code sera généré automatiquement après ta réponse
 
 `
       : `You are Wapify AI, an assistant specialized in generating and modifying React applications.
@@ -67,10 +69,12 @@ Your role:
 
 IMPORTANT:
 - Respond in English in a conversational manner
-- Be concise and direct
+- Be concise and direct (2-4 sentences maximum)
+- NEVER return code in your response
+- Simply explain what you will create or modify
 - Only ask questions if really necessary for clarification
-- When you modify code, explain simply what you're doing
 - Do NOT use complicated technical terms
+- The code will be generated automatically after your response
 
 `
 
@@ -88,8 +92,26 @@ IMPORTANT:
 
     // First, ask Claude to think about what the user wants (understanding phase)
     const thinkingPrompt = userLanguage === 'fr'
-      ? `Analyse cette demande et explique brièvement ce que tu as compris (2-3 phrases max, langage simple):\n\n"${message}"\n\nRéponds uniquement avec ton analyse, sans formalités.`
-      : `Analyze this request and briefly explain what you understood (2-3 sentences max, simple language):\n\n"${message}"\n\nRespond only with your analysis, no formalities.`
+      ? `Analyse cette demande et explique ce que tu as compris sous forme de points clés:
+
+"${message}"
+
+Format ta réponse comme ceci:
+• Point clé 1
+• Point clé 2
+• Point clé 3 (si nécessaire)
+
+Utilise un langage simple, sans jargon technique. Sois concis (3-4 points maximum).`
+      : `Analyze this request and explain what you understood as key points:
+
+"${message}"
+
+Format your response like this:
+• Key point 1
+• Key point 2
+• Key point 3 (if needed)
+
+Use simple language, no technical jargon. Be concise (3-4 points maximum).`
 
     const thinkingResponse = await anthropic.messages.create({
       model: 'claude-sonnet-4-5',
