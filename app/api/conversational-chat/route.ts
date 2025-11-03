@@ -86,25 +86,6 @@ IMPORTANT:
       })
     }
 
-    // Build conversation history for Claude
-    const messages: Anthropic.MessageParam[] = []
-
-    // Add conversation history
-    if (conversationHistory && conversationHistory.length > 0) {
-      conversationHistory.forEach((msg: any) => {
-        messages.push({
-          role: msg.role === 'user' ? 'user' : 'assistant',
-          content: msg.content
-        })
-      })
-    }
-
-    // Add current message
-    messages.push({
-      role: 'user',
-      content: message
-    })
-
     // First, ask Claude to think about what the user wants (understanding phase)
     const thinkingPrompt = userLanguage === 'fr'
       ? `Analyse cette demande et explique brièvement ce que tu as compris (2-3 phrases max, langage simple):\n\n"${message}"\n\nRéponds uniquement avec ton analyse, sans formalités.`
@@ -124,6 +105,25 @@ IMPORTANT:
     if (thinkingContent.type === 'text') {
       thinking = thinkingContent.text
     }
+
+    // Build conversation history for Claude
+    const messages: Anthropic.MessageParam[] = []
+
+    // Add conversation history
+    if (conversationHistory && conversationHistory.length > 0) {
+      conversationHistory.forEach((msg: any) => {
+        messages.push({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        })
+      })
+    }
+
+    // Add current message
+    messages.push({
+      role: 'user',
+      content: message
+    })
 
     // Now call Claude for the actual response
     const response = await anthropic.messages.create({
