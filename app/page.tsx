@@ -7,7 +7,20 @@ import Link from 'next/link'
 export default function Home() {
   const [prompt, setPrompt] = useState('')
   const [isInputSticky, setIsInputSticky] = useState(false)
+  const [typingText, setTypingText] = useState('')
+  const [typingIndex, setTypingIndex] = useState(0)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [loopNum, setLoopNum] = useState(0)
   const router = useRouter()
+
+  const typingPhrases = [
+    "A modern e-commerce store with shopping cart...",
+    "An analytics dashboard with real-time charts...",
+    "A task management app with kanban board...",
+    "A booking system with calendar integration...",
+    "A social media feed with infinite scroll...",
+    "A portfolio website with project showcase..."
+  ]
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +29,31 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  useEffect(() => {
+    if (prompt) return // Don't animate if user is typing
+
+    const currentPhrase = typingPhrases[loopNum % typingPhrases.length]
+    const typingSpeed = isDeleting ? 30 : 80
+    const pauseTime = isDeleting ? 500 : 2000
+
+    const timer = setTimeout(() => {
+      if (!isDeleting && typingIndex < currentPhrase.length) {
+        setTypingText(currentPhrase.substring(0, typingIndex + 1))
+        setTypingIndex(typingIndex + 1)
+      } else if (isDeleting && typingIndex > 0) {
+        setTypingText(currentPhrase.substring(0, typingIndex - 1))
+        setTypingIndex(typingIndex - 1)
+      } else if (!isDeleting && typingIndex === currentPhrase.length) {
+        setTimeout(() => setIsDeleting(true), pauseTime)
+      } else if (isDeleting && typingIndex === 0) {
+        setIsDeleting(false)
+        setLoopNum(loopNum + 1)
+      }
+    }, typingSpeed)
+
+    return () => clearTimeout(timer)
+  }, [typingIndex, isDeleting, loopNum, prompt])
 
   const handleGenerate = () => {
     if (prompt.trim()) {
@@ -126,17 +164,17 @@ export default function Home() {
 
       <main className="relative z-10">
         {/* Hero Section */}
-        <section className="pt-32 pb-24 px-6">
+        <section className="pt-32 pb-16 px-6">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
               <div className="inline-block mb-6 px-4 py-2 bg-wapify-accent/10 border border-wapify-accent/20 rounded-full animate-fadeIn">
                 <span className="text-wapify-accent font-semibold text-sm">
-                  ⚡ Generate apps in under 60 seconds
+                  ⚡ Generate apps in under 5 minutes
                 </span>
               </div>
 
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-wapify-text mb-8 leading-[1.1] tracking-tight animate-fadeIn">
-                Build Apps in Minutes, Not Months
+                Build Apps in <span className="text-wapify-accent">Minutes</span>, Not Months
               </h1>
 
               <p className="text-xl md:text-2xl text-wapify-text-secondary mb-16 max-w-3xl mx-auto leading-relaxed animate-fadeIn">
@@ -144,17 +182,22 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Input Card */}
-            <div className="bg-wapify-panel/60 backdrop-blur-sm border-2 border-wapify-border rounded-2xl p-8 shadow-2xl mb-8 hover:border-wapify-accent/30 transition-all duration-300 animate-fadeIn">
-              <div className="mb-4">
+            {/* Input Card with Typing Effect */}
+            <div className="bg-wapify-panel/60 backdrop-blur-sm border-2 border-wapify-border rounded-2xl p-8 shadow-2xl mb-8 hover:border-wapify-accent/30 transition-all duration-300 animate-fadeIn relative">
+              <div className="mb-4 relative">
                 <label className="text-sm font-semibold text-wapify-text-secondary mb-2 block">
                   What are you building?
                 </label>
+                {!prompt && (
+                  <div className="absolute top-12 left-4 text-lg text-wapify-text-secondary/40 pointer-events-none font-mono">
+                    {typingText}<span className="animate-pulse">|</span>
+                  </div>
+                )}
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="A modern analytics dashboard with real-time charts and data tables..."
-                  className="w-full min-h-[140px] bg-wapify-bg/50 border border-wapify-border rounded-xl p-4 outline-none text-wapify-text placeholder-wapify-text-secondary/50 resize-none text-lg focus:border-wapify-accent transition"
+                  placeholder=""
+                  className="w-full min-h-[140px] bg-wapify-bg/50 border border-wapify-border rounded-xl p-4 outline-none text-wapify-text resize-none text-lg focus:border-wapify-accent transition relative z-10"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                       handleGenerate()
@@ -203,8 +246,33 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Stats Section */}
+        <section className="py-16 px-6 bg-wapify-panel/30">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-8">
+              <div className="text-center p-8 bg-wapify-panel/60 backdrop-blur-sm rounded-2xl border-2 border-wapify-border">
+                <div className="text-5xl md:text-6xl font-black text-wapify-accent mb-2">
+                  1,000+
+                </div>
+                <div className="text-lg text-wapify-text-secondary font-semibold">
+                  Apps Built
+                </div>
+              </div>
+
+              <div className="text-center p-8 bg-wapify-panel/60 backdrop-blur-sm rounded-2xl border-2 border-wapify-border">
+                <div className="text-5xl md:text-6xl font-black text-wapify-accent mb-2">
+                  &lt;5min
+                </div>
+                <div className="text-lg text-wapify-text-secondary font-semibold">
+                  Average Build Time
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* How It Works */}
-        <section className="py-24 px-6 bg-wapify-panel/30">
+        <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-20">
               <h2 className="text-4xl md:text-5xl font-bold text-wapify-text mb-4">
@@ -264,7 +332,7 @@ export default function Home() {
         </section>
 
         {/* Features */}
-        <section id="features" className="py-24 px-6">
+        <section id="features" className="py-24 px-6 bg-wapify-panel/30">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-20">
               <h2 className="text-4xl md:text-5xl font-bold text-wapify-text mb-4">
@@ -328,7 +396,7 @@ export default function Home() {
         </section>
 
         {/* Examples - Bolt Style */}
-        <section id="examples" className="py-24 px-6 bg-wapify-panel/30">
+        <section id="examples" className="py-24 px-6">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-wapify-text mb-4">
@@ -373,7 +441,7 @@ export default function Home() {
         </section>
 
         {/* Final CTA */}
-        <section className="py-24 px-6">
+        <section className="py-24 px-6 bg-wapify-panel/30">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bold text-wapify-text mb-6">
               Ready to Build Something Amazing?
@@ -393,7 +461,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-wapify-border py-16 px-6 relative z-10 bg-wapify-panel/30">
+      <footer className="border-t border-wapify-border py-16 px-6 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-5 gap-12 mb-12">
             {/* Brand */}
