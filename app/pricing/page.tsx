@@ -7,6 +7,7 @@ import { useState } from 'react'
 export default function PricingPage() {
   const router = useRouter()
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
+  const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false)
 
   const plans = [
     {
@@ -85,16 +86,64 @@ export default function PricingPage() {
 
       {/* Navigation */}
       <nav className="fixed w-full bg-wapify-panel/80 backdrop-blur-md border-b border-wapify-border z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center text-xl shadow-lg">
-              ⚡
+        <div className="w-full px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center text-xl shadow-lg">
+                ⚡
+              </div>
+              <span className="text-2xl font-bold text-wapify-text">Wapify</span>
+            </Link>
+
+            <div className="hidden md:flex items-center gap-6">
+              {/* Product Dropdown */}
+              <div
+                className="relative"
+                onMouseEnter={() => setIsProductDropdownOpen(true)}
+                onMouseLeave={() => setIsProductDropdownOpen(false)}
+              >
+                <button className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition flex items-center gap-1">
+                  Product
+                  <svg className={`w-4 h-4 transition-transform ${isProductDropdownOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/>
+                  </svg>
+                </button>
+
+                {isProductDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-wapify-panel border-2 border-wapify-border rounded-xl shadow-xl overflow-hidden">
+                    <Link href="/product/templates" className="block px-4 py-3 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition">
+                      Templates
+                    </Link>
+                    <Link href="/product/features" className="block px-4 py-3 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition">
+                      Features
+                    </Link>
+                    <Link href="/product/integrations" className="block px-4 py-3 text-sm text-wapify-text-secondary hover:bg-wapify-bg hover:text-wapify-text transition">
+                      Integrations
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              <Link href="/community" className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition">
+                Community
+              </Link>
+              <Link href="/pricing" className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition">
+                Pricing
+              </Link>
+              <Link href="/enterprise" className="text-sm font-medium text-wapify-text-secondary hover:text-wapify-text transition">
+                Enterprise
+              </Link>
             </div>
-            <span className="text-2xl font-bold text-wapify-text">Wapify</span>
-          </Link>
-          <Link href="/" className="px-6 py-2.5 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition">
-            Back to Home
-          </Link>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="px-5 py-2 text-wapify-text-secondary hover:text-wapify-text transition font-medium">
+              Sign in
+            </Link>
+            <Link href="/auth/signin" className="px-6 py-2.5 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition shadow-md">
+              Get Started
+            </Link>
+          </div>
         </div>
       </nav>
 
