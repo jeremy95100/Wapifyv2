@@ -1069,10 +1069,10 @@ export default function EditorPage() {
           )}
 
           {/* View Tabs */}
-          <div className="rt-Box flex-1 flex items-center gap-1 bg-wapify-panel border border-wapify-border rounded-lg p-1">
+          <div className="rt-Box flex items-center gap-1 bg-wapify-panel border border-wapify-border rounded-lg p-1">
             <button
               onClick={() => setActiveView('code')}
-              className={`flex-1 px-3 py-1.5 text-xs font-semibold transition rounded ${
+              className={`px-3 py-1.5 text-xs font-semibold transition rounded ${
                 activeView === 'code'
                   ? 'bg-wapify-accent text-white'
                   : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
@@ -1082,7 +1082,7 @@ export default function EditorPage() {
             </button>
             <button
               onClick={() => setActiveView('preview')}
-              className={`flex-1 px-3 py-1.5 text-xs font-semibold transition rounded ${
+              className={`px-3 py-1.5 text-xs font-semibold transition rounded ${
                 activeView === 'preview'
                   ? 'bg-wapify-accent text-white'
                   : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
@@ -1092,7 +1092,7 @@ export default function EditorPage() {
             </button>
             <button
               onClick={() => setActiveView('dashboard')}
-              className={`flex-1 px-3 py-1.5 text-xs font-semibold transition rounded ${
+              className={`px-3 py-1.5 text-xs font-semibold transition rounded ${
                 activeView === 'dashboard'
                   ? 'bg-wapify-accent text-white'
                   : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
