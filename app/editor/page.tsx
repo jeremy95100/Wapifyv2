@@ -132,6 +132,28 @@ export default function EditorPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // Fonction pour générer un nom de projet à partir du prompt
+  const generateProjectName = async (prompt: string): Promise<string> => {
+    try {
+      const response = await fetch('/api/generate-project-name', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      })
+
+      if (response.ok) {
+        const { name } = await response.json()
+        return name
+      }
+    } catch (error) {
+      console.error('Error generating project name:', error)
+    }
+
+    // Fallback: extract first few words from prompt
+    const words = prompt.split(' ').slice(0, 4).join(' ')
+    return words.charAt(0).toUpperCase() + words.slice(1)
+  }
+
   // Fonction pour sauvegarder le projet
   const saveProject = useCallback(async (code: string, prompt: string) => {
     if ((!code && !isMultiFile) || !prompt || !session?.user?.email) return
@@ -142,7 +164,11 @@ export default function EditorPage() {
       const isTemporaryId = projectId?.startsWith('proj-')
 
       if (!projectId || isTemporaryId) {
-        const name = projectName || `Projet ${new Date().toLocaleDateString()}`
+        let name = projectName
+        if (!name) {
+          name = await generateProjectName(prompt)
+          setProjectName(name)
+        }
         const requestBody: any = { userId, name, prompt }
 
         if (isMultiFile) {
