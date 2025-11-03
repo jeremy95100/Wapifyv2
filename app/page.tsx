@@ -93,7 +93,7 @@ export default function Home() {
         "Neutral color palette with accent colors",
         "Perfect for SaaS, portfolios, and corporate sites"
       ],
-      preview: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60",
+      preview: "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&auto=format&fit=crop&q=80",
       color: "from-blue-500/10 to-cyan-500/10",
       styleInstructions: "Use a modern minimalist design with generous whitespace, clean sans-serif typography, subtle animations, and a neutral color palette with accent colors."
     },
@@ -108,7 +108,7 @@ export default function Home() {
         "Modern glassmorphism and blur effects",
         "Ideal for creative agencies and startups"
       ],
-      preview: "https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=800&auto=format&fit=crop&q=60",
+      preview: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=1200&auto=format&fit=crop&q=80",
       color: "from-purple-500/10 to-pink-500/10",
       styleInstructions: "Use bold gradient backgrounds with vibrant colors, smooth color transitions, animated elements with hover effects, and modern glassmorphism with blur effects."
     },
@@ -123,7 +123,7 @@ export default function Home() {
         "Reduced eye strain for long sessions",
         "Great for dashboards, dev tools, and gaming"
       ],
-      preview: "https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?w=800&auto=format&fit=crop&q=60",
+      preview: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
       color: "from-gray-800/10 to-slate-900/10",
       styleInstructions: "Use a dark mode design with dark backgrounds, neon accent colors for CTAs, high contrast for readability, and strategic highlights."
     },
@@ -138,7 +138,7 @@ export default function Home() {
         "Intentionally rough and direct aesthetic",
         "Perfect for portfolios and bold brands"
       ],
-      preview: "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=800&auto=format&fit=crop&q=60",
+      preview: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&auto=format&fit=crop&q=80",
       color: "from-yellow-500/10 to-orange-500/10",
       styleInstructions: "Use a brutalist design with heavy black borders, bold geometric shapes, strong typography hierarchy, and high contrast black and white colors."
     },
@@ -153,7 +153,7 @@ export default function Home() {
         "Modern, clean, and sophisticated look",
         "Excellent for premium and luxury brands"
       ],
-      preview: "https://images.unsplash.com/photo-1618761714954-0b8cd0026356?w=800&auto=format&fit=crop&q=60",
+      preview: "https://images.unsplash.com/photo-1559028012-481c04fa702d?w=1200&auto=format&fit=crop&q=80",
       color: "from-teal-500/10 to-emerald-500/10",
       styleInstructions: "Use glassmorphism design with frosted glass blur effects on cards, soft drop shadows, translucent backgrounds with vibrant colors, and depth layers."
     }
@@ -197,7 +197,7 @@ export default function Home() {
 
       {/* Navigation */}
       <nav className="fixed w-full bg-wapify-panel/80 backdrop-blur-md border-b border-wapify-border z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="w-full px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center text-xl shadow-lg">
@@ -547,7 +547,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-wapify-border py-16 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto">
+        <div className="w-full">
           <div className="grid md:grid-cols-6 gap-12 mb-12">
             {/* Brand */}
             <div className="md:col-span-2">
