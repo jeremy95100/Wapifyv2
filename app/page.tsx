@@ -68,37 +68,72 @@ export default function Home() {
     {
       id: "modern",
       name: "Modern Minimalist",
-      description: "Clean lines, ample white space, and a focus on typography. Perfect for professional and elegant applications.",
-      preview: "/previews/modern.png",
-      color: "from-blue-500/20 to-cyan-500/20"
+      description: "A clean, sophisticated design system focused on clarity and usability.",
+      features: [
+        "Generous whitespace and breathing room",
+        "Sans-serif typography with clear hierarchy",
+        "Subtle animations and micro-interactions",
+        "Neutral color palette with accent colors",
+        "Perfect for SaaS, portfolios, and corporate sites"
+      ],
+      preview: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60",
+      color: "from-blue-500/10 to-cyan-500/10"
     },
     {
       id: "gradient",
       name: "Gradient & Vibrant",
-      description: "Bold colors, smooth gradients, and eye-catching animations. Ideal for creative and energetic brands.",
-      preview: "/previews/gradient.png",
-      color: "from-purple-500/20 to-pink-500/20"
+      description: "Bold, energetic design with stunning color transitions and dynamic elements.",
+      features: [
+        "Smooth gradient backgrounds and overlays",
+        "Bright, eye-catching color combinations",
+        "Animated elements and hover effects",
+        "Modern glassmorphism and blur effects",
+        "Ideal for creative agencies and startups"
+      ],
+      preview: "https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=800&auto=format&fit=crop&q=60",
+      color: "from-purple-500/10 to-pink-500/10"
     },
     {
       id: "dark",
-      name: "Dark Mode",
-      description: "Sleek dark theme with neon accents. Great for tech products and modern dashboards.",
-      preview: "/previews/dark.png",
-      color: "from-gray-700/20 to-gray-900/20"
+      name: "Dark Mode Premium",
+      description: "Sleek dark interface with neon accents perfect for modern tech products.",
+      features: [
+        "Dark backgrounds with strategic highlights",
+        "Neon accent colors for CTAs and focus",
+        "High contrast for excellent readability",
+        "Reduced eye strain for long sessions",
+        "Great for dashboards, dev tools, and gaming"
+      ],
+      preview: "https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?w=800&auto=format&fit=crop&q=60",
+      color: "from-gray-800/10 to-slate-900/10"
     },
     {
       id: "brutalist",
-      name: "Brutalist",
-      description: "Raw, bold, and unapologetically direct. Strong borders, heavy fonts, and high contrast.",
-      preview: "/previews/brutalist.png",
-      color: "from-yellow-500/20 to-orange-500/20"
+      name: "Brutalist Bold",
+      description: "Raw, unapologetic design that makes a strong statement with maximum impact.",
+      features: [
+        "Heavy black borders and geometric shapes",
+        "Bold typography with strong hierarchy",
+        "High contrast black and white base",
+        "Intentionally rough and direct aesthetic",
+        "Perfect for portfolios and bold brands"
+      ],
+      preview: "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=800&auto=format&fit=crop&q=60",
+      color: "from-yellow-500/10 to-orange-500/10"
     },
     {
       id: "glassmorphism",
       name: "Glassmorphism",
-      description: "Frosted glass effects, soft shadows, and translucent layers. Modern and sophisticated.",
-      preview: "/previews/glass.png",
-      color: "from-teal-500/20 to-emerald-500/20"
+      description: "Elegant frosted glass effects with translucent layers and soft shadows.",
+      features: [
+        "Frosted glass blur effects on cards",
+        "Soft drop shadows and depth layers",
+        "Translucent backgrounds with vibrant colors",
+        "Modern, clean, and sophisticated look",
+        "Excellent for premium and luxury brands"
+      ],
+      preview: "https://images.unsplash.com/photo-1618761714954-0b8cd0026356?w=800&auto=format&fit=crop&q=60",
+      color: "from-teal-500/10 to-emerald-500/10"
     }
   ]
 
@@ -233,13 +268,13 @@ export default function Home() {
         <section className="pt-32 pb-16 px-6">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-wapify-text mb-8 leading-[1.1] tracking-tight animate-fadeIn">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-wapify-text mb-6 leading-[1.1] tracking-tight animate-fadeIn">
                 Build Apps in <span className="text-wapify-accent">Minutes</span>
                 <br />
                 <span className="text-wapify-text-secondary">, Not Months</span>
               </h1>
 
-              <p className="text-xl md:text-2xl text-wapify-text-secondary mb-16 max-w-4xl mx-auto leading-relaxed animate-fadeIn">
+              <p className="text-lg md:text-xl text-wapify-text-secondary mb-12 max-w-3xl mx-auto leading-relaxed animate-fadeIn">
                 Describe your idea in any language. AI builds a complete, production-ready web app with database and hosting included.
               </p>
             </div>
@@ -273,6 +308,7 @@ export default function Home() {
                   onClick={() => setIsStyleModalOpen(true)}
                   className="flex items-center gap-2 text-sm text-wapify-accent hover:text-wapify-accent-dark transition font-semibold"
                 >
+                  <span>✨</span>
                   <span>Choose your style</span>
                 </button>
 
@@ -606,13 +642,23 @@ export default function Home() {
                 >
                   <div className="grid md:grid-cols-2 gap-8 p-8">
                     {/* Left: Description */}
-                    <div className="flex flex-col justify-center">
-                      <h3 className="text-2xl font-bold text-wapify-text mb-4">
-                        {style.name}
-                      </h3>
-                      <p className="text-wapify-text-secondary leading-relaxed mb-6">
-                        {style.description}
-                      </p>
+                    <div className="flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-2xl font-bold text-wapify-text mb-3">
+                          {style.name}
+                        </h3>
+                        <p className="text-wapify-text-secondary leading-relaxed mb-6">
+                          {style.description}
+                        </p>
+                        <ul className="space-y-2 mb-8">
+                          {style.features.map((feature, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-sm text-wapify-text-secondary">
+                              <span className="text-wapify-accent mt-1">•</span>
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                       <button
                         onClick={() => {
                           setSelectedStyle(style.id)
@@ -629,13 +675,13 @@ export default function Home() {
                     </div>
 
                     {/* Right: Preview */}
-                    <div className={`bg-gradient-to-br ${style.color} rounded-xl p-8 flex items-center justify-center min-h-[300px] border-2 border-wapify-border`}>
-                      <div className="text-center">
-                        <div className="text-6xl mb-4">🎨</div>
-                        <p className="text-sm text-wapify-text-secondary font-semibold">
-                          Preview coming soon
-                        </p>
-                      </div>
+                    <div className="relative rounded-xl overflow-hidden border-2 border-wapify-border min-h-[400px]">
+                      <img
+                        src={style.preview}
+                        alt={`${style.name} preview`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${style.color}`}></div>
                     </div>
                   </div>
                 </div>
