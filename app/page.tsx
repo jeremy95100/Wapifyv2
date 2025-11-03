@@ -581,34 +581,111 @@ export default function Home() {
                   <div className="p-6 space-y-4">
                     {/* Header */}
                     <div className="flex items-center justify-between pb-4 border-b-2 border-gray-100 animate-fadeIn">
-                      <div className="h-8 w-32 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark rounded animate-pulse"></div>
-                      <div className="flex gap-2">
-                        <div className="h-8 w-8 bg-gray-200 rounded hover:bg-gray-300 transition-colors"></div>
-                        <div className="h-8 w-8 bg-gray-200 rounded hover:bg-gray-300 transition-colors"></div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark rounded flex items-center justify-center text-white text-xs font-bold">
+                          S
+                        </div>
+                        <span className="text-sm font-bold text-gray-900">ShopHub</span>
                       </div>
+                      <div className="flex gap-2">
+                        <div className="h-8 w-8 bg-gray-200 rounded flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer">
+                          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </div>
+                        <div className="h-8 w-8 bg-wapify-accent rounded flex items-center justify-center hover:bg-wapify-accent-dark transition-colors cursor-pointer relative">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[8px] flex items-center justify-center font-bold">3</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Category Pills */}
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      <div className="px-3 py-1 bg-wapify-accent text-white text-xs rounded-full whitespace-nowrap font-medium">All</div>
+                      <div className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full whitespace-nowrap hover:bg-gray-200 transition cursor-pointer">Electronics</div>
+                      <div className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full whitespace-nowrap hover:bg-gray-200 transition cursor-pointer">Fashion</div>
                     </div>
 
                     {/* Product Grid */}
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-gray-50 rounded-lg p-3 space-y-2 hover:shadow-md transition-shadow duration-300 cursor-pointer" style={{animationDelay: '0.1s'}}>
-                        <div className="aspect-square bg-gradient-to-br from-blue-100 to-blue-200 rounded group-hover:scale-105 transition-transform duration-300"></div>
-                        <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                        <div className="h-2 bg-gray-100 rounded w-1/2"></div>
+                      <div className="bg-white border-2 border-gray-100 rounded-lg p-3 space-y-2 hover:shadow-lg hover:border-wapify-accent/30 transition-all duration-300 cursor-pointer">
+                        <div className="aspect-square bg-gradient-to-br from-blue-100 to-blue-200 rounded flex items-center justify-center relative overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                          <svg className="w-12 h-12 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-semibold text-gray-900 truncate">Wireless Headphones</div>
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-xs font-bold text-wapify-accent">$79.99</span>
+                            <div className="flex items-center gap-0.5">
+                              <svg className="w-2.5 h-2.5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              <span className="text-[9px] text-gray-500">4.5</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3 space-y-2 hover:shadow-md transition-shadow duration-300 cursor-pointer" style={{animationDelay: '0.2s'}}>
-                        <div className="aspect-square bg-gradient-to-br from-purple-100 to-purple-200 rounded group-hover:scale-105 transition-transform duration-300"></div>
-                        <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse" style={{animationDelay: '0.3s'}}></div>
-                        <div className="h-2 bg-gray-100 rounded w-1/3"></div>
+                      <div className="bg-white border-2 border-gray-100 rounded-lg p-3 space-y-2 hover:shadow-lg hover:border-wapify-accent/30 transition-all duration-300 cursor-pointer">
+                        <div className="aspect-square bg-gradient-to-br from-purple-100 to-purple-200 rounded flex items-center justify-center relative overflow-hidden">
+                          <svg className="w-12 h-12 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-semibold text-gray-900 truncate">Smart Watch Pro</div>
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-xs font-bold text-wapify-accent">$299</span>
+                            <div className="flex items-center gap-0.5">
+                              <svg className="w-2.5 h-2.5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              <span className="text-[9px] text-gray-500">4.8</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3 space-y-2 hover:shadow-md transition-shadow duration-300 cursor-pointer" style={{animationDelay: '0.3s'}}>
-                        <div className="aspect-square bg-gradient-to-br from-green-100 to-green-200 rounded group-hover:scale-105 transition-transform duration-300"></div>
-                        <div className="h-3 bg-gray-200 rounded w-4/5 animate-pulse" style={{animationDelay: '0.4s'}}></div>
-                        <div className="h-2 bg-gray-100 rounded w-2/5"></div>
+                      <div className="bg-white border-2 border-gray-100 rounded-lg p-3 space-y-2 hover:shadow-lg hover:border-wapify-accent/30 transition-all duration-300 cursor-pointer">
+                        <div className="aspect-square bg-gradient-to-br from-green-100 to-green-200 rounded flex items-center justify-center relative overflow-hidden">
+                          <svg className="w-12 h-12 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-semibold text-gray-900 truncate">Camera Lens Kit</div>
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-xs font-bold text-wapify-accent">$149</span>
+                            <div className="flex items-center gap-0.5">
+                              <svg className="w-2.5 h-2.5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              <span className="text-[9px] text-gray-500">4.7</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3 space-y-2 hover:shadow-md transition-shadow duration-300 cursor-pointer" style={{animationDelay: '0.4s'}}>
-                        <div className="aspect-square bg-gradient-to-br from-orange-100 to-orange-200 rounded group-hover:scale-105 transition-transform duration-300"></div>
-                        <div className="h-3 bg-gray-200 rounded w-3/5 animate-pulse" style={{animationDelay: '0.5s'}}></div>
-                        <div className="h-2 bg-gray-100 rounded w-1/4"></div>
+                      <div className="bg-white border-2 border-gray-100 rounded-lg p-3 space-y-2 hover:shadow-lg hover:border-wapify-accent/30 transition-all duration-300 cursor-pointer">
+                        <div className="aspect-square bg-gradient-to-br from-orange-100 to-orange-200 rounded flex items-center justify-center relative overflow-hidden">
+                          <svg className="w-12 h-12 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-semibold text-gray-900 truncate">Action Camera 4K</div>
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-xs font-bold text-wapify-accent">$199</span>
+                            <div className="flex items-center gap-0.5">
+                              <svg className="w-2.5 h-2.5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              <span className="text-[9px] text-gray-500">4.9</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -700,137 +777,87 @@ export default function Home() {
 
                   {/* Mock Dashboard Content */}
                   <div className="p-6 space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center justify-between animate-fadeIn">
-                      <div className="h-6 w-24 bg-white rounded animate-pulse"></div>
-                      <div className="h-8 w-20 bg-cyan-500 rounded hover:bg-cyan-400 transition-colors cursor-pointer"></div>
+                    {/* Header with Logo and Action Button */}
+                    <div className="flex items-center justify-between pb-4 border-b-2 border-gray-800 animate-fadeIn">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded flex items-center justify-center text-white text-xs font-bold">
+                          D
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-white">Dashboard</div>
+                          <div className="text-[9px] text-gray-400">Analytics Overview</div>
+                        </div>
+                      </div>
+                      <button className="px-3 py-1.5 bg-cyan-500 text-gray-900 rounded text-xs font-bold hover:bg-cyan-400 transition-colors shadow-lg shadow-cyan-500/30">
+                        Export
+                      </button>
                     </div>
 
-                    {/* Stats Cards */}
+                    {/* Stats Cards with Real Data */}
                     <div className="grid grid-cols-3 gap-3">
                       <div className="bg-gray-800 border border-cyan-500/30 rounded-lg p-3 hover:border-cyan-500/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/20">
-                        <div className="h-2 bg-gray-700 rounded w-1/2 mb-2"></div>
-                        <div className="h-4 bg-cyan-500/20 rounded w-3/4 animate-pulse" style={{animationDelay: '0.1s'}}></div>
+                        <div className="text-[9px] text-gray-400 mb-1 font-medium">Total Revenue</div>
+                        <div className="text-lg font-black text-white">$12.4K</div>
+                        <div className="text-[8px] text-cyan-400 font-semibold mt-0.5">+18.2%</div>
                       </div>
                       <div className="bg-gray-800 border border-purple-500/30 rounded-lg p-3 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-purple-500/20">
-                        <div className="h-2 bg-gray-700 rounded w-1/2 mb-2"></div>
-                        <div className="h-4 bg-purple-500/20 rounded w-2/3 animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                        <div className="text-[9px] text-gray-400 mb-1 font-medium">Active Users</div>
+                        <div className="text-lg font-black text-white">1,247</div>
+                        <div className="text-[8px] text-purple-400 font-semibold mt-0.5">+7.8%</div>
                       </div>
                       <div className="bg-gray-800 border border-green-500/30 rounded-lg p-3 hover:border-green-500/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-green-500/20">
-                        <div className="h-2 bg-gray-700 rounded w-1/2 mb-2"></div>
-                        <div className="h-4 bg-green-500/20 rounded w-4/5 animate-pulse" style={{animationDelay: '0.3s'}}></div>
+                        <div className="text-[9px] text-gray-400 mb-1 font-medium">Conversion</div>
+                        <div className="text-lg font-black text-white">23.4%</div>
+                        <div className="text-[8px] text-green-400 font-semibold mt-0.5">+5.2%</div>
                       </div>
                     </div>
 
-                    {/* Chart Area */}
+                    {/* Chart Area with Labels */}
                     <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-cyan-500/30 transition-colors duration-300">
-                      <div className="h-3 bg-gray-700 rounded w-1/3 mb-3 animate-pulse"></div>
-                      <div className="flex items-end gap-2 h-24">
-                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '60%', animationDelay: '0.1s'}}></div>
-                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '80%', animationDelay: '0.2s'}}></div>
-                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '45%', animationDelay: '0.3s'}}></div>
-                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '90%', animationDelay: '0.4s'}}></div>
-                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '70%', animationDelay: '0.5s'}}></div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-[10px] text-gray-300 font-bold">Weekly Performance</div>
+                        <div className="flex gap-2">
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
+                            <span className="text-[8px] text-gray-400">Sales</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-end justify-between gap-1.5 h-20">
+                        <div className="flex-1 flex flex-col items-center gap-1">
+                          <div className="w-full bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '60%', animationDelay: '0.1s'}}></div>
+                          <span className="text-[7px] text-gray-500">Mon</span>
+                        </div>
+                        <div className="flex-1 flex flex-col items-center gap-1">
+                          <div className="w-full bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '80%', animationDelay: '0.2s'}}></div>
+                          <span className="text-[7px] text-gray-500">Tue</span>
+                        </div>
+                        <div className="flex-1 flex flex-col items-center gap-1">
+                          <div className="w-full bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '45%', animationDelay: '0.3s'}}></div>
+                          <span className="text-[7px] text-gray-500">Wed</span>
+                        </div>
+                        <div className="flex-1 flex flex-col items-center gap-1">
+                          <div className="w-full bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '90%', animationDelay: '0.4s'}}></div>
+                          <span className="text-[7px] text-gray-500">Thu</span>
+                        </div>
+                        <div className="flex-1 flex flex-col items-center gap-1">
+                          <div className="w-full bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '70%', animationDelay: '0.5s'}}></div>
+                          <span className="text-[7px] text-gray-500">Fri</span>
+                        </div>
+                        <div className="flex-1 flex flex-col items-center gap-1">
+                          <div className="w-full bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '55%', animationDelay: '0.6s'}}></div>
+                          <span className="text-[7px] text-gray-500">Sat</span>
+                        </div>
+                        <div className="flex-1 flex flex-col items-center gap-1">
+                          <div className="w-full bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '40%', animationDelay: '0.7s'}}></div>
+                          <span className="text-[7px] text-gray-500">Sun</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Pricing Section */}
-        <section className="py-24 px-6 bg-wapify-panel/30">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-black text-wapify-text mb-4">
-                Simple, Transparent Pricing
-              </h2>
-              <p className="text-xl text-wapify-text-secondary">
-                Start free, upgrade when you're ready
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {/* Starter Plan */}
-              <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-8 hover:border-wapify-accent/50 transition-all">
-                <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-wapify-text mb-2">Starter</h3>
-                  <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-5xl font-black text-wapify-text">$0</span>
-                    <span className="text-wapify-text-secondary">/month</span>
-                  </div>
-                  <p className="text-wapify-text-secondary">Perfect for getting started and trying out</p>
-                </div>
-
-                <ul className="space-y-3 mb-8">
-                  {[
-                    "50 daily credits (up to 150/month)",
-                    "Public apps only",
-                    "Wapify branding",
-                    "1 app"
-                  ].map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
-                      <span className="text-wapify-accent text-lg">✓</span>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  onClick={() => router.push('/auth/signin')}
-                  className="w-full px-6 py-3 bg-wapify-bg border-2 border-wapify-border text-wapify-text rounded-xl font-semibold hover:bg-wapify-border transition"
-                >
-                  Get Started Free
-                </button>
-              </div>
-
-              {/* Builder Plan */}
-              <div className="bg-gradient-to-br from-wapify-accent/5 to-wapify-accent-dark/5 border-2 border-wapify-accent rounded-2xl p-8 relative shadow-xl">
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-wapify-accent text-white rounded-full text-sm font-bold">
-                  Most Popular
-                </div>
-
-                <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-wapify-text mb-2">Builder</h3>
-                  <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-5xl font-black text-wapify-text">$50</span>
-                    <span className="text-wapify-text-secondary">/month</span>
-                  </div>
-                  <p className="text-wapify-text-secondary mb-2">Build, deploy and scale your apps</p>
-                  <p className="text-sm text-wapify-accent font-semibold">$45/month billed annually</p>
-                </div>
-
-                <ul className="space-y-3 mb-8">
-                  {[
-                    "Private Projects",
-                    "Full-Fledged Browser IDE",
-                    "Integrations",
-                    "Connect to Github",
-                    "Custom Domains",
-                    "Up to 8 GB RAM / 4 vCPU per deployed app",
-                    "5 apps max"
-                  ].map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
-                      <span className="text-wapify-accent text-lg">✓</span>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  onClick={() => router.push('/auth/signin')}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all"
-                >
-                  Start Builder Plan
-                </button>
-              </div>
-            </div>
-
-            <p className="text-center text-sm text-wapify-text-secondary mt-12">
-              Need more? <Link href="/enterprise" className="text-wapify-accent hover:underline font-semibold">Contact us for Enterprise pricing</Link>
-            </p>
           </div>
         </section>
 
