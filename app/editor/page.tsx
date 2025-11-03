@@ -8,6 +8,7 @@ import JSZip from 'jszip'
 import Editor from '@monaco-editor/react'
 import { GenerationPlan, GenerationStep, ModificationDetail} from '../../lib/anthropic'
 import { generateProject } from '../../lib/generate-client'
+import GenerationPanel from './components/GenerationPanel'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -72,6 +73,16 @@ export default function EditorPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
   const stepsEndRef = useRef<HTMLDivElement>(null)
+
+  // Generation panel states
+  const [generationTasks, setGenerationTasks] = useState<Array<{
+    id: string
+    title: string
+    description: string
+    status: 'pending' | 'in_progress' | 'completed'
+    type: 'page' | 'component' | 'database' | 'style'
+  }>>([])
+  const [isPanelExpanded, setIsPanelExpanded] = useState(true)
   const hasInitialized = useRef(false)
   const lastProgressUpdateTime = useRef<number>(Date.now())
   const stuckMessageTimer = useRef<NodeJS.Timeout | null>(null)
@@ -679,98 +690,55 @@ export default function EditorPage() {
     }
     setMessages(prev => [...prev, userMessage])
     setCurrentGenerationMessageId(messageId)
+    const userInput = input
     setInput('')
     setIsGenerating(true)
     setError('')
-    setSteps([])
-    setModifications([])
 
     try {
-      const requestBody: any = {
-        modification: userMessage.content,
-        conversationHistory: messages,
-        isMultiFile
-      }
-
-      if (isMultiFile) {
-        requestBody.projectFiles = projectFiles
-      } else {
-        requestBody.currentCode = generatedCode
-      }
-
-      const response = await fetch('/api/chat', {
+      // First, call conversational endpoint to get AI response
+      const conversationalResponse = await fetch('/api/conversational-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify({
+          message: userInput,
+          conversationHistory: messages,
+          currentCode: !isMultiFile ? generatedCode : undefined,
+          projectFiles: isMultiFile ? projectFiles : undefined
+        })
       })
 
-      if (!response.ok) {
-        throw new Error('Modification error')
+      if (!conversationalResponse.ok) {
+        throw new Error('Communication error with AI')
       }
 
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
+      const { response: aiResponse, needsCodeGeneration, generationPlan } = await conversationalResponse.json()
 
-      if (!reader) {
-        throw new Error('No stream available')
+      // Add AI conversational response
+      const aiMessage: Message = {
+        role: 'assistant',
+        content: aiResponse,
+        id: `msg-${Date.now()}`,
+        timestamp: new Date()
       }
+      setMessages(prev => [...prev, aiMessage])
 
-      let buffer = ''
+      // If AI determines code generation is needed, show the plan
+      if (needsCodeGeneration) {
+        // Set generation tasks from plan
+        if (generationPlan && generationPlan.tasks) {
+          setGenerationTasks(generationPlan.tasks)
+          setIsPanelExpanded(true)
 
-      while (true) {
-        const { done, value } = await reader.read()
-
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6)
-            try {
-              const event = JSON.parse(data)
-
-              if (event.type === 'step') {
-                setSteps(prev => {
-                  const existingIndex = prev.findIndex(s => s.step === event.data.step)
-                  if (existingIndex >= 0) {
-                    const newSteps = [...prev]
-                    newSteps[existingIndex] = event.data
-                    return newSteps
-                  }
-                  return [...prev, event.data]
-                })
-              } else if (event.type === 'complete') {
-                if (event.data.isMultiFile && event.data.files) {
-                  setProjectFiles(event.data.files)
-
-                  const mainFile = event.data.files.find((f: any) =>
-                    f.path === 'src/App.jsx' || f.path === 'src/main.jsx'
-                  ) || event.data.files[0]
-
-                  if (mainFile) {
-                    setGeneratedCode(mainFile.content)
-                  }
-                } else if (event.data.code) {
-                  setGeneratedCode(event.data.code)
-                }
-
-                const assistantMessage: Message = {
-                  role: 'assistant',
-                  content: '✨ Modification applied successfully!',
-                  id: `msg-${Date.now()}`,
-                  timestamp: new Date()
-                }
-                setMessages(prev => [...prev, assistantMessage])
-              } else if (event.type === 'error') {
-                throw new Error(event.data.message)
-              }
-            } catch (e) {
-              console.error('Erreur lors du parsing de l\'événement:', e)
-            }
+          // TODO: Implement actual code modification via proper API
+          // For now, just show the plan
+          const planMessage: Message = {
+            role: 'assistant',
+            content: 'Voici ce que je vais créer pour vous. Le système de modification est en cours de finalisation.',
+            id: `msg-${Date.now()}`,
+            timestamp: new Date()
           }
+          setMessages(prev => [...prev, planMessage])
         }
       }
     } catch (err) {
@@ -779,7 +747,7 @@ export default function EditorPage() {
 
       const errorMessage: Message = {
         role: 'assistant',
-        content: `❌ Error: ${err instanceof Error ? err.message : 'Modification error'}`,
+        content: `❌ Erreur: ${err instanceof Error ? err.message : 'Une erreur est survenue'}`,
         id: `msg-${Date.now()}`,
         timestamp: new Date()
       }
@@ -1222,6 +1190,15 @@ export default function EditorPage() {
                   </div>
                 </div>
               ))}
+
+              {/* Generation Plan Panel */}
+              {generationTasks.length > 0 && (
+                <GenerationPanel
+                  tasks={generationTasks}
+                  isExpanded={isPanelExpanded}
+                  onToggle={() => setIsPanelExpanded(!isPanelExpanded)}
+                />
+              )}
 
               {isGenerating && (
                 <div className="flex justify-start animate-fadeIn">
