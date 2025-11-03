@@ -1039,6 +1039,68 @@ export default function EditorPage() {
               <path d="M14 8L11 12L14 16" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
+
+          {/* Device View Buttons */}
+          {generatedCode && (
+            <div className="flex items-center gap-1 bg-wapify-panel border border-wapify-border rounded-lg p-1">
+              <button
+                onClick={() => setDeviceView('desktop')}
+                className={`p-2 rounded transition ${
+                  deviceView === 'desktop' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+                }`}
+                title="Desktop View"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 14h14v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setDeviceView('mobile')}
+                className={`p-2 rounded transition ${
+                  deviceView === 'mobile' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+                }`}
+                title="Mobile View"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M7 3a2 2 0 00-2 2v10a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2H7zm3 12a1 1 0 100-2 1 1 0 000 2z" />
+                </svg>
+              </button>
+            </div>
+          )}
+
+          {/* View Tabs */}
+          <div className="rt-Box flex-1 flex items-center gap-1 bg-wapify-panel border border-wapify-border rounded-lg p-1">
+            <button
+              onClick={() => setActiveView('code')}
+              className={`flex-1 px-3 py-1.5 text-xs font-semibold transition rounded ${
+                activeView === 'code'
+                  ? 'bg-wapify-accent text-white'
+                  : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+              }`}
+            >
+              Code
+            </button>
+            <button
+              onClick={() => setActiveView('preview')}
+              className={`flex-1 px-3 py-1.5 text-xs font-semibold transition rounded ${
+                activeView === 'preview'
+                  ? 'bg-wapify-accent text-white'
+                  : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+              }`}
+            >
+              Preview
+            </button>
+            <button
+              onClick={() => setActiveView('dashboard')}
+              className={`flex-1 px-3 py-1.5 text-xs font-semibold transition rounded ${
+                activeView === 'dashboard'
+                  ? 'bg-wapify-accent text-white'
+                  : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+              }`}
+            >
+              Dashboard
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -1081,23 +1143,6 @@ export default function EditorPage() {
           >
             Publish
           </button>
-
-          {generatedCode && (
-            <>
-              <button
-                onClick={isMultiFile ? downloadProject : downloadCode}
-                className="px-3 py-1.5 bg-wapify-accent text-white rounded-lg font-semibold hover:bg-wapify-accent-dark transition shadow-sm text-xs"
-              >
-                📥 Download
-              </button>
-              <button
-                onClick={resetProject}
-                className="px-3 py-1.5 bg-wapify-border text-wapify-text rounded-lg font-semibold hover:bg-wapify-accent/10 transition text-xs"
-              >
-                New Project
-              </button>
-            </>
-          )}
         </div>
       </nav>
 
@@ -1111,15 +1156,6 @@ export default function EditorPage() {
           >
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3 pt-4 relative">
-              {/* Floating Help Button - Top Right Corner of Chat */}
-              <button
-                onClick={() => window.open('mailto:support@wapify.com?subject=Wapify Help Request', '_blank')}
-                className="absolute right-4 top-4 z-10 w-8 h-8 bg-wapify-accent text-white rounded-full flex items-center justify-center font-bold shadow-lg hover:bg-wapify-accent-dark transition"
-                title="Help"
-              >
-                ?
-              </button>
-
               {messages.length === 0 && (
                 <div className="text-center py-12">
                   <div className="text-5xl mb-4 opacity-50">✨</div>
@@ -1256,34 +1292,6 @@ export default function EditorPage() {
         <div className="flex-1 flex flex-col bg-wapify-bg relative z-0">
           {/* Content Area */}
           <div className="flex-1 relative overflow-hidden">
-            {/* Floating Device View Buttons - Center of Preview */}
-            {generatedCode && (
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-2 bg-wapify-panel border-2 border-wapify-border rounded-xl p-2 shadow-2xl">
-                <button
-                  onClick={() => setDeviceView('desktop')}
-                  className={`p-3 rounded-lg transition ${
-                    deviceView === 'desktop' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
-                  }`}
-                  title="Desktop View"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 14h14v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setDeviceView('mobile')}
-                  className={`p-3 rounded-lg transition ${
-                    deviceView === 'mobile' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
-                  }`}
-                  title="Mobile View"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M7 3a2 2 0 00-2 2v10a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2H7zm3 12a1 1 0 100-2 1 1 0 000 2z" />
-                  </svg>
-                </button>
-              </div>
-            )}
-
             {activeView === 'preview' ? (
               <>
                 {generatedCode ? (
