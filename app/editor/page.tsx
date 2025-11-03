@@ -64,7 +64,7 @@ export default function EditorPage() {
   // New UI states for professional navigation
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isChatCollapsed, setIsChatCollapsed] = useState(false)
-  const [chatWidth, setChatWidth] = useState(500) // Default width in pixels
+  const [chatWidth, setChatWidth] = useState(420) // Default width in pixels
   const [isResizing, setIsResizing] = useState(false)
   const [showResourceMonitor, setShowResourceMonitor] = useState(false)
 
@@ -1013,26 +1013,6 @@ export default function EditorPage() {
           <div className="flex items-center gap-2 px-3 py-1.5 bg-wapify-bg rounded-lg">
             <span className="text-sm font-semibold text-wapify-text">{projectName || 'Untitled Project'}</span>
           </div>
-
-          {/* Help Icon */}
-          <button
-            onClick={() => window.open('mailto:support@wapify.com?subject=Help Request', '_blank')}
-            className="w-7 h-7 rounded-full border-2 border-wapify-border bg-wapify-bg hover:bg-wapify-accent hover:text-white hover:border-wapify-accent transition flex items-center justify-center text-sm font-bold text-wapify-text-secondary"
-            title="Contact Wapify Support"
-          >
-            ?
-          </button>
-
-          {/* Toggle Sidebar Button */}
-          <button
-            onClick={() => setIsChatCollapsed(!isChatCollapsed)}
-            className="w-8 h-8 flex items-center justify-center text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-border rounded-lg transition ml-2"
-            title={isChatCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </svg>
-          </button>
         </div>
 
         <div className="flex items-center gap-3">
@@ -1127,81 +1107,78 @@ export default function EditorPage() {
             <div className="border-t border-wapify-border flex-shrink-0 bg-wapify-bg p-4">
               <form onSubmit={handleSubmit} className="relative">
                 <div className="bg-white border-2 border-wapify-border rounded-xl p-3 focus-within:border-wapify-accent transition">
-                  {/* Top Action Bar */}
-                  <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
-                    <div className="flex items-center gap-2">
-                      {/* Attach Button */}
-                      <button
-                        type="button"
-                        className="p-1.5 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition"
-                        title="Attach files"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      </button>
+                  {/* Textarea with Send Button */}
+                  <div className="relative">
+                    <textarea
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          handleSubmit(e)
+                        }
+                      }}
+                      placeholder={!generatedCode ? "Describe your application..." : "Request a modification..."}
+                      className="w-full px-3 py-3 pr-12 bg-transparent text-wapify-text placeholder-wapify-text-secondary focus:outline-none text-sm resize-none"
+                      disabled={isGenerating}
+                      rows={6}
+                      style={{ minHeight: '120px' }}
+                    />
 
-                      {/* Send Button */}
-                      <button
-                        type="submit"
-                        disabled={isGenerating || !input.trim()}
-                        className="p-1.5 text-wapify-accent hover:bg-wapify-accent/10 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Send message"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* Settings Button with emoji */}
-                      <button
-                        type="button"
-                        className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs"
-                        title="Settings"
-                      >
-                        <span>⚙️</span>
-                      </button>
-
-                      {/* Divider */}
-                      <div className="w-px h-4 bg-gray-200"></div>
-
-                      {/* Visual Edit Button with emoji */}
-                      <button
-                        type="button"
-                        className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs font-medium"
-                        title="Visual Edit"
-                      >
-                        <span>✏️</span>
-                        <span>Visual Edit</span>
-                      </button>
-                    </div>
+                    {/* Send Button - Top Right */}
+                    <button
+                      type="submit"
+                      disabled={isGenerating || !input.trim()}
+                      className="absolute top-4 right-4 flex justify-center items-center w-[30px] h-[30px] p-1 text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed bg-wapify-accent hover:bg-wapify-accent-dark"
+                      aria-label="Send message"
+                      title="Send message"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                        <path d="m5 12 7-7 7 7"></path>
+                        <path d="M12 19V5"></path>
+                      </svg>
+                    </button>
                   </div>
 
-                  {/* Textarea */}
-                  <textarea
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        handleSubmit(e)
-                      }
-                    }}
-                    placeholder={!generatedCode ? "Describe your application..." : "Request a modification..."}
-                    className="w-full px-1 py-1 bg-transparent text-wapify-text placeholder-wapify-text-secondary focus:outline-none text-sm resize-none"
-                    disabled={isGenerating}
-                    rows={6}
-                    style={{ minHeight: '120px' }}
-                  />
+                  {/* Bottom Action Bar */}
+                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-100">
+                    {/* Attach Button */}
+                    <button
+                      type="button"
+                      className="p-1.5 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition"
+                      title="Attach files"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+
+                    {/* Settings Button with emoji */}
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs"
+                      title="Settings"
+                    >
+                      <span>⚙️</span>
+                    </button>
+
+                    {/* Visual Edit Button with emoji */}
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs font-medium"
+                      title="Visual Edit"
+                    >
+                      <span>✏️</span>
+                      <span>Visual Edit</span>
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
 
             {/* Resize Handle */}
             <div
-              className="absolute right-0 top-0 bottom-0 w-1 bg-wapify-border hover:bg-wapify-accent cursor-col-resize group"
+              className="absolute right-0 top-0 bottom-0 w-[2px] bg-gray-200 hover:bg-wapify-accent cursor-col-resize group"
               onMouseDown={handleMouseDown}
             >
               <div className="absolute inset-y-0 -right-1 -left-1"></div>
@@ -1212,100 +1189,103 @@ export default function EditorPage() {
         {/* Right Panel - Preview & Code */}
         <div className="flex-1 flex flex-col bg-wapify-bg relative z-0">
           {/* Top Bar with Tabs */}
-          <div className="bg-gray-100 border-b-2 border-wapify-border flex items-center justify-between px-4 flex-shrink-0">
-            <div className="flex items-center gap-1">
-              {/* Code Tab */}
-              {isMultiFile && (
+          <div className="flex items-center justify-between px-4 py-3 border-b border-wapify-border flex-shrink-0">
+            <div className="flex items-center gap-3">
+              {/* Toggle Sidebar Button */}
+              <button
+                onClick={() => setIsChatCollapsed(!isChatCollapsed)}
+                className="p-1.5 text-gray-500 hover:bg-gray-200 rounded-md transition-colors"
+                title={isChatCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+
+              {/* Divider */}
+              <div className="h-6 w-[2px] bg-gray-200"></div>
+
+              {/* Tabs Container */}
+              <div className="inline-flex items-center justify-center bg-gray-100 p-1 text-gray-500 h-7 rounded-lg">
+                {/* Dashboard Tab */}
                 <button
-                  onClick={() => setActiveView('code')}
-                  className={`px-4 py-3 font-medium transition text-sm ${
-                    activeView === 'code'
-                      ? 'text-wapify-accent border-b-2 border-wapify-accent bg-white'
-                      : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-white/50'
+                  onClick={() => setActiveView('dashboard')}
+                  className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
+                    activeView === 'dashboard'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
                   }`}
                 >
-                  Code
+                  Dashboard
                 </button>
-              )}
 
-              {/* Preview Tab */}
-              <button
-                onClick={() => setActiveView('preview')}
-                className={`px-4 py-3 font-medium transition text-sm ${
-                  activeView === 'preview'
-                    ? 'text-wapify-accent border-b-2 border-wapify-accent bg-white'
-                    : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-white/50'
-                }`}
-              >
-                Preview
-              </button>
+                {/* Divider */}
+                <div className="h-6 w-[2px] bg-gray-200"></div>
 
-              {/* Dashboard Tab */}
-              <button
-                onClick={() => setActiveView('dashboard')}
-                className={`px-4 py-3 font-medium transition text-sm ${
-                  activeView === 'dashboard'
-                    ? 'text-wapify-accent border-b-2 border-wapify-accent bg-white'
-                    : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-white/50'
-                }`}
-              >
-                Dashboard
-              </button>
-
-              {/* Refresh Button */}
-              {activeView === 'preview' && buildUrl && (
+                {/* Preview Tab */}
                 <button
-                  onClick={() => {
-                    if (iframeRef.current) {
-                      iframeRef.current.src = iframeRef.current.src
-                    }
-                  }}
-                  className="ml-2 p-2 text-wapify-text-secondary hover:text-wapify-text hover:bg-white/50 rounded-lg transition"
-                  title="Refresh preview"
+                  onClick={() => setActiveView('preview')}
+                  className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all h-6 rounded-md cursor-pointer ${
+                    activeView === 'preview'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
                 >
-                  <span className="text-base">🔄</span>
+                  Preview
                 </button>
-              )}
+              </div>
+
+              {/* Divider */}
+              <div className="h-6 w-[2px] bg-gray-200"></div>
+
+              {/* Help Button */}
+              <button
+                onClick={() => window.open('mailto:support@wapify.com?subject=Help Request', '_blank')}
+                className="w-7 h-7 rounded-full border-2 border-gray-300 bg-white hover:bg-gray-100 hover:border-gray-400 transition flex items-center justify-center text-sm font-bold text-gray-600"
+                title="Contact Wapify Support"
+              >
+                ?
+              </button>
 
               {/* Workspace Monitor */}
               {activeView === 'preview' && (
-                <div className="ml-4 relative">
+                <div className="relative">
                   <button
-                    className="flex items-center gap-2 px-3 py-1.5 bg-wapify-bg rounded-lg hover:bg-wapify-border transition text-sm"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-sm"
                     onMouseEnter={() => setShowResourceMonitor(true)}
                     onMouseLeave={() => setShowResourceMonitor(false)}
                   >
-                    <span className="text-wapify-text-secondary">Workspace</span>
-                    <svg className="w-4 h-4 text-wapify-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                    <span className="text-gray-600">Workspace</span>
+                    <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/>
                     </svg>
                   </button>
 
                   {showResourceMonitor && (
-                    <div className="absolute top-full left-0 mt-2 w-64 bg-wapify-panel border-2 border-wapify-border rounded-xl shadow-2xl p-4 z-30">
-                      <h3 className="text-sm font-bold text-wapify-text mb-3">Build Resources</h3>
+                    <div className="absolute top-full left-0 mt-2 w-64 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 z-30">
+                      <h3 className="text-sm font-bold text-gray-900 mb-3">Build Resources</h3>
                       <div className="space-y-3">
                         <div>
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-wapify-text-secondary">CPU Usage</span>
-                            <span className="text-xs font-semibold text-wapify-text">{buildStatus === 'building' ? '65%' : '12%'}</span>
+                            <span className="text-xs text-gray-600">CPU Usage</span>
+                            <span className="text-xs font-semibold text-gray-900">{buildStatus === 'building' ? '65%' : '12%'}</span>
                           </div>
-                          <div className="h-2 bg-wapify-bg rounded-full overflow-hidden">
+                          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                             <div className={`h-full bg-wapify-accent transition-all duration-500`} style={{ width: buildStatus === 'building' ? '65%' : '12%' }}></div>
                           </div>
                         </div>
                         <div>
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-wapify-text-secondary">Memory</span>
-                            <span className="text-xs font-semibold text-wapify-text">{buildStatus === 'building' ? '180 MB' : '45 MB'}</span>
+                            <span className="text-xs text-gray-600">Memory</span>
+                            <span className="text-xs font-semibold text-gray-900">{buildStatus === 'building' ? '180 MB' : '45 MB'}</span>
                           </div>
-                          <div className="h-2 bg-wapify-bg rounded-full overflow-hidden">
+                          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                             <div className={`h-full bg-green-500 transition-all duration-500`} style={{ width: buildStatus === 'building' ? '45%' : '11%' }}></div>
                           </div>
                         </div>
                         <div>
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-wapify-text-secondary">Status</span>
+                            <span className="text-xs text-gray-600">Status</span>
                             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                               buildStatus === 'completed' ? 'bg-green-100 text-green-700' :
                               buildStatus === 'building' ? 'bg-blue-100 text-blue-700' :
