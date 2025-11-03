@@ -423,7 +423,7 @@ export default function EditorPage() {
       })
 
       if (conversationalResponse.ok) {
-        const { response: aiResponse, thinking } = await conversationalResponse.json()
+        const { response: aiResponse, thinking, generationPlan } = await conversationalResponse.json()
         const thinkingTime = Math.round((Date.now() - thinkingStartTime) / 1000)
 
         // Add AI understanding message with thinking
@@ -436,6 +436,12 @@ export default function EditorPage() {
           thinking: thinking
         }
         setMessages(prev => [...prev, understandingMessage])
+
+        // Show generation plan if available
+        if (generationPlan && generationPlan.tasks) {
+          setGenerationTasks(generationPlan.tasks)
+          setIsPanelExpanded(true)
+        }
       }
       const currentProjectId = projectId || `proj-${Date.now()}-${Math.random().toString(36).substring(7)}`
       if (!projectId) {
