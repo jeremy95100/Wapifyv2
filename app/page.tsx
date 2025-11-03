@@ -359,12 +359,21 @@ export default function Home() {
                 }}
               />
               {selectedStyle && (
-                <button
-                  onClick={() => setIsStyleModalOpen(true)}
-                  className="px-3 py-2 bg-wapify-accent/10 border border-wapify-accent/30 rounded-lg text-xs font-semibold text-wapify-accent hover:bg-wapify-accent/20 transition whitespace-nowrap"
-                >
-                  ✨ {designStyles.find(s => s.id === selectedStyle)?.name}
-                </button>
+                <div className="flex items-center gap-1 px-3 py-2 bg-wapify-accent/10 border border-wapify-accent/30 rounded-lg">
+                  <button
+                    onClick={() => setIsStyleModalOpen(true)}
+                    className="text-xs font-semibold text-wapify-accent hover:text-wapify-accent-dark transition whitespace-nowrap"
+                  >
+                    ✨ {designStyles.find(s => s.id === selectedStyle)?.name}
+                  </button>
+                  <button
+                    onClick={() => setSelectedStyle('')}
+                    className="text-wapify-accent/60 hover:text-wapify-accent transition ml-1"
+                    title="Remove style"
+                  >
+                    ✕
+                  </button>
+                </div>
               )}
             </div>
             <button
@@ -425,9 +434,18 @@ export default function Home() {
                     <span>Choose your style</span>
                   </button>
                   {selectedStyle && (
-                    <span className="px-3 py-1 bg-wapify-accent/10 border border-wapify-accent/30 rounded-lg text-xs font-semibold text-wapify-accent">
-                      {designStyles.find(s => s.id === selectedStyle)?.name}
-                    </span>
+                    <div className="flex items-center gap-1 px-3 py-1 bg-wapify-accent/10 border border-wapify-accent/30 rounded-lg">
+                      <span className="text-xs font-semibold text-wapify-accent">
+                        {designStyles.find(s => s.id === selectedStyle)?.name}
+                      </span>
+                      <button
+                        onClick={() => setSelectedStyle('')}
+                        className="text-wapify-accent/60 hover:text-wapify-accent transition ml-1"
+                        title="Remove style"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   )}
                 </div>
 
