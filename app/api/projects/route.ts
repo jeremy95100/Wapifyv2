@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { userId, name, prompt, code, files, framework, hasDatabase, databaseSchema } = body
+    const { userId, name, prompt, code, files, framework, hasDatabase, databaseSchema, chatHistory } = body
 
     // Validation
     if (!userId || !name || !prompt) {
@@ -136,6 +136,7 @@ export async function POST(request: NextRequest) {
       code: isMultiFile ? null : (code || null), // Pour multi-file, code est null
       framework: framework || (isMultiFile ? 'react' : 'html'),
       has_database: hasDatabase || false,
+      chat_history: chatHistory ? JSON.stringify(chatHistory) : null,
     }
 
     // Créer le projet d'abord
@@ -227,7 +228,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const { projectId, code, status, deployedUrl, files, dbBranchId, dbConnectionString, databaseSchema, githubRepo, githubRepoFullName, githubCloneUrl } = body
+    const { projectId, code, status, deployedUrl, files, dbBranchId, dbConnectionString, databaseSchema, githubRepo, githubRepoFullName, githubCloneUrl, chatHistory } = body
 
     if (!projectId) {
       return NextResponse.json(
@@ -276,6 +277,7 @@ export async function PATCH(request: NextRequest) {
     if (githubRepo !== undefined) updateData.github_repo_url = githubRepo
     if (githubRepoFullName !== undefined) updateData.github_repo_full_name = githubRepoFullName
     if (githubCloneUrl !== undefined) updateData.github_clone_url = githubCloneUrl
+    if (chatHistory !== undefined) updateData.chat_history = JSON.stringify(chatHistory)
 
     // Mettre à jour le projet
     const { data: project, error } = await supabaseAdmin

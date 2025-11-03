@@ -185,7 +185,7 @@ export default function EditorPage() {
           name = await generateProjectName(prompt)
           setProjectName(name)
         }
-        const requestBody: any = { userId, name, prompt }
+        const requestBody: any = { userId, name, prompt, chatHistory: messages }
 
         if (isMultiFile) {
           requestBody.files = projectFiles
@@ -210,7 +210,7 @@ export default function EditorPage() {
           window.history.pushState({}, '', `/editor?projectId=${project.id}`)
         }
       } else {
-        const requestBody: any = { projectId, status: 'ready' }
+        const requestBody: any = { projectId, status: 'ready', chatHistory: messages }
 
         if (isMultiFile) {
           requestBody.files = projectFiles
@@ -240,7 +240,7 @@ export default function EditorPage() {
     } finally {
       setIsSaving(false)
     }
-  }, [projectId, projectName, session, isMultiFile, projectFiles, hasDatabase, databaseSchema, dbBranchId, dbConnectionString])
+  }, [projectId, projectName, session, isMultiFile, projectFiles, hasDatabase, databaseSchema, dbBranchId, dbConnectionString, messages])
 
   useEffect(() => {
     scrollToBottom()
@@ -375,13 +375,36 @@ export default function EditorPage() {
         setGeneratedCode(project.code)
       }
 
-      const initialMessage: Message = {
-        role: 'user',
-        content: project.prompt,
-        id: `msg-${Date.now()}`,
-        timestamp: new Date(project.created_at)
+      // Load chat history if exists, otherwise create initial message
+      if (project.chat_history) {
+        try {
+          const chatHistory = JSON.parse(project.chat_history)
+          // Restore dates from ISO strings
+          const messagesWithDates = chatHistory.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }))
+          setMessages(messagesWithDates)
+        } catch (e) {
+          console.error('Error parsing chat history:', e)
+          // Fallback to initial message
+          const initialMessage: Message = {
+            role: 'user',
+            content: project.prompt,
+            id: `msg-${Date.now()}`,
+            timestamp: new Date(project.created_at)
+          }
+          setMessages([initialMessage])
+        }
+      } else {
+        const initialMessage: Message = {
+          role: 'user',
+          content: project.prompt,
+          id: `msg-${Date.now()}`,
+          timestamp: new Date(project.created_at)
+        }
+        setMessages([initialMessage])
       }
-      setMessages([initialMessage])
     } catch (err) {
       setError('Impossible de charger ce projet')
       console.error('Error loading project:', err)
