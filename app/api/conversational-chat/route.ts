@@ -105,7 +105,27 @@ IMPORTANT:
       content: message
     })
 
-    // Call Claude
+    // First, ask Claude to think about what the user wants (understanding phase)
+    const thinkingPrompt = userLanguage === 'fr'
+      ? `Analyse cette demande et explique brièvement ce que tu as compris (2-3 phrases max, langage simple):\n\n"${message}"\n\nRéponds uniquement avec ton analyse, sans formalités.`
+      : `Analyze this request and briefly explain what you understood (2-3 sentences max, simple language):\n\n"${message}"\n\nRespond only with your analysis, no formalities.`
+
+    const thinkingResponse = await anthropic.messages.create({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 200,
+      messages: [{
+        role: 'user',
+        content: thinkingPrompt
+      }]
+    })
+
+    let thinking = ''
+    const thinkingContent = thinkingResponse.content[0]
+    if (thinkingContent.type === 'text') {
+      thinking = thinkingContent.text
+    }
+
+    // Now call Claude for the actual response
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 2000,
@@ -131,6 +151,7 @@ IMPORTANT:
 
     return NextResponse.json({
       response: aiResponse,
+      thinking: thinking,
       needsCodeGeneration,
       generationPlan
     })

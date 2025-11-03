@@ -16,6 +16,7 @@ interface Message {
   id: string
   timestamp: Date
   thinkingTime?: number // Time in seconds the AI thought about the response
+  thinking?: string // What the AI understood from the user's request
 }
 
 interface ProjectFile {
@@ -718,7 +719,7 @@ export default function EditorPage() {
         throw new Error('Communication error with AI')
       }
 
-      const { response: aiResponse, needsCodeGeneration, generationPlan } = await conversationalResponse.json()
+      const { response: aiResponse, thinking, needsCodeGeneration, generationPlan } = await conversationalResponse.json()
 
       // Calculate thinking time
       const thinkingTime = Math.round((Date.now() - thinkingStartTime) / 1000)
@@ -729,7 +730,8 @@ export default function EditorPage() {
         content: aiResponse,
         id: `msg-${Date.now()}`,
         timestamp: new Date(),
-        thinkingTime: thinkingTime
+        thinkingTime: thinkingTime,
+        thinking: thinking // What the AI understood
       }
       setMessages(prev => [...prev, aiMessage])
 
@@ -1193,55 +1195,54 @@ export default function EditorPage() {
                   ) : (
                     <div className="max-w-[85%]">
                       {/* Wapify Logo at top */}
-                      <div className="mb-1.5">
-                        <div className="w-7 h-7 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-xs shadow-md">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-7 h-7 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-xs shadow-md flex-shrink-0">
                           ⚡
                         </div>
+                        <span className="text-xs font-semibold text-wapify-text">Wapify AI</span>
                       </div>
 
-                      {/* Thought indicator */}
+                      {/* Thought indicator - BEFORE message content */}
                       {msg.thinkingTime && msg.thinkingTime > 0 && (
-                        <div className="mb-2">
-                          <div className="inline-flex items-start gap-2">
-                            <button
-                              onClick={() => {
-                                const newExpanded = new Set(expandedThoughts)
-                                if (expandedThoughts.has(msg.id)) {
-                                  newExpanded.delete(msg.id)
-                                } else {
-                                  newExpanded.add(msg.id)
-                                }
-                                setExpandedThoughts(newExpanded)
-                              }}
-                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all bg-slate-50 hover:bg-slate-100 text-slate-600"
+                        <div className="mb-3 ml-9">
+                          <button
+                            onClick={() => {
+                              const newExpanded = new Set(expandedThoughts)
+                              if (expandedThoughts.has(msg.id)) {
+                                newExpanded.delete(msg.id)
+                              } else {
+                                newExpanded.add(msg.id)
+                              }
+                              setExpandedThoughts(newExpanded)
+                            }}
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all bg-slate-50 hover:bg-slate-100 text-slate-600"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className={`h-3 w-3 transition-transform ${expandedThoughts.has(msg.id) ? 'rotate-180' : ''}`}
                             >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className={`h-3 w-3 transition-transform ${expandedThoughts.has(msg.id) ? 'rotate-180' : ''}`}
-                              >
-                                <path d="m6 9 6 6 6-6"></path>
-                              </svg>
-                              <span className="text-xs font-medium">
-                                Thought <span className="text-xs text-slate-500">for {msg.thinkingTime}s</span>
-                              </span>
-                            </button>
-                          </div>
+                              <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                            <span className="text-xs font-medium">
+                              Thought <span className="text-xs text-slate-500">for {msg.thinkingTime}s</span>
+                            </span>
+                          </button>
 
                           {/* Expanded thought content */}
-                          {expandedThoughts.has(msg.id) && (
-                            <div className="mt-2 ml-0 animate-in slide-in-from-top-1 duration-200">
+                          {expandedThoughts.has(msg.id) && msg.thinking && (
+                            <div className="mt-2 animate-in slide-in-from-top-1 duration-200">
                               <div className="relative pl-4 py-2 pr-3 rounded-md bg-gradient-to-r from-slate-50 to-transparent">
                                 <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-orange-300 to-teal-300 rounded-full"></div>
                                 <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">
-                                  {msg.content.split('\n\n')[0]}
+                                  {msg.thinking}
                                 </p>
                               </div>
                             </div>
@@ -1249,10 +1250,10 @@ export default function EditorPage() {
                         </div>
                       )}
 
-                      {/* Message content */}
-                      <div className="bg-white border border-wapify-border rounded-xl p-3 shadow-sm text-wapify-text">
-                        <p className="text-xs whitespace-pre-wrap">{msg.content}</p>
-                        <p className="text-[9px] mt-1 opacity-60">{msg.timestamp.toLocaleTimeString()}</p>
+                      {/* Message content - NO BUBBLE, just text */}
+                      <div className="ml-9 text-wapify-text">
+                        <p className="text-xs whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                        <p className="text-[9px] mt-1.5 text-wapify-text-secondary">{msg.timestamp.toLocaleTimeString()}</p>
                       </div>
                     </div>
                   )}
