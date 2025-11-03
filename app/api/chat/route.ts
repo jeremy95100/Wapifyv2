@@ -70,13 +70,19 @@ Demande de modification: ${modification}
 
           if (content.type === 'text') {
             modifiedCode = content.text
+            console.log('Raw response from Claude:', modifiedCode.substring(0, 500))
 
             // Extract code from markdown if present
             const codeMatch = modifiedCode.match(/```(?:jsx?|tsx?|html)?\n([\s\S]*?)\n```/)
             if (codeMatch) {
               modifiedCode = codeMatch[1]
+              console.log('Extracted code from markdown')
+            } else {
+              console.log('No markdown code block found, using raw response')
             }
           }
+
+          console.log('Modified code length:', modifiedCode.length)
 
           // Send completion event
           const completeEvent = {

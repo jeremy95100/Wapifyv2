@@ -977,10 +977,13 @@ export default function EditorPage() {
 
                 if (event.type === 'complete') {
                   // Update the code
+                  console.log('Modification complete event received:', event.data)
                   if (event.data.isMultiFile && event.data.files) {
+                    console.log('Updating multi-file project')
                     setProjectFiles(event.data.files)
                     setIsMultiFile(true)
                   } else if (event.data.code) {
+                    console.log('Updating single-file code')
                     setGeneratedCode(event.data.code)
                   }
                 }
@@ -1471,7 +1474,7 @@ export default function EditorPage() {
                               <path d="m6 9 6 6 6-6"></path>
                             </svg>
                             <span className="text-xs font-medium">
-                              Thought <span className="text-xs text-slate-500">for {msg.thinkingTime}s</span>
+                              Réflexion <span className="text-xs text-slate-500">pendant {msg.thinkingTime}s</span>
                             </span>
                           </button>
 
