@@ -690,13 +690,14 @@ export default function EditorPage() {
     try {
       setBuildStatus('queued')
 
-      const buildMessage: Message = {
-        role: 'assistant',
-        content: '🔨 Building with Vite...',
-        id: `msg-build-${Date.now()}`,
-        timestamp: new Date()
-      }
-      setMessages(prev => [...prev, buildMessage])
+      // Don't add build message to chat - silent build process
+      // const buildMessage: Message = {
+      //   role: 'assistant',
+      //   content: '🔨 Building with Vite...',
+      //   id: `msg-build-${Date.now()}`,
+      //   timestamp: new Date()
+      // }
+      // setMessages(prev => [...prev, buildMessage])
 
       const response = await fetch('/api/build', {
         method: 'POST',
@@ -773,13 +774,14 @@ export default function EditorPage() {
     setBuildUrl(proxyUrl)
     setBuildStatus('completed')
 
-    const successMessage: Message = {
-      role: 'assistant',
-      content: '✅ Build successful! Your application is ready.',
-      id: `msg-build-success-${Date.now()}`,
-      timestamp: new Date()
-    }
-    setMessages(prev => [...prev, successMessage])
+    // Don't add success message to chat - silent build completion
+    // const successMessage: Message = {
+    //   role: 'assistant',
+    //   content: '✅ Build successful! Your application is ready.',
+    //   id: `msg-build-success-${Date.now()}`,
+    //   timestamp: new Date()
+    // }
+    // setMessages(prev => [...prev, successMessage])
   }
 
   const handleBuildError = (error: string) => {
@@ -939,6 +941,57 @@ export default function EditorPage() {
           }
         }
       }
+
+      // Now trigger the actual code modification
+      const modificationResponse = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          modification: userInput,
+          conversationHistory: messages,
+          currentCode: !isMultiFile ? generatedCode : undefined,
+          projectFiles: isMultiFile ? projectFiles : undefined,
+          isMultiFile
+        })
+      })
+
+      if (!modificationResponse.ok) {
+        throw new Error('Failed to modify code')
+      }
+
+      if (modificationResponse.body) {
+        const reader = modificationResponse.body.getReader()
+        const decoder = new TextDecoder()
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value)
+          const lines = chunk.split('\n')
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const event = JSON.parse(line.slice(6))
+
+                if (event.type === 'complete') {
+                  // Update the code
+                  if (event.data.isMultiFile && event.data.files) {
+                    setProjectFiles(event.data.files)
+                    setIsMultiFile(true)
+                  } else if (event.data.code) {
+                    setGeneratedCode(event.data.code)
+                  }
+                }
+              } catch (e) {
+                console.error('Error parsing modification event:', e)
+              }
+            }
+          }
+        }
+      }
+
     } catch (err) {
       console.error('Modification error:', err)
       setError(err instanceof Error ? err.message : 'Modification error')
