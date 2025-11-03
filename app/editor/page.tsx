@@ -962,35 +962,64 @@ export default function EditorPage() {
       if (modificationResponse.body) {
         const reader = modificationResponse.body.getReader()
         const decoder = new TextDecoder()
+        let buffer = '' // Buffer to accumulate incomplete lines
 
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
 
-          const chunk = decoder.decode(value)
-          const lines = chunk.split('\n')
+          const chunk = decoder.decode(value, { stream: true })
+          buffer += chunk
+
+          // Split by newlines but keep the last incomplete line in buffer
+          const lines = buffer.split('\n')
+          buffer = lines.pop() || '' // Keep the last (possibly incomplete) line
 
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               try {
-                const event = JSON.parse(line.slice(6))
+                const jsonStr = line.slice(6)
+                if (jsonStr.trim()) {
+                  const event = JSON.parse(jsonStr)
 
-                if (event.type === 'complete') {
-                  // Update the code
-                  console.log('Modification complete event received:', event.data)
-                  if (event.data.isMultiFile && event.data.files) {
-                    console.log('Updating multi-file project')
-                    setProjectFiles(event.data.files)
-                    setIsMultiFile(true)
-                  } else if (event.data.code) {
-                    console.log('Updating single-file code')
-                    setGeneratedCode(event.data.code)
+                  if (event.type === 'complete') {
+                    // Update the code
+                    console.log('Modification complete event received:', event.data)
+                    if (event.data.isMultiFile && event.data.files) {
+                      console.log('Updating multi-file project')
+                      setProjectFiles(event.data.files)
+                      setIsMultiFile(true)
+                    } else if (event.data.code) {
+                      console.log('Updating single-file code')
+                      setGeneratedCode(event.data.code)
+                    }
                   }
                 }
               } catch (e) {
-                console.error('Error parsing modification event:', e)
+                console.error('Error parsing modification event:', e, 'Line:', line.substring(0, 200))
               }
             }
+          }
+        }
+
+        // Process any remaining data in buffer
+        if (buffer.startsWith('data: ')) {
+          try {
+            const jsonStr = buffer.slice(6)
+            if (jsonStr.trim()) {
+              const event = JSON.parse(jsonStr)
+              if (event.type === 'complete') {
+                console.log('Modification complete event received (from buffer):', event.data)
+                if (event.data.isMultiFile && event.data.files) {
+                  setProjectFiles(event.data.files)
+                  setIsMultiFile(true)
+                } else if (event.data.code) {
+                  setGeneratedCode(event.data.code)
+                }
+              }
+            }
+          } catch (e) {
+            console.error('Error parsing final buffer:', e)
           }
         }
       }
