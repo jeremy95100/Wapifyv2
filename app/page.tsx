@@ -399,7 +399,7 @@ export default function Home() {
       <main className="relative z-10">
         {/* Hero Section */}
         <section className="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 py-8 pt-32">
-          <div className="w-full max-w-5xl mx-auto">
+          <div className="w-full max-w-4xl mx-auto">
             <div className="text-center mb-10">
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-wapify-text mb-6 leading-[1.1] tracking-tight animate-fadeIn">
                 Build Apps in <span className="text-wapify-accent">Minutes</span>
@@ -557,28 +557,65 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Consider Yourself Limitless */}
-        <section className="py-32 px-6 bg-wapify-panel/30">
-          <div className="max-w-6xl mx-auto text-center">
-            <h2 className="text-5xl md:text-6xl font-black text-wapify-text mb-6 leading-tight">
-              Consider Yourself <span className="text-wapify-accent">Limitless</span>
-            </h2>
-            <p className="text-xl text-wapify-text-secondary max-w-3xl mx-auto mb-12">
-              No coding barriers. No technical limits. Just your ideas brought to life instantly with the power of AI.
-            </p>
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="px-8 py-4 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-bold hover:shadow-xl hover:scale-105 transition-all duration-200"
-            >
-              Start Building Now
-            </button>
-          </div>
-        </section>
-
         {/* Feature Section 1: Build Anything */}
-        <section className="py-24 px-6">
+        <section className="py-24 px-6 bg-wapify-panel/30">
           <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Left: Template Preview */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-wapify-accent/20 to-wapify-accent-dark/20 rounded-3xl blur-2xl group-hover:blur-3xl transition-all"></div>
+                <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-wapify-border">
+                  {/* Mock Browser Header */}
+                  <div className="bg-gray-100 px-4 py-3 flex items-center gap-2 border-b-2 border-wapify-border">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                    </div>
+                    <div className="flex-1 bg-white rounded px-3 py-1 text-xs text-gray-400">
+                      yourapp.wapify.app
+                    </div>
+                  </div>
+
+                  {/* Mock App Content - E-commerce */}
+                  <div className="p-6 space-y-4">
+                    {/* Header */}
+                    <div className="flex items-center justify-between pb-4 border-b-2 border-gray-100">
+                      <div className="h-8 w-32 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark rounded"></div>
+                      <div className="flex gap-2">
+                        <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                        <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                      </div>
+                    </div>
+
+                    {/* Product Grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                        <div className="aspect-square bg-gradient-to-br from-blue-100 to-blue-200 rounded"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-2 bg-gray-100 rounded w-1/2"></div>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                        <div className="aspect-square bg-gradient-to-br from-purple-100 to-purple-200 rounded"></div>
+                        <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                        <div className="h-2 bg-gray-100 rounded w-1/3"></div>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                        <div className="aspect-square bg-gradient-to-br from-green-100 to-green-200 rounded"></div>
+                        <div className="h-3 bg-gray-200 rounded w-4/5"></div>
+                        <div className="h-2 bg-gray-100 rounded w-2/5"></div>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                        <div className="aspect-square bg-gradient-to-br from-orange-100 to-orange-200 rounded"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/5"></div>
+                        <div className="h-2 bg-gray-100 rounded w-1/4"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Text Content */}
               <div>
                 <h3 className="text-4xl md:text-5xl font-black text-wapify-text mb-6">
                   Build <span className="text-wapify-accent">Anything</span> You Can Imagine
@@ -602,118 +639,34 @@ export default function Home() {
                 </ul>
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition"
+                  className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition shadow-lg"
                 >
                   Start Building
                 </button>
-              </div>
-              <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-8 shadow-xl">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-2 border-blue-500/20 rounded-xl p-6 text-center">
-                    <div className="text-4xl mb-3">🛍️</div>
-                    <div className="font-bold text-wapify-text text-sm">E-commerce</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-2 border-green-500/20 rounded-xl p-6 text-center">
-                    <div className="text-4xl mb-3">📊</div>
-                    <div className="font-bold text-wapify-text text-sm">Dashboard</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border-2 border-orange-500/20 rounded-xl p-6 text-center">
-                    <div className="text-4xl mb-3">💼</div>
-                    <div className="font-bold text-wapify-text text-sm">Portfolio</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-2 border-purple-500/20 rounded-xl p-6 text-center">
-                    <div className="text-4xl mb-3">📅</div>
-                    <div className="font-bold text-wapify-text text-sm">Booking</div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Feature Section 2: Beautiful Design */}
-        <section className="py-24 px-6 bg-wapify-panel/30">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-16 items-center">
-              <div className="order-2 md:order-1">
-                <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl overflow-hidden shadow-xl">
-                  <div className="p-8 bg-gradient-to-br from-wapify-accent/5 to-wapify-accent-dark/5">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3 p-4 bg-white rounded-xl border-2 border-wapify-border">
-                        <div className="w-12 h-12 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg"></div>
-                        <div className="flex-1">
-                          <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
-                          <div className="h-2 bg-gray-100 rounded w-1/2"></div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-4 bg-white rounded-xl border-2 border-wapify-border">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg"></div>
-                        <div className="flex-1">
-                          <div className="h-3 bg-gray-200 rounded w-2/3 mb-2"></div>
-                          <div className="h-2 bg-gray-100 rounded w-1/3"></div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-4 bg-white rounded-xl border-2 border-wapify-border">
-                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg"></div>
-                        <div className="flex-1">
-                          <div className="h-3 bg-gray-200 rounded w-4/5 mb-2"></div>
-                          <div className="h-2 bg-gray-100 rounded w-2/5"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="order-1 md:order-2">
-                <h3 className="text-4xl md:text-5xl font-black text-wapify-text mb-6">
-                  <span className="text-wapify-accent">Beautiful Design</span> Out of the Box
-                </h3>
-                <p className="text-xl text-wapify-text-secondary mb-8 leading-relaxed">
-                  Every component is crafted with attention to detail. Modern, responsive designs that look stunning on every device. Choose from multiple design styles or let AI decide.
-                </p>
-                <ul className="space-y-4 mb-8">
-                  {[
-                    "5+ professional design styles",
-                    "Responsive on all screen sizes",
-                    "Modern animations & interactions",
-                    "Dark mode support built-in",
-                    "Customizable color schemes"
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
-                      <span className="text-wapify-accent text-xl">✓</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition"
-                >
-                  Start Building
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Feature Section 3: Deploy Instantly */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Left: Text Content */}
               <div>
                 <h3 className="text-4xl md:text-5xl font-black text-wapify-text mb-6">
-                  Deploy <span className="text-wapify-accent">Instantly</span> to the World
+                  <span className="text-wapify-accent">Choose Your Style</span> or Describe Your Own
                 </h3>
                 <p className="text-xl text-wapify-text-secondary mb-8 leading-relaxed">
-                  Your app goes live in seconds with global hosting, SSL certificates, and a CDN. No DevOps, no configuration, no headaches. Just click and ship.
+                  Pick from our curated design styles, or simply describe the look you want. Our AI understands design language and creates exactly what you envision.
                 </p>
                 <ul className="space-y-4 mb-8">
                   {[
-                    "Automatic SSL & security",
-                    "Global CDN for fast loading",
-                    "Automatic scaling & backups",
-                    "Custom domain ready",
-                    "99.9% uptime guarantee"
+                    "5+ professional pre-built design styles",
+                    "Or describe your own custom design",
+                    "AI understands design preferences",
+                    "Responsive on all screen sizes",
+                    "Modern animations & interactions"
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-3 text-wapify-text-secondary">
                       <span className="text-wapify-accent text-xl">✓</span>
@@ -723,28 +676,63 @@ export default function Home() {
                 </ul>
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition"
+                  className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition shadow-lg"
                 >
                   Start Building
                 </button>
               </div>
-              <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-8 shadow-xl">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-green-500/10 border-2 border-green-500/30 rounded-xl">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="font-semibold text-wapify-text">Production Ready</span>
+
+              {/* Right: Template Preview - Dashboard */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl blur-2xl group-hover:blur-3xl transition-all"></div>
+                <div className="relative bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border-2 border-gray-800">
+                  {/* Mock Browser Header */}
+                  <div className="bg-gray-800 px-4 py-3 flex items-center gap-2 border-b-2 border-gray-700">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                    </div>
+                    <div className="flex-1 bg-gray-700 rounded px-3 py-1 text-xs text-gray-400">
+                      dashboard.wapify.app
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 p-4 bg-blue-500/10 border-2 border-blue-500/30 rounded-xl">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                    <span className="font-semibold text-wapify-text">SSL Configured</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-4 bg-purple-500/10 border-2 border-purple-500/30 rounded-xl">
-                    <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                    <span className="font-semibold text-wapify-text">Database Connected</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-4 bg-orange-500/10 border-2 border-orange-500/30 rounded-xl">
-                    <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                    <span className="font-semibold text-wapify-text">CDN Active</span>
+
+                  {/* Mock Dashboard Content */}
+                  <div className="p-6 space-y-4">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="h-6 w-24 bg-white rounded"></div>
+                      <div className="h-8 w-20 bg-cyan-500 rounded"></div>
+                    </div>
+
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="bg-gray-800 border border-cyan-500/30 rounded-lg p-3">
+                        <div className="h-2 bg-gray-700 rounded w-1/2 mb-2"></div>
+                        <div className="h-4 bg-cyan-500/20 rounded w-3/4"></div>
+                      </div>
+                      <div className="bg-gray-800 border border-purple-500/30 rounded-lg p-3">
+                        <div className="h-2 bg-gray-700 rounded w-1/2 mb-2"></div>
+                        <div className="h-4 bg-purple-500/20 rounded w-2/3"></div>
+                      </div>
+                      <div className="bg-gray-800 border border-green-500/30 rounded-lg p-3">
+                        <div className="h-2 bg-gray-700 rounded w-1/2 mb-2"></div>
+                        <div className="h-4 bg-green-500/20 rounded w-4/5"></div>
+                      </div>
+                    </div>
+
+                    {/* Chart Area */}
+                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+                      <div className="h-3 bg-gray-700 rounded w-1/3 mb-3"></div>
+                      <div className="flex items-end gap-2 h-24">
+                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style={{height: '60%'}}></div>
+                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style={{height: '80%'}}></div>
+                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style={{height: '45%'}}></div>
+                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style={{height: '90%'}}></div>
+                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style={{height: '70%'}}></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -915,7 +903,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-wapify-border py-16 px-6 relative z-10">
-        <div className="w-full">
+        <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-6 gap-12 mb-12">
             {/* Brand */}
             <div className="md:col-span-2">
