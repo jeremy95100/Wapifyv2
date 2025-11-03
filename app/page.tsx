@@ -14,6 +14,7 @@ export default function Home() {
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false)
   const [isStyleModalOpen, setIsStyleModalOpen] = useState(false)
   const [selectedStyle, setSelectedStyle] = useState('')
+  const [currentIdeas, setCurrentIdeas] = useState<string[]>([])
   const router = useRouter()
 
   const typingPhrases = [
@@ -24,6 +25,38 @@ export default function Home() {
     "A social media feed with infinite scroll...",
     "A portfolio website with project showcase..."
   ]
+
+  const allIdeas = [
+    "Task manager with drag-and-drop",
+    "Recipe sharing platform",
+    "Fitness tracking app",
+    "Event planning tool",
+    "Budget tracker",
+    "Blog with comments",
+    "Portfolio website",
+    "Job board",
+    "E-commerce store",
+    "Booking system",
+    "Social media dashboard",
+    "Quiz app",
+    "Weather app",
+    "Music player",
+    "Note-taking app",
+    "Chat application",
+    "Survey builder",
+    "Real estate listing",
+    "Restaurant menu",
+    "Gym management system"
+  ]
+
+  const generateRandomIdeas = () => {
+    const shuffled = [...allIdeas].sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, 4)
+  }
+
+  useEffect(() => {
+    setCurrentIdeas(generateRandomIdeas())
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -287,22 +320,22 @@ export default function Home() {
 
       <main className="relative z-10">
         {/* Hero Section */}
-        <section className="pt-24 pb-16 px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-12">
+        <section className="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 py-16">
+          <div className="w-full max-w-5xl mx-auto">
+            <div className="text-center mb-10">
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-wapify-text mb-6 leading-[1.1] tracking-tight animate-fadeIn">
                 Build Apps in <span className="text-wapify-accent">Minutes</span>
                 <br />
                 <span className="text-wapify-text">, Not Months</span>
               </h1>
 
-              <p className="text-lg md:text-xl text-wapify-text-secondary mb-12 max-w-3xl mx-auto leading-relaxed animate-fadeIn">
+              <p className="text-lg md:text-xl text-wapify-text-secondary mb-10 max-w-3xl mx-auto leading-relaxed animate-fadeIn">
                 Describe your idea in any language. AI builds a complete, production-ready web app with database and hosting included.
               </p>
             </div>
 
             {/* Input Card with Typing Effect */}
-            <div className="bg-wapify-panel/60 backdrop-blur-sm border-2 border-wapify-border rounded-2xl p-8 shadow-2xl mb-8 hover:border-wapify-accent/30 transition-all duration-300 animate-fadeIn relative">
+            <div className="bg-wapify-panel/60 backdrop-blur-sm border-2 border-wapify-border rounded-2xl p-8 shadow-2xl mb-6 hover:border-wapify-accent/30 transition-all duration-300 animate-fadeIn relative">
               <div className="mb-4 relative">
                 {!prompt && (
                   <div className="absolute top-4 left-4 text-lg text-wapify-text-secondary/40 pointer-events-none font-mono">
@@ -341,8 +374,35 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Ideas to get started */}
+            <div className="mt-8 animate-fadeIn">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm font-semibold text-wapify-text-secondary">Ideas to get started</p>
+                <button
+                  onClick={() => setCurrentIdeas(generateRandomIdeas())}
+                  className="text-xs text-wapify-accent hover:text-wapify-accent-dark transition font-semibold flex items-center gap-1"
+                >
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
+                  </svg>
+                  <span>More ideas</span>
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {currentIdeas.map((idea, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setPrompt(idea)}
+                    className="px-4 py-2 bg-wapify-panel border border-wapify-border rounded-lg text-sm text-wapify-text-secondary hover:text-wapify-text hover:border-wapify-accent/50 transition"
+                  >
+                    {idea}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Benefits bar */}
-            <div className="flex justify-center gap-8 text-sm text-wapify-text-secondary flex-wrap animate-fadeIn">
+            <div className="flex justify-center gap-8 text-sm text-wapify-text-secondary flex-wrap animate-fadeIn mt-8">
               <div className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
@@ -480,69 +540,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Examples - Bolt Style */}
-        <section id="examples" className="py-24 px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-wapify-text mb-4">
-                Get Inspired
-              </h2>
-              <p className="text-xl text-wapify-text-secondary">
-                Try these example prompts to see what's possible
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {examples.map((example, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPrompt(example.prompt)}
-                  className="group text-left bg-wapify-panel border-2 border-wapify-border rounded-2xl overflow-hidden hover:border-wapify-accent transition-all duration-200 hover:shadow-xl"
-                >
-                  <div className={`p-6 bg-gradient-to-br ${example.color} border-b-2 border-wapify-border`}>
-                    <div className="flex items-center gap-4 mb-3">
-                      <span className="text-5xl">{example.icon}</span>
-                      <h3 className="text-2xl font-bold text-wapify-text">
-                        {example.title}
-                      </h3>
-                    </div>
-                    <p className="text-sm text-wapify-text-secondary">
-                      {example.description}
-                    </p>
-                  </div>
-                  <div className="p-6 bg-wapify-bg/50">
-                    <p className="text-sm text-wapify-text-secondary/70 line-clamp-2 group-hover:text-wapify-text transition">
-                      {example.prompt}
-                    </p>
-                    <div className="mt-4 flex items-center gap-2 text-wapify-accent font-semibold text-sm">
-                      <span>Try this prompt</span>
-                      <span className="group-hover:translate-x-1 transition-transform">→</span>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="py-24 px-6 bg-wapify-panel/30">
-          <div className="max-w-5xl mx-auto text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-wapify-text mb-6">
-              Ready to Build Something Amazing?
-            </h2>
-            <p className="text-xl text-wapify-text-secondary mb-12">
-              Join thousands of developers shipping faster with Wapify
-            </p>
-            <Link
-              href="/auth/signin"
-              className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200"
-            >
-              <span>Start Building for Free</span>
-              <span>→</span>
-            </Link>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}
