@@ -1046,19 +1046,6 @@ export default function EditorPage() {
               >
                 New Project
               </button>
-              {activeView === 'preview' && (
-                <button
-                  onClick={() => {
-                    if (buildUrl) {
-                      window.open(buildUrl, '_blank')
-                    }
-                  }}
-                  disabled={!buildUrl}
-                  className="px-3 py-1.5 bg-wapify-accent text-white rounded-lg font-semibold hover:bg-wapify-accent-dark transition shadow-md disabled:opacity-50 text-sm"
-                >
-                  🚀 Publish
-                </button>
-              )}
             </>
           )}
         </div>
@@ -1261,18 +1248,25 @@ export default function EditorPage() {
               </div>
             </div>
 
-            {activeView === 'preview' && generatedCode && (
+            {generatedCode && (
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
-                    if (buildUrl) {
-                      window.open(buildUrl, '_blank')
-                    }
+                    // TODO: Implémenter la fonctionnalité Share
+                    alert('Share functionality coming soon!')
                   }}
-                  disabled={!buildUrl}
-                  className="px-3 py-1.5 bg-wapify-accent text-white rounded-lg font-semibold hover:bg-wapify-accent-dark transition shadow-md disabled:opacity-50 text-sm"
+                  className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition text-sm border border-gray-300"
                 >
-                  🚀 Publish
+                  Share
+                </button>
+                <button
+                  onClick={() => {
+                    // TODO: Implémenter la fonctionnalité Publish/Deploy
+                    alert('Publish functionality coming soon!')
+                  }}
+                  className="px-3 py-1.5 bg-wapify-accent text-white rounded-lg font-semibold hover:bg-wapify-accent-dark transition shadow-sm text-sm"
+                >
+                  Publish
                 </button>
               </div>
             )}
