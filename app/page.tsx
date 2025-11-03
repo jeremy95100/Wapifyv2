@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { ModernMinimalistPreview, GradientVibrantPreview, DarkModePreview, BrutalistPreview, GlassmorphismPreview } from '@/components/StylePreviews'
 
 export default function Home() {
   const [prompt, setPrompt] = useState('')
@@ -151,26 +152,15 @@ export default function Home() {
     return () => clearTimeout(timer)
   }, [typingIndex, isDeleting, loopNum, prompt])
 
-  // Auto-insert style instructions when a style is selected
-  useEffect(() => {
-    if (selectedStyle) {
-      const style = designStyles.find(s => s.id === selectedStyle)
-      if (style) {
-        setPrompt(prevPrompt => {
-          // If there's already a prompt, append the style instruction
-          if (prevPrompt.trim()) {
-            return `${prevPrompt.trim()} ${style.styleInstructions}`
-          }
-          // Otherwise just set the style instruction
-          return style.styleInstructions
-        })
-      }
-    }
-  }, [selectedStyle])
-
   const handleGenerate = () => {
     if (prompt.trim()) {
-      router.push(`/editor?prompt=${encodeURIComponent(prompt)}`)
+      // Build URL with prompt and optional style
+      const url = new URL('/editor', window.location.origin)
+      url.searchParams.set('prompt', prompt)
+      if (selectedStyle) {
+        url.searchParams.set('style', selectedStyle)
+      }
+      router.push(url.pathname + url.search)
     }
   }
 
@@ -186,7 +176,7 @@ export default function Home() {
         "Neutral color palette with accent colors",
         "Perfect for SaaS, portfolios, and corporate sites"
       ],
-      preview: "https://images.unsplash.com/photo-1618004912476-29818d81ae2e?w=1200&auto=format&fit=crop&q=80",
+      previewComponent: ModernMinimalistPreview,
       color: "from-blue-500/10 to-cyan-500/10",
       styleInstructions: "Use a modern minimalist design with generous whitespace, clean sans-serif typography, subtle animations, and a neutral color palette with accent colors."
     },
@@ -201,7 +191,7 @@ export default function Home() {
         "Modern glassmorphism and blur effects",
         "Ideal for creative agencies and startups"
       ],
-      preview: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=1200&auto=format&fit=crop&q=80",
+      previewComponent: GradientVibrantPreview,
       color: "from-purple-500/10 to-pink-500/10",
       styleInstructions: "Use bold gradient backgrounds with vibrant colors, smooth color transitions, animated elements with hover effects, and modern glassmorphism with blur effects."
     },
@@ -216,7 +206,7 @@ export default function Home() {
         "Reduced eye strain for long sessions",
         "Great for dashboards, dev tools, and gaming"
       ],
-      preview: "https://images.unsplash.com/photo-1618004652321-13a63e576b80?w=1200&auto=format&fit=crop&q=80",
+      previewComponent: DarkModePreview,
       color: "from-gray-800/10 to-slate-900/10",
       styleInstructions: "Use a dark mode design with dark backgrounds, neon accent colors for CTAs, high contrast for readability, and strategic highlights."
     },
@@ -231,7 +221,7 @@ export default function Home() {
         "Intentionally rough and direct aesthetic",
         "Perfect for portfolios and bold brands"
       ],
-      preview: "https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=1200&auto=format&fit=crop&q=80",
+      previewComponent: BrutalistPreview,
       color: "from-yellow-500/10 to-orange-500/10",
       styleInstructions: "Use a brutalist design with heavy black borders, bold geometric shapes, strong typography hierarchy, and high contrast black and white colors."
     },
@@ -246,7 +236,7 @@ export default function Home() {
         "Modern, clean, and sophisticated look",
         "Excellent for premium and luxury brands"
       ],
-      preview: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200&auto=format&fit=crop&q=80",
+      previewComponent: GlassmorphismPreview,
       color: "from-teal-500/10 to-emerald-500/10",
       styleInstructions: "Use glassmorphism design with frosted glass blur effects on cards, soft drop shadows, translucent backgrounds with vibrant colors, and depth layers."
     }
@@ -729,12 +719,7 @@ export default function Home() {
 
                     {/* Right: Preview */}
                     <div className="relative rounded-xl overflow-hidden border-2 border-wapify-border min-h-[400px]">
-                      <img
-                        src={style.preview}
-                        alt={`${style.name} preview`}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className={`absolute inset-0 bg-gradient-to-br ${style.color}`}></div>
+                      <style.previewComponent />
                     </div>
                   </div>
                 </div>
