@@ -563,12 +563,12 @@ export default function Home() {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               {/* Left: Template Preview */}
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-wapify-accent/20 to-wapify-accent-dark/20 rounded-3xl blur-2xl group-hover:blur-3xl transition-all"></div>
-                <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-wapify-border">
+                <div className="absolute inset-0 bg-gradient-to-br from-wapify-accent/20 to-wapify-accent-dark/20 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-500 animate-pulse"></div>
+                <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-wapify-border hover:scale-[1.02] transition-transform duration-300">
                   {/* Mock Browser Header */}
                   <div className="bg-gray-100 px-4 py-3 flex items-center gap-2 border-b-2 border-wapify-border">
                     <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-red-400 animate-pulse"></div>
                       <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                       <div className="w-3 h-3 rounded-full bg-green-400"></div>
                     </div>
@@ -580,34 +580,34 @@ export default function Home() {
                   {/* Mock App Content - E-commerce */}
                   <div className="p-6 space-y-4">
                     {/* Header */}
-                    <div className="flex items-center justify-between pb-4 border-b-2 border-gray-100">
-                      <div className="h-8 w-32 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark rounded"></div>
+                    <div className="flex items-center justify-between pb-4 border-b-2 border-gray-100 animate-fadeIn">
+                      <div className="h-8 w-32 bg-gradient-to-r from-wapify-accent to-wapify-accent-dark rounded animate-pulse"></div>
                       <div className="flex gap-2">
-                        <div className="h-8 w-8 bg-gray-200 rounded"></div>
-                        <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                        <div className="h-8 w-8 bg-gray-200 rounded hover:bg-gray-300 transition-colors"></div>
+                        <div className="h-8 w-8 bg-gray-200 rounded hover:bg-gray-300 transition-colors"></div>
                       </div>
                     </div>
 
                     {/* Product Grid */}
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-                        <div className="aspect-square bg-gradient-to-br from-blue-100 to-blue-200 rounded"></div>
-                        <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                      <div className="bg-gray-50 rounded-lg p-3 space-y-2 hover:shadow-md transition-shadow duration-300 cursor-pointer" style={{animationDelay: '0.1s'}}>
+                        <div className="aspect-square bg-gradient-to-br from-blue-100 to-blue-200 rounded group-hover:scale-105 transition-transform duration-300"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse" style={{animationDelay: '0.2s'}}></div>
                         <div className="h-2 bg-gray-100 rounded w-1/2"></div>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-                        <div className="aspect-square bg-gradient-to-br from-purple-100 to-purple-200 rounded"></div>
-                        <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                      <div className="bg-gray-50 rounded-lg p-3 space-y-2 hover:shadow-md transition-shadow duration-300 cursor-pointer" style={{animationDelay: '0.2s'}}>
+                        <div className="aspect-square bg-gradient-to-br from-purple-100 to-purple-200 rounded group-hover:scale-105 transition-transform duration-300"></div>
+                        <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse" style={{animationDelay: '0.3s'}}></div>
                         <div className="h-2 bg-gray-100 rounded w-1/3"></div>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-                        <div className="aspect-square bg-gradient-to-br from-green-100 to-green-200 rounded"></div>
-                        <div className="h-3 bg-gray-200 rounded w-4/5"></div>
+                      <div className="bg-gray-50 rounded-lg p-3 space-y-2 hover:shadow-md transition-shadow duration-300 cursor-pointer" style={{animationDelay: '0.3s'}}>
+                        <div className="aspect-square bg-gradient-to-br from-green-100 to-green-200 rounded group-hover:scale-105 transition-transform duration-300"></div>
+                        <div className="h-3 bg-gray-200 rounded w-4/5 animate-pulse" style={{animationDelay: '0.4s'}}></div>
                         <div className="h-2 bg-gray-100 rounded w-2/5"></div>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-                        <div className="aspect-square bg-gradient-to-br from-orange-100 to-orange-200 rounded"></div>
-                        <div className="h-3 bg-gray-200 rounded w-3/5"></div>
+                      <div className="bg-gray-50 rounded-lg p-3 space-y-2 hover:shadow-md transition-shadow duration-300 cursor-pointer" style={{animationDelay: '0.4s'}}>
+                        <div className="aspect-square bg-gradient-to-br from-orange-100 to-orange-200 rounded group-hover:scale-105 transition-transform duration-300"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/5 animate-pulse" style={{animationDelay: '0.5s'}}></div>
                         <div className="h-2 bg-gray-100 rounded w-1/4"></div>
                       </div>
                     </div>
@@ -684,12 +684,12 @@ export default function Home() {
 
               {/* Right: Template Preview - Dashboard */}
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl blur-2xl group-hover:blur-3xl transition-all"></div>
-                <div className="relative bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border-2 border-gray-800">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-500 animate-pulse"></div>
+                <div className="relative bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border-2 border-gray-800 hover:scale-[1.02] transition-transform duration-300">
                   {/* Mock Browser Header */}
                   <div className="bg-gray-800 px-4 py-3 flex items-center gap-2 border-b-2 border-gray-700">
                     <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-red-400 animate-pulse"></div>
                       <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                       <div className="w-3 h-3 rounded-full bg-green-400"></div>
                     </div>
@@ -701,36 +701,36 @@ export default function Home() {
                   {/* Mock Dashboard Content */}
                   <div className="p-6 space-y-4">
                     {/* Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="h-6 w-24 bg-white rounded"></div>
-                      <div className="h-8 w-20 bg-cyan-500 rounded"></div>
+                    <div className="flex items-center justify-between animate-fadeIn">
+                      <div className="h-6 w-24 bg-white rounded animate-pulse"></div>
+                      <div className="h-8 w-20 bg-cyan-500 rounded hover:bg-cyan-400 transition-colors cursor-pointer"></div>
                     </div>
 
                     {/* Stats Cards */}
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="bg-gray-800 border border-cyan-500/30 rounded-lg p-3">
+                      <div className="bg-gray-800 border border-cyan-500/30 rounded-lg p-3 hover:border-cyan-500/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/20">
                         <div className="h-2 bg-gray-700 rounded w-1/2 mb-2"></div>
-                        <div className="h-4 bg-cyan-500/20 rounded w-3/4"></div>
+                        <div className="h-4 bg-cyan-500/20 rounded w-3/4 animate-pulse" style={{animationDelay: '0.1s'}}></div>
                       </div>
-                      <div className="bg-gray-800 border border-purple-500/30 rounded-lg p-3">
+                      <div className="bg-gray-800 border border-purple-500/30 rounded-lg p-3 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-purple-500/20">
                         <div className="h-2 bg-gray-700 rounded w-1/2 mb-2"></div>
-                        <div className="h-4 bg-purple-500/20 rounded w-2/3"></div>
+                        <div className="h-4 bg-purple-500/20 rounded w-2/3 animate-pulse" style={{animationDelay: '0.2s'}}></div>
                       </div>
-                      <div className="bg-gray-800 border border-green-500/30 rounded-lg p-3">
+                      <div className="bg-gray-800 border border-green-500/30 rounded-lg p-3 hover:border-green-500/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-green-500/20">
                         <div className="h-2 bg-gray-700 rounded w-1/2 mb-2"></div>
-                        <div className="h-4 bg-green-500/20 rounded w-4/5"></div>
+                        <div className="h-4 bg-green-500/20 rounded w-4/5 animate-pulse" style={{animationDelay: '0.3s'}}></div>
                       </div>
                     </div>
 
                     {/* Chart Area */}
-                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-                      <div className="h-3 bg-gray-700 rounded w-1/3 mb-3"></div>
+                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-cyan-500/30 transition-colors duration-300">
+                      <div className="h-3 bg-gray-700 rounded w-1/3 mb-3 animate-pulse"></div>
                       <div className="flex items-end gap-2 h-24">
-                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style={{height: '60%'}}></div>
-                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style={{height: '80%'}}></div>
-                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style={{height: '45%'}}></div>
-                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style={{height: '90%'}}></div>
-                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style={{height: '70%'}}></div>
+                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '60%', animationDelay: '0.1s'}}></div>
+                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '80%', animationDelay: '0.2s'}}></div>
+                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '45%', animationDelay: '0.3s'}}></div>
+                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '90%', animationDelay: '0.4s'}}></div>
+                        <div className="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t hover:from-cyan-400 hover:to-cyan-300 transition-all duration-300 cursor-pointer" style={{height: '70%', animationDelay: '0.5s'}}></div>
                       </div>
                     </div>
                   </div>
