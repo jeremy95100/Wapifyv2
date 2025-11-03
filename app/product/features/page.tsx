@@ -56,7 +56,7 @@ export default function FeaturesPage() {
       highlights: ['Payment gateways', 'Email services', 'Analytics tools']
     },
     {
-      icon: '📱',
+      icon: '💻',
       title: 'Responsive Design',
       description: 'Every app works perfectly on desktop, tablet, and mobile devices.',
       highlights: ['Mobile-first', 'Adaptive layouts', 'Touch-optimized']

@@ -64,7 +64,7 @@ export default function EditorPage() {
   // New UI states for professional navigation
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isChatCollapsed, setIsChatCollapsed] = useState(false)
-  const [chatWidth, setChatWidth] = useState(420) // Default width in pixels
+  const [chatWidth, setChatWidth] = useState(500) // Default width in pixels
   const [isResizing, setIsResizing] = useState(false)
   const [showResourceMonitor, setShowResourceMonitor] = useState(false)
 
@@ -93,8 +93,8 @@ export default function EditorPage() {
       const delta = e.clientX - resizeStartX.current
       const newWidth = resizeStartWidth.current + delta
 
-      // Min width: 320px, Max width: 600px
-      const constrainedWidth = Math.max(320, Math.min(600, newWidth))
+      // Min width: 450px (fixed), Max width: 700px
+      const constrainedWidth = Math.max(450, Math.min(700, newWidth))
       setChatWidth(constrainedWidth)
     }
 
@@ -1026,11 +1026,11 @@ export default function EditorPage() {
           {/* Toggle Sidebar Button */}
           <button
             onClick={() => setIsChatCollapsed(!isChatCollapsed)}
-            className="w-8 h-8 flex items-center justify-center text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-border rounded-lg transition"
+            className="w-8 h-8 flex items-center justify-center text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-border rounded-lg transition ml-2"
             title={isChatCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
             </svg>
           </button>
         </div>
@@ -1079,13 +1079,8 @@ export default function EditorPage() {
             className="bg-wapify-panel border-r-2 border-wapify-border flex flex-col relative z-0"
             style={{ width: `${chatWidth}px` }}
           >
-            {/* Chat Header - Simplified */}
-            <div className="px-4 py-3 border-b border-wapify-border flex-shrink-0 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-wapify-text">Chat</h2>
-            </div>
-
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 pt-4">
               {messages.length === 0 && (
                 <div className="text-center py-12">
                   <div className="text-5xl mb-4 opacity-50">✨</div>
@@ -1128,76 +1123,78 @@ export default function EditorPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area - Full Height */}
-            <div className="border-t border-wapify-border flex-shrink-0 bg-wapify-bg p-3">
+            {/* Input Area - Integrated */}
+            <div className="border-t border-wapify-border flex-shrink-0 bg-wapify-bg p-4">
               <form onSubmit={handleSubmit} className="relative">
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      handleSubmit(e)
-                    }
-                  }}
-                  placeholder={!generatedCode ? "Describe your application..." : "Request a modification..."}
-                  className="w-full px-3 py-3 pr-24 bg-white border border-wapify-border rounded-lg text-wapify-text placeholder-wapify-text-secondary focus:border-wapify-accent focus:outline-none text-sm resize-none"
-                  disabled={isGenerating}
-                  rows={1}
-                  style={{ minHeight: '44px' }}
-                />
+                <div className="bg-white border-2 border-wapify-border rounded-xl p-3 focus-within:border-wapify-accent transition">
+                  {/* Top Action Bar */}
+                  <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                    <div className="flex items-center gap-2">
+                      {/* Attach Button */}
+                      <button
+                        type="button"
+                        className="p-1.5 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition"
+                        title="Attach files"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
 
-                {/* Bottom Action Bar */}
-                <div className="flex items-center justify-between mt-2 px-1">
-                  <div className="flex items-center gap-2">
-                    {/* Attach Button */}
-                    <button
-                      type="button"
-                      className="p-2 text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-border rounded-lg transition"
-                      title="Attach files"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                    </button>
+                      {/* Send Button */}
+                      <button
+                        type="submit"
+                        disabled={isGenerating || !input.trim()}
+                        className="p-1.5 text-wapify-accent hover:bg-wapify-accent/10 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Send message"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </button>
+                    </div>
 
-                    {/* Send Button */}
-                    <button
-                      type="submit"
-                      disabled={isGenerating || !input.trim()}
-                      className="p-2 text-wapify-accent hover:bg-wapify-accent/10 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Send message"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {/* Settings Button with emoji */}
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs"
+                        title="Settings"
+                      >
+                        <span>⚙️</span>
+                      </button>
+
+                      {/* Divider */}
+                      <div className="w-px h-4 bg-gray-200"></div>
+
+                      {/* Visual Edit Button with emoji */}
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 px-2 py-1 text-wapify-text-secondary hover:text-wapify-text hover:bg-gray-100 rounded-lg transition text-xs font-medium"
+                        title="Visual Edit"
+                      >
+                        <span>✏️</span>
+                        <span>Visual Edit</span>
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {/* Settings Button */}
-                    <button
-                      type="button"
-                      className="p-2 text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-border rounded-lg transition"
-                      title="Settings"
-                    >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/>
-                      </svg>
-                    </button>
-
-                    {/* Divider */}
-                    <div className="w-px h-5 bg-wapify-border"></div>
-
-                    {/* Visual Edit Button */}
-                    <button
-                      type="button"
-                      className="px-3 py-1.5 text-xs font-medium text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-border rounded-lg transition"
-                      title="Visual Edit"
-                    >
-                      Visual Edit
-                    </button>
-                  </div>
+                  {/* Textarea */}
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSubmit(e)
+                      }
+                    }}
+                    placeholder={!generatedCode ? "Describe your application..." : "Request a modification..."}
+                    className="w-full px-1 py-1 bg-transparent text-wapify-text placeholder-wapify-text-secondary focus:outline-none text-sm resize-none"
+                    disabled={isGenerating}
+                    rows={6}
+                    style={{ minHeight: '120px' }}
+                  />
                 </div>
               </form>
             </div>
@@ -1215,21 +1212,18 @@ export default function EditorPage() {
         {/* Right Panel - Preview & Code */}
         <div className="flex-1 flex flex-col bg-wapify-bg relative z-0">
           {/* Top Bar with Tabs */}
-          <div className="bg-wapify-panel border-b-2 border-wapify-border flex items-center justify-between px-4 flex-shrink-0">
+          <div className="bg-gray-100 border-b-2 border-wapify-border flex items-center justify-between px-4 flex-shrink-0">
             <div className="flex items-center gap-1">
               {/* Code Tab */}
               {isMultiFile && (
                 <button
                   onClick={() => setActiveView('code')}
-                  className={`px-4 py-3 font-medium transition text-sm flex items-center gap-2 ${
+                  className={`px-4 py-3 font-medium transition text-sm ${
                     activeView === 'code'
-                      ? 'text-wapify-accent border-b-2 border-wapify-accent'
-                      : 'text-wapify-text-secondary hover:text-wapify-text'
+                      ? 'text-wapify-accent border-b-2 border-wapify-accent bg-white'
+                      : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-white/50'
                   }`}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                  </svg>
                   Code
                 </button>
               )}
@@ -1237,33 +1231,41 @@ export default function EditorPage() {
               {/* Preview Tab */}
               <button
                 onClick={() => setActiveView('preview')}
-                className={`px-4 py-3 font-medium transition text-sm flex items-center gap-2 ${
+                className={`px-4 py-3 font-medium transition text-sm ${
                   activeView === 'preview'
-                    ? 'text-wapify-accent border-b-2 border-wapify-accent'
-                    : 'text-wapify-text-secondary hover:text-wapify-text'
+                    ? 'text-wapify-accent border-b-2 border-wapify-accent bg-white'
+                    : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-white/50'
                 }`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
                 Preview
               </button>
 
               {/* Dashboard Tab */}
               <button
                 onClick={() => setActiveView('dashboard')}
-                className={`px-4 py-3 font-medium transition text-sm flex items-center gap-2 ${
+                className={`px-4 py-3 font-medium transition text-sm ${
                   activeView === 'dashboard'
-                    ? 'text-wapify-accent border-b-2 border-wapify-accent'
-                    : 'text-wapify-text-secondary hover:text-wapify-text'
+                    ? 'text-wapify-accent border-b-2 border-wapify-accent bg-white'
+                    : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-white/50'
                 }`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
                 Dashboard
               </button>
+
+              {/* Refresh Button */}
+              {activeView === 'preview' && buildUrl && (
+                <button
+                  onClick={() => {
+                    if (iframeRef.current) {
+                      iframeRef.current.src = iframeRef.current.src
+                    }
+                  }}
+                  className="ml-2 p-2 text-wapify-text-secondary hover:text-wapify-text hover:bg-white/50 rounded-lg transition"
+                  title="Refresh preview"
+                >
+                  <span className="text-base">🔄</span>
+                </button>
+              )}
 
               {/* Workspace Monitor */}
               {activeView === 'preview' && (
@@ -1326,43 +1328,6 @@ export default function EditorPage() {
 
             {activeView === 'preview' && generatedCode && (
               <div className="flex items-center gap-2">
-                {/* Device Toggle */}
-                <div className="flex items-center gap-1 bg-wapify-bg border-2 border-wapify-border rounded-lg p-1">
-                  <button
-                    onClick={() => setDeviceView('desktop')}
-                    className={`p-1.5 rounded transition ${
-                      deviceView === 'desktop' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text'
-                    }`}
-                    title="Desktop"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 14h14v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setDeviceView('tablet')}
-                    className={`p-1.5 rounded transition ${
-                      deviceView === 'tablet' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text'
-                    }`}
-                    title="Tablet"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M6 3a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2H6zm4 12a1 1 0 100-2 1 1 0 000 2z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setDeviceView('mobile')}
-                    className={`p-1.5 rounded transition ${
-                      deviceView === 'mobile' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text'
-                    }`}
-                    title="Mobile"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M7 3a2 2 0 00-2 2v10a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2H7zm3 12a1 1 0 100-2 1 1 0 000 2z" />
-                    </svg>
-                  </button>
-                </div>
-
                 <button
                   onClick={() => {
                     if (buildUrl) {
@@ -1384,47 +1349,77 @@ export default function EditorPage() {
               <>
                 {generatedCode ? (
                   isMultiFile && projectFiles.length > 0 ? (
-                    <div className={`h-full flex items-center justify-center bg-white ${
+                    <div className={`h-full flex flex-col items-center justify-center bg-white ${
                       deviceView === 'mobile' ? 'p-4' : deviceView === 'tablet' ? 'p-8' : 'p-0'
                     }`}>
-                      {buildStatus === 'queued' || buildStatus === 'building' ? (
-                        <div className="text-center">
-                          <div className="animate-spin rounded-full h-12 w-12 border-4 border-wapify-accent border-t-transparent mx-auto mb-4"></div>
-                          <p className="text-wapify-text-secondary">Building...</p>
-                        </div>
-                      ) : buildStatus === 'completed' && buildUrl ? (
-                        <div className={`h-full ${
-                          deviceView === 'mobile' ? 'max-w-[375px]' : deviceView === 'tablet' ? 'max-w-[768px]' : 'w-full'
-                        } bg-white shadow-2xl rounded-xl overflow-hidden border-2 border-wapify-border`}>
-                          <iframe
-                            src={buildUrl}
-                            className="w-full h-full border-none"
-                            sandbox="allow-scripts allow-forms allow-modals allow-popups allow-same-origin allow-downloads"
-                            title="App Preview"
-                          />
-                        </div>
-                      ) : buildStatus === 'failed' ? (
-                        <div className="text-center p-8">
-                          <div className="text-6xl mb-4">❌</div>
-                          <h3 className="text-2xl font-bold text-red-600 mb-2">Build Failed</h3>
-                          <p className="text-wapify-text-secondary mb-4">{error || 'An error occurred'}</p>
+                      <div className="flex-1 flex items-center justify-center w-full">
+                        {buildStatus === 'queued' || buildStatus === 'building' ? (
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-wapify-accent border-t-transparent mx-auto mb-4"></div>
+                            <p className="text-wapify-text-secondary">Building...</p>
+                          </div>
+                        ) : buildStatus === 'completed' && buildUrl ? (
+                          <div className={`h-full ${
+                            deviceView === 'mobile' ? 'max-w-[375px]' : deviceView === 'tablet' ? 'max-w-[768px]' : 'w-full'
+                          } bg-white shadow-2xl rounded-xl overflow-hidden border-2 border-wapify-border`}>
+                            <iframe
+                              src={buildUrl}
+                              className="w-full h-full border-none"
+                              sandbox="allow-scripts allow-forms allow-modals allow-popups allow-same-origin allow-downloads"
+                              title="App Preview"
+                            />
+                          </div>
+                        ) : buildStatus === 'failed' ? (
+                          <div className="text-center p-8">
+                            <div className="text-6xl mb-4">❌</div>
+                            <h3 className="text-2xl font-bold text-red-600 mb-2">Build Failed</h3>
+                            <p className="text-wapify-text-secondary mb-4">{error || 'An error occurred'}</p>
+                            <button
+                              onClick={() => {
+                                if (projectId) {
+                                  rebuildProject(projectId)
+                                } else if (projectFiles.length > 0) {
+                                  setBuildStatus('idle')
+                                  triggerBuild(projectFiles, `temp-${Date.now()}`)
+                                }
+                              }}
+                              className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition shadow-md"
+                            >
+                              🔄 Retry
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="animate-spin rounded-full h-12 w-12 border-4 border-wapify-accent border-t-transparent"></div>
+                        )}
+                      </div>
+
+                      {/* Device View Selector - Bottom Center */}
+                      <div className="flex items-center justify-center pb-4 pt-2">
+                        <div className="flex items-center gap-1 bg-wapify-panel border-2 border-wapify-border rounded-lg p-1 shadow-lg">
                           <button
-                            onClick={() => {
-                              if (projectId) {
-                                rebuildProject(projectId)
-                              } else if (projectFiles.length > 0) {
-                                setBuildStatus('idle')
-                                triggerBuild(projectFiles, `temp-${Date.now()}`)
-                              }
-                            }}
-                            className="px-6 py-3 bg-wapify-accent text-white rounded-xl font-semibold hover:bg-wapify-accent-dark transition shadow-md"
+                            onClick={() => setDeviceView('mobile')}
+                            className={`p-2 rounded transition ${
+                              deviceView === 'mobile' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+                            }`}
+                            title="Mobile"
                           >
-                            🔄 Retry
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M7 3a2 2 0 00-2 2v10a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2H7zm3 12a1 1 0 100-2 1 1 0 000 2z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => setDeviceView('desktop')}
+                            className={`p-2 rounded transition ${
+                              deviceView === 'desktop' ? 'bg-wapify-accent text-white' : 'text-wapify-text-secondary hover:text-wapify-text hover:bg-wapify-bg'
+                            }`}
+                            title="Desktop"
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 14h14v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" />
+                            </svg>
                           </button>
                         </div>
-                      ) : (
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-wapify-accent border-t-transparent"></div>
-                      )}
+                      </div>
                     </div>
                   ) : (
                     <iframe
