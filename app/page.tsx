@@ -795,10 +795,11 @@ export default function Home() {
                 <div className="mb-6">
                   <h3 className="text-2xl font-bold text-wapify-text mb-2">Builder</h3>
                   <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-5xl font-black text-wapify-text">$29</span>
+                    <span className="text-5xl font-black text-wapify-text">$50</span>
                     <span className="text-wapify-text-secondary">/month</span>
                   </div>
-                  <p className="text-wapify-text-secondary">Build, deploy and scale your apps</p>
+                  <p className="text-wapify-text-secondary mb-2">Build, deploy and scale your apps</p>
+                  <p className="text-sm text-wapify-accent font-semibold">$45/month billed annually</p>
                 </div>
 
                 <ul className="space-y-3 mb-8">
@@ -857,27 +858,23 @@ export default function Home() {
                 },
                 {
                   question: "Can I export the source code?",
-                  answer: "Yes! Pro and Enterprise plans include full source code export. You own your code and can host it anywhere you want."
+                  answer: "Yes! Builder and Enterprise plans include full source code export. You own your code and can host it anywhere you want."
                 },
                 {
-                  question: "What technologies does Wapify use?",
-                  answer: "We generate modern web apps using React, Next.js, Tailwind CSS, and PostgreSQL. Your apps are built with production-ready, industry-standard technologies."
-                },
-                {
-                  question: "Is there a free trial?",
-                  answer: "Yes! Our Free plan lets you create up to 3 projects with no credit card required. Pro plan includes a 14-day free trial."
+                  question: "Is there a free plan?",
+                  answer: "Yes! Our Starter plan is completely free and lets you create 1 app with 50 daily credits (up to 150/month). No credit card required to get started."
                 },
                 {
                   question: "Can I use my own domain?",
-                  answer: "Absolutely! Pro and Enterprise plans support custom domains. You can connect your domain in just a few clicks."
+                  answer: "Absolutely! Builder and Enterprise plans support custom domains. You can connect your domain in just a few clicks."
                 },
                 {
                   question: "What kind of support do you offer?",
-                  answer: "Free users get community support via Discord. Pro users get priority email support with 24-hour response time. Enterprise customers get dedicated support with SLA."
+                  answer: "Starter users get community support via Discord. Builder users get priority email support with 24-hour response time. Enterprise customers get dedicated support with SLA."
                 },
                 {
                   question: "Can I collaborate with my team?",
-                  answer: "Yes! Pro plans support team collaboration with shared projects and role-based permissions. Enterprise plans offer advanced team features."
+                  answer: "Yes! Builder plans support team collaboration with shared projects and role-based permissions. Enterprise plans offer advanced team features."
                 }
               ].map((faq, i) => (
                 <details
