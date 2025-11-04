@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { WapifyLogo } from '@/logo'
 
 export default function CommunityPage() {
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false)
@@ -15,10 +16,7 @@ export default function CommunityPage() {
         <div className="w-full px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center text-xl shadow-lg">
-                ⚡
-              </div>
-              <span className="text-2xl font-bold text-wapify-text">Wapify</span>
+              <WapifyLogo withText={true} />
             </Link>
 
             <div className="hidden md:flex items-center gap-6">
@@ -173,10 +171,7 @@ export default function CommunityPage() {
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center text-xl shadow-lg">
-                  ⚡
-                </div>
-                <span className="text-2xl font-bold text-wapify-text">Wapify</span>
+                <WapifyLogo withText={true} />
               </div>
               <p className="text-sm text-wapify-text-secondary leading-relaxed mb-4">
                 Web App Simplify. Build complete web applications in minutes using AI. No coding required.

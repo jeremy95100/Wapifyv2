@@ -7,7 +7,7 @@ const { createCanvas, registerFont } = require('canvas');
 const fs = require('fs');
 const path = require('path');
 
-// Wapify brand colors
+// Wapify brand colors (Indigo/Purple)
 const ACCENT_COLOR = '#6366f1';
 const ACCENT_DARK = '#4f46e5';
 const BG_COLOR = '#0f0f1a';
@@ -18,7 +18,8 @@ const banners = [
   { name: 'twitter-header', width: 1500, height: 500, desc: 'Twitter/X header' },
   { name: 'facebook-cover', width: 820, height: 312, desc: 'Facebook cover' },
   { name: 'linkedin-banner', width: 1584, height: 396, desc: 'LinkedIn banner' },
-  { name: 'youtube-banner', width: 2560, height: 1440, desc: 'YouTube banner' },
+  { name: 'instagram-post', width: 1080, height: 1080, desc: 'Instagram post' },
+  { name: 'discord-banner', width: 960, height: 540, desc: 'Discord server banner' },
 ];
 
 // Function to draw the lightning bolt path
@@ -116,4 +117,5 @@ console.log('\nRecommended usage:');
 console.log('- Twitter/X: wapify-twitter-header.png');
 console.log('- Facebook: wapify-facebook-cover.png');
 console.log('- LinkedIn: wapify-linkedin-banner.png');
-console.log('- YouTube: wapify-youtube-banner.png');
+console.log('- Instagram: wapify-instagram-post.png');
+console.log('- Discord: wapify-discord-banner.png');

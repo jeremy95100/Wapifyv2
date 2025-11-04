@@ -4,6 +4,7 @@ import { signIn } from 'next-auth/react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { WapifyLogo } from '@/logo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -43,10 +44,7 @@ export default function LoginPage() {
         {/* Logo et titre */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-xl flex items-center justify-center text-2xl shadow-lg">
-              ⚡
-            </div>
-            <span className="text-3xl font-bold text-wapify-text">Wapify</span>
+            <WapifyLogo withText={true} />
           </Link>
           <h1 className="text-2xl font-bold text-wapify-text mt-4">Connexion</h1>
           <p className="text-wapify-text-secondary mt-2">

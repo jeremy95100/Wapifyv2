@@ -31,7 +31,8 @@ Ce dossier contient tous les assets du logo officiel de Wapify.
 - `wapify-twitter-header.png` (1500x500) - En-tête Twitter/X
 - `wapify-facebook-cover.png` (820x312) - Couverture Facebook
 - `wapify-linkedin-banner.png` (1584x396) - Bannière LinkedIn
-- `wapify-youtube-banner.png` (2560x1440) - Bannière YouTube
+- `wapify-instagram-post.png` (1080x1080) - Post Instagram
+- `wapify-discord-banner.png` (960x540) - Bannière serveur Discord
 
 ## 🎨 Utilisation du composant React
 
@@ -95,7 +96,8 @@ node logo/generate-social-banners.js
 - **Twitter/X header** : `wapify-twitter-header.png`
 - **Facebook cover** : `wapify-facebook-cover.png`
 - **LinkedIn banner** : `wapify-linkedin-banner.png`
-- **YouTube banner** : `wapify-youtube-banner.png`
+- **Instagram post** : `wapify-instagram-post.png`
+- **Discord banner** : `wapify-discord-banner.png`
 
 ### Applications
 - **Favicon** : `wapify-logo-icon-small.png` (64x64)

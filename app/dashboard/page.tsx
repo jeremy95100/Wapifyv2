@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { WapifyLogo } from '@/logo'
 
 interface Project {
   id: string
@@ -108,10 +109,7 @@ export default function DashboardPage() {
       <nav className="bg-wapify-panel border-b-2 border-wapify-border">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-xl">
-              ⚡
-            </div>
-            <span className="text-2xl font-bold text-wapify-text">Wapify</span>
+            <WapifyLogo withText={true} />
           </Link>
 
           <div className="flex items-center gap-4">
