@@ -46,11 +46,11 @@ function generateBanner(width, height, filename) {
   ctx.fillRect(0, 0, width, height);
 
   // Calculate logo size (proportional to height)
-  const logoSize = height * 0.4;
+  const logoSize = height * 0.35;
   const scale = logoSize / 24;
 
-  // Position logo and text centered
-  const logoX = width * 0.35;
+  // Position logo more to the left to make room for text
+  const logoX = width * 0.15;
   const logoY = (height - logoSize) / 2;
 
   // Draw logo with gradient background
@@ -79,25 +79,25 @@ function generateBanner(width, height, filename) {
   ctx.restore();
 
   // Draw "Wapify" text
-  const fontSize = height * 0.22;
+  const fontSize = height * 0.18;
   ctx.font = `bold ${fontSize}px Arial, sans-serif`;
   ctx.fillStyle = TEXT_COLOR;
   ctx.textBaseline = 'middle';
 
-  const textX = logoX + logoSize + (height * 0.1);
-  const textY = height / 2 - fontSize * 0.3;
+  const textX = logoX + logoBoxSize + (height * 0.08);
+  const textY = height / 2 - fontSize * 0.4;
   ctx.fillText('Wapify', textX, textY);
 
   // Draw main slogan - "Build Apps in Minutes, Not Months"
-  const sloganFontSize = height * 0.095;
+  const sloganFontSize = height * 0.08;
   ctx.font = `600 ${sloganFontSize}px Arial, sans-serif`;
 
-  // Split into two parts for styling
+  // Split into three parts for styling
   const part1 = 'Build Apps in ';
   const part2 = 'Minutes';
   const part3 = ', Not Months';
 
-  const sloganY = textY + fontSize * 0.7;
+  const sloganY = textY + fontSize * 0.8;
 
   // Draw "Build Apps in " in regular text color
   ctx.fillStyle = TEXT_COLOR;
