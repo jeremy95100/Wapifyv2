@@ -79,21 +79,43 @@ function generateBanner(width, height, filename) {
   ctx.restore();
 
   // Draw "Wapify" text
-  const fontSize = height * 0.25;
+  const fontSize = height * 0.22;
   ctx.font = `bold ${fontSize}px Arial, sans-serif`;
   ctx.fillStyle = TEXT_COLOR;
   ctx.textBaseline = 'middle';
 
   const textX = logoX + logoSize + (height * 0.1);
-  const textY = height / 2;
+  const textY = height / 2 - fontSize * 0.3;
   ctx.fillText('Wapify', textX, textY);
 
-  // Draw tagline
-  const taglineFontSize = height * 0.08;
-  ctx.font = `${taglineFontSize}px Arial, sans-serif`;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-  const tagline = 'Build Apps in Minutes';
-  ctx.fillText(tagline, textX, textY + fontSize * 0.6);
+  // Draw main slogan - "Build Apps in Minutes, Not Months"
+  const sloganFontSize = height * 0.095;
+  ctx.font = `600 ${sloganFontSize}px Arial, sans-serif`;
+
+  // Split into two parts for styling
+  const part1 = 'Build Apps in ';
+  const part2 = 'Minutes';
+  const part3 = ', Not Months';
+
+  const sloganY = textY + fontSize * 0.7;
+
+  // Draw "Build Apps in " in regular text color
+  ctx.fillStyle = TEXT_COLOR;
+  ctx.fillText(part1, textX, sloganY);
+
+  // Measure to position "Minutes" correctly
+  const part1Width = ctx.measureText(part1).width;
+
+  // Draw "Minutes" in accent color
+  ctx.fillStyle = ACCENT_COLOR;
+  ctx.fillText(part2, textX + part1Width, sloganY);
+
+  // Measure to position ", Not Months" correctly
+  const part2Width = ctx.measureText(part2).width;
+
+  // Draw ", Not Months" in regular text color
+  ctx.fillStyle = TEXT_COLOR;
+  ctx.fillText(part3, textX + part1Width + part2Width, sloganY);
 
   // Save to file
   const buffer = canvas.toBuffer('image/png');
