@@ -7,9 +7,9 @@ const { createCanvas } = require('canvas');
 const fs = require('fs');
 const path = require('path');
 
-// Wapify brand colors
-const ACCENT_COLOR = '#6366f1'; // wapify-accent (indigo)
-const ACCENT_DARK = '#4f46e5'; // wapify-accent-dark
+// Wapify brand colors (Terracotta/Coral)
+const ACCENT_COLOR = '#CC785C'; // wapify-accent
+const ACCENT_DARK = '#A6654A'; // wapify-accent-dark
 
 // Logo sizes for different use cases
 const sizes = [

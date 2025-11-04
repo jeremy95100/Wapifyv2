@@ -7,11 +7,11 @@ const { createCanvas, registerFont } = require('canvas');
 const fs = require('fs');
 const path = require('path');
 
-// Wapify brand colors (Indigo/Purple)
-const ACCENT_COLOR = '#6366f1';
-const ACCENT_DARK = '#4f46e5';
-const BG_COLOR = '#0f0f1a';
-const TEXT_COLOR = '#ffffff';
+// Wapify brand colors (Terracotta/Coral)
+const ACCENT_COLOR = '#CC785C';
+const ACCENT_DARK = '#A6654A';
+const BG_COLOR = '#F5F3EF'; // Matching app background
+const TEXT_COLOR = '#2C1810'; // Matching app text color
 
 // Social media banner sizes
 const banners = [

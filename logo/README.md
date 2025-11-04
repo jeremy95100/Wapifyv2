@@ -117,8 +117,9 @@ Le logo Wapify est un éclair (⚡) symbolisant :
 - ✨ **Innovation** - Technologie révolutionnaire
 
 ### Couleurs officielles
-- **Accent** : `#6366f1` (Indigo)
-- **Accent Dark** : `#4f46e5` (Indigo foncé)
-- **Arrière-plan** : `#0f0f1a` (Noir bleuté)
+- **Accent** : `#CC785C` (Terracotta/Corail)
+- **Accent Dark** : `#A6654A` (Terracotta foncé)
+- **Arrière-plan** : `#F5F3EF` (Beige clair)
+- **Texte** : `#2C1810` (Marron foncé)
 
 Le logo utilise un dégradé de `wapify-accent` à `wapify-accent-dark` pour un effet moderne et dynamique.
