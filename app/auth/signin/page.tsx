@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { WapifyLogo } from '@/logo'
 
 function SignInForm() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -83,10 +84,7 @@ function SignInForm() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-wapify-accent to-wapify-accent-dark rounded-lg flex items-center justify-center text-2xl">
-              ⚡
-            </div>
-            <span className="text-3xl font-bold text-wapify-text">Wapify</span>
+            <WapifyLogo withText={true} textClassName="text-3xl font-bold text-wapify-text" />
           </Link>
           <h1 className="text-2xl font-bold text-wapify-text mt-4">
             {isSignUp ? 'Créer un compte' : 'Connexion'}

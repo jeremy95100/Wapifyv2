@@ -10,6 +10,7 @@ import { GenerationPlan, GenerationStep, ModificationDetail} from '../../lib/ant
 import { generateProject } from '../../lib/generate-client'
 import GenerationPanel from './components/GenerationPanel'
 import CodeGenerationOverlay from './components/CodeGenerationOverlay'
+import { WapifyLogo } from '@/logo'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -1725,9 +1726,9 @@ export default function EditorPage() {
                 ) : (
                   <div className="flex items-center justify-center h-full text-center p-8">
                     <div>
-                      <svg className="w-24 h-24 mx-auto mb-4 text-wapify-accent opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
+                      <div className="mx-auto mb-4 opacity-50 text-wapify-accent">
+                        <WapifyLogo className="w-24 h-24 mx-auto" />
+                      </div>
                       <h3 className="text-2xl font-bold text-wapify-text mb-2">Ready to Build?</h3>
                       <p className="text-wapify-text-secondary max-w-md">
                         Describe your app in the chat and AI will automatically choose the best framework and style
@@ -1841,9 +1842,9 @@ export default function EditorPage() {
 
                   <div className="grid md:grid-cols-3 gap-6">
                     <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-6 text-center">
-                      <svg className="w-12 h-12 mx-auto mb-3 text-wapify-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
+                      <div className="text-wapify-accent">
+                        <WapifyLogo className="w-12 h-12 mx-auto mb-3" />
+                      </div>
                       <h3 className="text-lg font-bold text-wapify-text mb-1">Deployments</h3>
                       <p className="text-2xl font-bold text-wapify-accent mb-2">-</p>
                       <p className="text-xs text-wapify-text-secondary">Total builds</p>
@@ -1859,9 +1860,9 @@ export default function EditorPage() {
                     </div>
 
                     <div className="bg-wapify-panel border-2 border-wapify-border rounded-2xl p-6 text-center">
-                      <svg className="w-12 h-12 mx-auto mb-3 text-wapify-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
+                      <div className="text-wapify-accent">
+                        <WapifyLogo className="w-12 h-12 mx-auto mb-3" />
+                      </div>
                       <h3 className="text-lg font-bold text-wapify-text mb-1">Performance</h3>
                       <p className="text-2xl font-bold text-wapify-accent mb-2">-</p>
                       <p className="text-xs text-wapify-text-secondary">Avg load time</p>
