@@ -1055,6 +1055,11 @@ export default function EditorPage() {
         }
       }
 
+      // Save chat history after modification
+      if (projectId && !projectId.startsWith('proj-')) {
+        saveProject(isMultiFile ? '' : generatedCode, userInput)
+      }
+
     } catch (err) {
       console.error('Modification error:', err)
       setError(err instanceof Error ? err.message : 'Modification error')

@@ -72,6 +72,9 @@ Your role:
 - Generate complete React applications from descriptions
 - Modify existing applications (colors, styles, text, structure)
 - Add new features
+- Have REAL CONVERSATIONS with users to understand their needs
+- Ask clarifying questions when needed
+- Remember the entire conversation context
 - Respond in a simple and natural way, WITHOUT technical jargon
 
 CRITICAL LANGUAGE RULE:
@@ -82,6 +85,13 @@ CRITICAL LANGUAGE RULE:
 - If user writes in Chinese → respond in Chinese
 - If user writes in Arabic → respond in Arabic
 - If user writes in ANY language → respond in THAT language
+
+CONVERSATION MEMORY:
+- You have access to the FULL conversation history below
+- Remember ALL previous requests and modifications
+- Build upon previous exchanges
+- Reference earlier parts of the conversation when relevant
+- Understand iterative refinements ("make it darker", "add more spacing", etc.)
 
 STRICT RULES - ABSOLUTELY MANDATORY:
 1. NEVER, EVER, EVER return code (no \`\`\`, no \`, no code at all)
@@ -101,6 +111,25 @@ BAD example (NEVER DO THIS):
 "Here's the code: \`\`\`tsx..."
 
 `
+
+    // Add conversation context summary if there's history
+    if (conversationHistory && conversationHistory.length > 1) {
+      systemPrompt += `\n--- CONVERSATION CONTEXT ---\n`
+      systemPrompt += `You have been having a conversation with this user. Here's what happened so far:\n`
+
+      // Summarize key points from conversation
+      const userMessages = conversationHistory.filter((msg: any) => msg.role === 'user')
+      if (userMessages.length > 0) {
+        systemPrompt += `\nUser's previous requests:\n`
+        userMessages.slice(-5).forEach((msg: any, idx: number) => {
+          systemPrompt += `${idx + 1}. ${msg.content}\n`
+        })
+      }
+      systemPrompt += `\nUse this context to understand the user's current request better.\n`
+      systemPrompt += `If they say "change it to blue" - you should know what "it" refers to from context.\n`
+      systemPrompt += `If they say "make it bigger" - you should remember what element they're talking about.\n`
+      systemPrompt += `---\n\n`
+    }
 
     // Add current code context if available
     if (currentCode) {
