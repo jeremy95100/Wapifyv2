@@ -19,6 +19,8 @@ interface Message {
   timestamp: Date
   thinkingTime?: number // Time in seconds the AI thought about the response
   thinking?: string // What the AI understood from the user's request
+  needsClarification?: boolean // If the request needs clarification
+  clarifyingQuestions?: string[] // Questions to ask the user
 }
 
 interface ProjectFile {
@@ -926,6 +928,34 @@ export default function EditorPage() {
                       : msg
                   ))
 
+                } else if (event.type === 'needs_clarification') {
+                  // Request needs clarification - show questions
+                  const clarificationMessage: Message = {
+                    role: 'assistant',
+                    content: finalText || streamedText,
+                    id: currentMessageId,
+                    timestamp: new Date(),
+                    thinkingTime: Math.round((Date.now() - thinkingStartTime) / 1000),
+                    thinking: thinking,
+                    needsClarification: true,
+                    clarifyingQuestions: event.data.questions || []
+                  }
+
+                  // Update or add the message with clarification
+                  setMessages(prev => {
+                    const existingIndex = prev.findIndex(m => m.id === currentMessageId)
+                    if (existingIndex >= 0) {
+                      const updated = [...prev]
+                      updated[existingIndex] = clarificationMessage
+                      return updated
+                    }
+                    return [...prev, clarificationMessage]
+                  })
+
+                  // Don't proceed to code modification
+                  setIsGenerating(false)
+                  return
+
                 } else if (event.type === 'plan') {
                   // Temporarily disabled - plan not working correctly
                   // setGenerationTasks(event.data.tasks)
@@ -1525,6 +1555,36 @@ export default function EditorPage() {
                       {/* Message content - NO BUBBLE, just text */}
                       <div className="ml-9 text-wapify-text">
                         <p className="text-xs whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+
+                        {/* Clarifying Questions */}
+                        {msg.needsClarification && msg.clarifyingQuestions && msg.clarifyingQuestions.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <span className="text-[10px] font-semibold text-wapify-accent">💬</span>
+                              <span className="text-[10px] font-semibold text-wapify-text-secondary">Pour mieux vous aider, j'ai besoin de précisions :</span>
+                            </div>
+                            {msg.clarifyingQuestions.map((question, qIdx) => (
+                              <button
+                                key={qIdx}
+                                onClick={() => {
+                                  setInput(question)
+                                }}
+                                className="w-full text-left bg-wapify-panel border border-wapify-border rounded-lg p-2.5 hover:border-wapify-accent hover:bg-wapify-accent/5 transition-all group"
+                              >
+                                <div className="flex items-start gap-2">
+                                  <span className="text-wapify-accent text-[10px] mt-0.5 group-hover:scale-110 transition-transform">•</span>
+                                  <p className="text-xs text-wapify-text group-hover:text-wapify-accent transition-colors flex-1">
+                                    {question}
+                                  </p>
+                                  <span className="text-[9px] text-wapify-text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Cliquer pour répondre
+                                  </span>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
                         <p className="text-[9px] mt-1.5 text-wapify-text-secondary">{msg.timestamp.toLocaleTimeString()}</p>
                       </div>
                     </div>
