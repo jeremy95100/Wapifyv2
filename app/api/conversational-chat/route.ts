@@ -143,35 +143,69 @@ BAD example (NEVER DO THIS):
       })
     }
 
-    // First, ask Claude to think about what the user wants (understanding phase)
-    // Universal prompt that adapts to user's language
-    const thinkingPrompt = `Analyze this user request and explain what you understood as key points.
+    // OPTIMIZED: Combined thinking + vague detection in ONE API call
+    // This reduces latency from ~141s to ~70-90s
+    const combinedAnalysisPrompt = `Analyze this user request and provide TWO things:
+
+1. Understanding: What are the key points you understood from the request?
+2. Vague Check: Is this request too vague to execute without clarification?
 
 IMPORTANT: Respond in the SAME LANGUAGE as the user's message.
 
 User's message:
 "${message}"
 
-Format your response like this:
-• Key point 1
-• Key point 2
-• Key point 3 (if needed)
+Consider a request vague if:
+- It lacks specific details about WHAT to change/create
+- Colors/styles mentioned without specifics (which element? what exact color?)
+- Generic terms like "improve", "make it better", "something" without details
+- No clear target element or feature specified
 
-Use simple language, no technical jargon. Be concise (3-4 points maximum).`
+Respond with JSON only (no markdown):
+{
+  "thinking": "• Key point 1\\n• Key point 2\\n• Key point 3",
+  "isVague": true/false,
+  "questions": ["Question 1", "Question 2", "Question 3"],
+  "reason": "Brief explanation"
+}
 
-    const thinkingResponse = await anthropic.messages.create({
+If NOT vague, only include: {"thinking": "...", "isVague": false}
+
+Keep thinking concise (3-4 points max). Ask 3-4 specific, actionable questions if vague.`
+
+    const combinedResponse = await anthropic.messages.create({
       model: 'claude-sonnet-4-5',
-      max_tokens: 200,
+      max_tokens: 500,
       messages: [{
         role: 'user',
-        content: thinkingPrompt
+        content: combinedAnalysisPrompt
       }]
     })
 
     let thinking = ''
-    const thinkingContent = thinkingResponse.content[0]
-    if (thinkingContent.type === 'text') {
-      thinking = thinkingContent.text
+    let isVagueRequest = { isVague: false, clarifyingQuestions: [] as string[], reason: '' }
+
+    const combinedContent = combinedResponse.content[0]
+    if (combinedContent.type === 'text') {
+      try {
+        let jsonText = combinedContent.text.trim()
+        jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '')
+
+        const analysis = JSON.parse(jsonText)
+        thinking = analysis.thinking || ''
+
+        if (analysis.isVague) {
+          isVagueRequest = {
+            isVague: true,
+            clarifyingQuestions: analysis.questions || [],
+            reason: analysis.reason || 'La demande nécessite plus de détails'
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing combined analysis:', error)
+        // Fallback: use raw text as thinking
+        thinking = combinedContent.text
+      }
     }
 
     // Stream the thinking event first
@@ -180,6 +214,25 @@ Use simple language, no technical jargon. Be concise (3-4 points maximum).`
       data: { thinking }
     }
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(thinkingEvent)}\n\n`))
+
+    // If request is too vague, return clarifying questions immediately
+    if (isVagueRequest.isVague && isVagueRequest.clarifyingQuestions && isVagueRequest.clarifyingQuestions.length > 0) {
+      // Send clarifying questions event
+      const clarifyEvent = {
+        type: 'needs_clarification',
+        data: {
+          questions: isVagueRequest.clarifyingQuestions,
+          reason: isVagueRequest.reason
+        }
+      }
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify(clarifyEvent)}\n\n`))
+
+      // Close the stream - don't generate code yet
+      const doneEvent = { type: 'done', data: {} }
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneEvent)}\n\n`))
+      controller.close()
+      return
+    }
 
     // Build conversation history for Claude
     const messages: Anthropic.MessageParam[] = []
@@ -236,26 +289,7 @@ Use simple language, no technical jargon. Be concise (3-4 points maximum).`
     }
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(completeTextEvent)}\n\n`))
 
-    // First, check if the request is too vague and needs clarification
-    const isVagueRequest = await detectVagueRequest(message, aiResponse, anthropic)
-
-    if (isVagueRequest.isVague && isVagueRequest.clarifyingQuestions) {
-      // Send clarifying questions event instead of generating code
-      const clarifyEvent = {
-        type: 'needs_clarification',
-        data: {
-          questions: isVagueRequest.clarifyingQuestions,
-          reason: isVagueRequest.reason
-        }
-      }
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify(clarifyEvent)}\n\n`))
-
-      // Close the stream - don't generate code yet
-      const doneEvent = { type: 'done', data: {} }
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneEvent)}\n\n`))
-      controller.close()
-      return
-    }
+    // Vague detection already done upfront - no need to check again here
 
     // Detect if this is asking for code generation/modification
     const needsCodeGeneration = detectCodeGenerationIntent(message)
@@ -277,110 +311,6 @@ Use simple language, no technical jargon. Be concise (3-4 points maximum).`
     const doneEvent = { type: 'done', data: {} }
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneEvent)}\n\n`))
     controller.close()
-}
-
-// Detect if the user's request is too vague and needs clarification
-async function detectVagueRequest(userMessage: string, _aiResponse: string, anthropic: Anthropic): Promise<{
-  isVague: boolean
-  clarifyingQuestions?: string[]
-  reason?: string
-}> {
-  const lowerMessage = userMessage.toLowerCase()
-
-  // Very short messages (less than 3 words) are often vague
-  const wordCount = userMessage.trim().split(/\s+/).length
-  if (wordCount < 3) {
-    return { isVague: false } // Too short to judge, let it pass
-  }
-
-  // Vague keywords that suggest unclear intent
-  const vagueKeywords = [
-    'quelque chose', 'something', 'trucs', 'stuff', 'ça', 'ca', 'that',
-    'améliore', 'améliorer', 'improve', 'mieux', 'better',
-    'plus joli', 'prettier', 'nicer', 'plus beau',
-    'moderne', 'modern', 'cool', 'stylé',
-  ]
-
-  // Extremely generic requests
-  const genericPatterns = [
-    /change\s*(le|la|les)?\s*(couleur|style|design)/i,
-    /modifie\s*ça/i,
-    /fais\s*(quelque\s*chose|un\s*truc)/i,
-    /améliore/i,
-  ]
-
-  const hasVagueKeyword = vagueKeywords.some(keyword => lowerMessage.includes(keyword))
-  const hasGenericPattern = genericPatterns.some(pattern => pattern.test(lowerMessage))
-
-  // If message is reasonably detailed (>10 words), probably not vague
-  if (wordCount > 10 && !hasVagueKeyword) {
-    return { isVague: false }
-  }
-
-  // Ask Claude to analyze if the request needs clarification
-  if (hasVagueKeyword || hasGenericPattern || wordCount < 6) {
-    try {
-      const clarificationPrompt = `Analyze this user request and determine if it's too vague to execute without asking clarifying questions.
-
-User request: "${userMessage}"
-
-Consider a request vague if:
-- It lacks specific details about WHAT to change/create
-- Colors/styles mentioned without specifics (which element? what exact color?)
-- Generic terms like "improve", "make it better", "something" without details
-- No clear target element or feature specified
-
-Respond with JSON (no markdown):
-{
-  "isVague": true/false,
-  "reason": "Brief explanation in the user's language",
-  "questions": [
-    "Specific clarifying question 1 in user's language",
-    "Specific clarifying question 2 in user's language",
-    "Specific clarifying question 3 in user's language"
-  ]
-}
-
-If isVague is false, only include: {"isVague": false}
-
-IMPORTANT:
-- Respond in the SAME LANGUAGE as the user's request
-- Ask specific, actionable questions
-- Maximum 3-4 questions
-- Questions should help narrow down the exact request`
-
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 500,
-        messages: [{
-          role: 'user',
-          content: clarificationPrompt
-        }]
-      })
-
-      const content = response.content[0]
-      if (content.type === 'text') {
-        let jsonText = content.text.trim()
-        jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '')
-
-        const analysis = JSON.parse(jsonText)
-
-        if (analysis.isVague) {
-          return {
-            isVague: true,
-            clarifyingQuestions: analysis.questions || [],
-            reason: analysis.reason || 'La demande nécessite plus de détails'
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error detecting vague request:', error)
-      // If analysis fails, let it proceed (fail open)
-      return { isVague: false }
-    }
-  }
-
-  return { isVague: false }
 }
 
 // Detect if the user's message requires actual code generation/modification
