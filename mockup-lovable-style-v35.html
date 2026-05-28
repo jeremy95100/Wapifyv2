@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Compile42 — Build something amazing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF7F2;color:#0a0a0a;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;min-height:100vh;overflow-x:hidden}
+
+.bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0}
+.bg-glow::before{content:'';position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);width:1200px;height:1200px;background:radial-gradient(circle at center,rgba(16,185,129,0.10) 0%,rgba(5,150,105,0.05) 30%,transparent 70%);filter:blur(40px);animation:pulse 8s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1}50%{transform:translate(-50%,-50%) scale(1.15);opacity:.85}}
+
+nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;align-items:center;padding:0 32px;background:rgba(250,247,242,0.72);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(16,185,129,0.12)}
+.nav-left{display:flex;align-items:center;gap:18px}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:#0a0a0a;transition:filter .25s ease}
+.logo:hover{filter:drop-shadow(0 0 8px rgba(16,185,129,0.45))}
+.logo-svg{width:26px;height:26px;object-fit:contain;display:block}
+.logo-name{font-size:clamp(16px,1.5vw,18px);font-weight:700;letter-spacing:-0.02em}
+.nav-links{display:flex;gap:2px;margin-left:2px}
+.nav-links a{position:relative;padding:7px 9px;font-size:clamp(13px,1.05vw,15px);color:rgba(10,10,10,0.62);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:.055em;transition:color .2s ease,letter-spacing .22s ease}
+.nav-links a::after{content:'';position:absolute;left:9px;right:9px;bottom:3px;height:1.5px;border-radius:2px;background:linear-gradient(90deg,#10b981,#6ee7b7);box-shadow:0 0 8px rgba(16,185,129,0.85);transform:scaleX(0);transform-origin:left;transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.nav-links a:hover{color:#059669;letter-spacing:.085em}
+.nav-links a:hover::after{transform:scaleX(1)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+.nav-lang-wrap{position:relative}
+.nav-lang{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:5px;cursor:pointer;transition:.22s;box-shadow:0 1px 2px rgba(0,0,0,0.04);font-family:inherit}
+.nav-lang:hover{border-color:rgba(16,185,129,0.55);box-shadow:0 0 0 3px rgba(16,185,129,0.10)}
+.nav-lang-flag{width:18px;height:13px;border-radius:2px;display:block;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,0.08)}
+.nav-chev{width:11px;height:11px;opacity:.5;transition:transform .22s ease}
+.nav-lang.open .nav-chev{transform:rotate(180deg)}
+.nav-lang-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:200px;background:rgba(255,255,255,0.96);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border:1px solid rgba(16,185,129,0.18);border-radius:8px;padding:6px;box-shadow:0 18px 44px -14px rgba(0,0,0,0.28),0 0 0 1px rgba(16,185,129,0.05);z-index:200;max-height:340px;overflow-y:auto;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .2s ease,transform .2s ease,visibility .2s}
+.nav-lang-menu.open{opacity:1;visibility:visible;transform:translateY(0)}
+.nav-lang-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:4px;font-size:13.5px;font-weight:500;color:#0a0a0a;cursor:pointer;transition:.15s;background:transparent;border:none;width:100%;text-align:left;font-family:inherit}
+.nav-lang-item:hover{background:rgba(16,185,129,0.10);color:#059669}
+.nav-lang-item.active{background:rgba(16,185,129,0.08);color:#059669;font-weight:600}
+.nav-lang-item img{width:20px;height:14px;border-radius:2px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,0.06);flex-shrink:0}
+.nav-lang-item .nav-lang-check{margin-left:auto;width:14px;height:14px;color:#10b981;opacity:0;flex-shrink:0}
+.nav-lang-item.active .nav-lang-check{opacity:1}
+.mobile-lang{display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px 4px}
+.mobile-lang button{width:32px;height:23px;padding:0;border:1px solid rgba(0,0,0,0.08);border-radius:4px;overflow:hidden;cursor:pointer;background:#fff;transition:.15s}
+.mobile-lang button.active{outline:2px solid #10b981;outline-offset:1px;border-color:transparent}
+.mobile-lang img{width:100%;height:100%;object-fit:cover;display:block}
+.nav-login{position:relative;padding:7px 9px;font-size:clamp(13px,1.05vw,15px);color:rgba(10,10,10,0.82);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:.055em;transition:color .2s ease,letter-spacing .22s ease}
+.nav-login::after{content:'';position:absolute;left:9px;right:9px;bottom:3px;height:1.5px;border-radius:2px;background:linear-gradient(90deg,#10b981,#6ee7b7);box-shadow:0 0 8px rgba(16,185,129,0.85);transform:scaleX(0);transform-origin:left;transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.nav-login:hover{color:#059669;letter-spacing:.085em}
+.nav-login:hover::after{transform:scaleX(1)}
+.btn-getstarted{position:relative;padding:9px 18px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:clamp(13px,1.05vw,15px);font-weight:700;text-transform:uppercase;letter-spacing:.055em;border-radius:5px;border:none;cursor:pointer;text-decoration:none;transition:.22s;font-family:inherit;box-shadow:0 4px 14px -2px rgba(16,185,129,0.45)}
+.btn-getstarted:hover{transform:translateY(-1px);letter-spacing:.085em;box-shadow:0 7px 24px -4px rgba(16,185,129,0.6),0 0 0 1px rgba(16,185,129,0.3)}
+
+.hero{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:88px 24px 12px}
+.hero-inner{position:relative;z-index:2;width:100%;max-width:760px;margin:0 auto;text-align:center}
+.hero-title{font-size:clamp(36px,6vw,62px);font-weight:600;line-height:1.1;letter-spacing:-0.035em;margin-bottom:20px;color:#0a0a0a}
+
+.rotator{display:inline-block;height:1.34em;min-width:5.9em;overflow:hidden;vertical-align:baseline;position:relative;line-height:1.34;padding:0 .75em;margin:0}
+.rotator-track{display:flex;flex-direction:column;align-items:center;transition:transform .6s cubic-bezier(.7,0,.2,1)}
+.rotator-word{display:flex;align-items:center;justify-content:center;width:100%;height:1.34em;line-height:1.34;background:linear-gradient(135deg,#10b981 0%,#059669 60%,#047857 100%);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic;font-weight:700;white-space:nowrap;padding:0 .08em}
+
+.reveal-up{opacity:0;transform:translateY(14px);animation:reveal-up .8s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0ms)}
+@keyframes reveal-up{to{opacity:1;transform:translateY(0)}}
+
+.suggest-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:99px;font-size:13px;font-weight:500;color:rgba(10,10,10,0.75);cursor:pointer;font-family:inherit;transition:.18s;box-shadow:0 1px 2px rgba(0,0,0,0.03)}
+.chip:hover{transform:translateY(-2px);border-color:rgba(16,185,129,0.4);color:#0a0a0a;box-shadow:0 8px 24px -8px rgba(16,185,129,0.25)}
+.chip span{font-weight:500}
+.hero-subtitle{font-size:clamp(16px,1.5vw,19px);color:rgba(10,10,10,0.55);line-height:1.5;margin-bottom:28px;font-weight:400}
+
+.prompt-card{background:#ffffff;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(0,0,0,0.08);border-radius:18px;padding:18px 18px 12px;margin-bottom:24px;text-align:left;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,0.03),0 20px 60px -20px rgba(16,185,129,0.18)}
+.prompt-card:focus-within{border-color:rgba(16,185,129,0.45);box-shadow:0 0 0 4px rgba(16,185,129,0.08),0 20px 60px -20px rgba(16,185,129,0.25)}
+.prompt-area{position:relative;margin-bottom:14px}
+.prompt-placeholder{position:absolute;top:0;left:0;font-size:16px;color:rgba(10,10,10,0.4);line-height:1.5;pointer-events:none;font-weight:400}
+.typing-cursor{display:inline-block;width:2px;height:18px;background:rgba(16,185,129,0.8);vertical-align:middle;margin-left:1px;animation:blink 0.8s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.prompt-textarea{width:100%;min-height:60px;border:none;outline:none;font-size:16px;color:#0a0a0a;resize:none;font-family:inherit;line-height:1.5;background:transparent;font-weight:400}
+.prompt-textarea::placeholder{color:transparent}
+.prompt-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px}
+.prompt-tools{display:flex;align-items:center;gap:4px}
+.tool-btn{display:flex;align-items:center;gap:6px;padding:6px 10px;background:transparent;border:none;color:rgba(10,10,10,0.5);font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;transition:.15s;font-family:inherit}
+.tool-btn:hover{background:rgba(0,0,0,0.04);color:rgba(10,10,10,0.9)}
+.tool-btn svg{width:16px;height:16px;flex-shrink:0}
+.tool-divider{width:1px;height:18px;background:rgba(0,0,0,0.1)}
+.btn-send{width:32px;height:32px;background:#0a0a0a;border:none;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;color:#fff}
+.btn-send:hover{background:#1a1a1a;transform:translateY(-1px)}
+.btn-send.active{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 4px 12px rgba(16,185,129,0.4)}
+.btn-send svg{width:18px;height:18px}
+
+.showcase{position:relative;z-index:1;padding:8px 24px 40px;max-width:1400px;margin:0 auto}
+.carousel-wrapper{position:relative;margin-top:8px;border-radius:24px;overflow:hidden;background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(5,150,105,0.03));border:1px solid rgba(0,0,0,0.08);box-shadow:0 30px 80px -40px rgba(0,0,0,0.25)}
+.carousel-track{position:relative;min-height:560px}
+.slide{position:absolute;top:0;left:0;right:0;display:grid;grid-template-columns:1fr 280px;gap:32px;padding:48px 56px;align-items:center;background:var(--slide-bg);min-height:560px;opacity:0;filter:blur(10px);transform:scale(1.014);transition:opacity .65s ease,filter .65s ease,transform .65s ease;pointer-events:none;will-change:opacity,filter,transform}
+.slide.is-active{opacity:1;filter:blur(0);transform:scale(1);pointer-events:auto;z-index:2}
+.slide.is-leaving{opacity:0;filter:blur(10px);transform:scale(.987);z-index:1;pointer-events:none}
+.loc-icon{display:inline-flex;align-items:center;vertical-align:middle;margin-right:3px;flex-shrink:0}
+
+.slide-header{position:absolute;top:32px;left:0;right:0;text-align:center;z-index:5}
+.slide-stat{display:flex;align-items:center;justify-content:center;gap:14px;font-size:32px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-0.02em}
+.laurel{color:rgba(16,185,129,0.6);font-size:22px}
+.slide-sub{font-size:14px;color:rgba(255,255,255,0.7);max-width:480px;margin:0 auto}
+
+.browser-frame{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 30px 80px -20px rgba(0,0,0,0.5);margin-top:60px}
+.browser-bar{display:flex;align-items:center;gap:8px;padding:0 12px;height:36px;background:#f0f0f0;border-bottom:1px solid rgba(0,0,0,0.06)}
+.bdot{width:11px;height:11px;border-radius:50%}
+.browser-url{flex:1;display:flex;justify-content:center;margin:0 12px}
+.browser-url-pill{background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:6px;padding:3px 10px;font-size:11px;color:#71717a;font-family:monospace;display:flex;align-items:center;gap:5px}
+.browser-url-pill img{width:12px;height:12px;object-fit:contain;flex-shrink:0}
+.browser-content{height:380px;overflow:hidden;position:relative;background:#fafafa}
+
+.phone-wrapper{display:flex;justify-content:center;margin-top:60px}
+.phone-frame{position:relative;width:230px;border-radius:36px;border:6px solid #1a1a1a;overflow:hidden;background:#000;box-shadow:0 30px 80px -20px rgba(0,0,0,0.5)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:90px;height:22px;background:#1a1a1a;border-radius:0 0 14px 14px;z-index:10}
+.phone-content{height:460px;overflow:hidden;position:relative;background:#fff}
+
+.made-with{position:absolute;bottom:14px;right:14px;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:rgba(0,0,0,0.6);border-radius:6px;font-size:10px;color:#fff;font-weight:500;backdrop-filter:blur(8px);z-index:5}
+.made-with-icon{width:12px;height:12px;object-fit:contain;display:block}
+
+.carousel-nav{display:flex;align-items:center;justify-content:center;gap:16px;padding:20px 0 8px;background:transparent}
+.nav-arrow{width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#059669;transition:.2s;box-shadow:0 2px 6px rgba(16,185,129,0.15)}
+.nav-arrow:hover{background:#10b981;color:#fff;border-color:#10b981;transform:translateY(-1px);box-shadow:0 6px 14px rgba(16,185,129,0.3)}
+.nav-arrow svg{width:14px;height:14px}
+.nav-dots{display:flex;gap:6px;align-items:center}
+.nav-dot{width:8px;height:8px;border-radius:99px;background:rgba(16,185,129,0.2);cursor:pointer;transition:width .25s,background .25s;border:none;padding:0;position:relative;overflow:hidden;flex-shrink:0}
+.nav-dot:hover{background:rgba(16,185,129,0.45)}
+.nav-dot.active{width:32px;background:rgba(16,185,129,0.15)}
+.dot-fill{position:absolute;top:0;left:0;bottom:0;width:0%;background:linear-gradient(90deg,#10b981,#059669);border-radius:99px;pointer-events:none}
+.dot-fill.filling{animation:dot-progress 5s linear forwards}
+@keyframes dot-progress{from{width:0%}to{width:100%}}
+
+/* ═══════════ APP MOCKUPS ═══════════ */
+
+/* 1. COMPTABILITÉ */
+.slide-acc{--slide-bg:linear-gradient(135deg,#1e3a8a 0%,#0a1a3d 100%)}
+.acc-web{padding:18px;background:#fafbfc;height:100%;color:#0f172a}
+.acc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.acc-title{font-size:15px;font-weight:800}
+.acc-sub{font-size:10px;color:#64748b}
+.acc-new{background:#10b981;color:#fff;padding:6px 12px;border-radius:6px;font-size:10px;font-weight:600}
+.acc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.acc-st{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+.acc-st-l{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.acc-st-n{font-size:18px;font-weight:800;margin-top:4px}
+.acc-st-t{font-size:10px;color:#10b981;font-weight:600;margin-top:2px}
+.acc-list{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px}
+.acc-list-h{font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.acc-row{display:grid;grid-template-columns:auto 1fr 1fr 1fr 1fr;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:10px;align-items:center}
+.acc-row:last-child{border:none}
+.acc-row-h{grid-template-columns:auto 1fr 1fr 1fr 1fr}
+.acc-id{font-family:monospace;color:#64748b;font-weight:600;font-size:9px}
+.acc-cl-wrap{display:flex;align-items:center;gap:8px;min-width:0}
+.acc-avatar{width:24px;height:24px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0;border:1.5px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,0.1)}
+.acc-cl{font-weight:600;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-am{font-weight:700;text-align:right}
+.acc-st-r{text-align:right}
+.acc-paid{background:#d1fae5;color:#059669;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:600}
+.acc-due{background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:600}
+
+.acc-mob{background:#fafbfc;height:100%;color:#0f172a}
+.acc-mob-h{padding:32px 16px 16px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;text-align:center}
+.acc-mob-g{font-size:10px;opacity:.85}
+.acc-mob-n{font-size:13px;font-weight:700;margin-bottom:10px}
+.acc-mob-r{font-size:24px;font-weight:800}
+.acc-mob-rl{font-size:10px;opacity:.85}
+.acc-mob-stats{padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acc-mob-st{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px}
+.acc-mob-st-l{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:600}
+.acc-mob-st-n{font-size:14px;font-weight:800;margin-top:4px}
+.acc-mob-list{padding:0 14px}
+.acc-mob-lh{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:8px}
+.acc-mob-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.acc-mob-icon{width:36px;height:36px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+.acc-mob-info{flex:1}
+.acc-mob-cl{font-size:11px;font-weight:700}
+.acc-mob-dt{font-size:9px;color:#64748b}
+.acc-mob-am{font-size:12px;font-weight:800;color:#10b981}
+
+/* 2. WETFLIX */
+.slide-wet{--slide-bg:linear-gradient(135deg,#000 0%,#1a0a0a 100%)}
+.slide-wet .browser-content{height:480px}
+.wet-web{background:#0a0a0a;height:100%;color:#fff;padding:0;position:relative;overflow:hidden}
+.wet-nav{display:flex;align-items:center;padding:10px 16px;background:linear-gradient(180deg,rgba(0,0,0,0.9),transparent);position:relative;z-index:3;gap:14px}
+.wet-logo{font-size:18px;font-weight:900;color:#e50914;letter-spacing:-0.04em;font-family:'Helvetica Neue','Arial Black',sans-serif;text-shadow:0 2px 6px rgba(229,9,20,0.35);flex-shrink:0;font-style:italic}
+.wet-nav-links{display:flex;gap:12px;font-size:10px;color:#fff;flex:1;min-width:0;overflow:hidden}
+.wet-nav-links span{cursor:pointer;opacity:.85;white-space:nowrap;transition:opacity .15s}
+.wet-nav-links span:first-child{opacity:1;font-weight:700}
+.wet-nav-links span:hover{opacity:1}
+.wet-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.wet-lang{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border:1px solid rgba(255,255,255,0.22);border-radius:6px;font-size:9px;font-weight:600;color:rgba(255,255,255,0.9);cursor:pointer;background:rgba(255,255,255,0.04);backdrop-filter:blur(6px);transition:.15s;letter-spacing:.04em}
+.wet-lang:hover{border-color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.1)}
+.wet-lang svg{width:8px;height:8px;opacity:.7}
+.wet-icon-btn{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.85);cursor:pointer;border-radius:50%;transition:.15s;background:transparent}
+.wet-icon-btn:hover{background:rgba(255,255,255,0.1);color:#fff}
+.wet-icon-btn svg{width:13px;height:13px}
+.wet-login{padding:5px 12px;background:#e50914;color:#fff;font-size:10px;font-weight:700;border-radius:5px;letter-spacing:.02em;cursor:pointer;transition:.15s;box-shadow:0 2px 8px rgba(229,9,20,0.4);white-space:nowrap}
+.wet-login:hover{background:#f40612;box-shadow:0 4px 12px rgba(229,9,20,0.55);transform:translateY(-1px)}
+@media(max-width:600px){.wet-nav{padding:8px 12px;gap:8px}.wet-nav-links{display:none}.wet-logo{font-size:15px}.wet-lang{padding:3px 6px;font-size:8px}}
+.wet-hero{height:160px;position:relative;background:url('https://image.tmdb.org/t/p/w780/56v2KjBlU4XaOv9rVYEQypROD7P.jpg') center/cover,linear-gradient(135deg,#065f46,#022c22);display:flex;align-items:flex-end;padding:14px;overflow:hidden}
+.wet-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.4) 60%,transparent 100%);z-index:1}
+.wet-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50%;background:linear-gradient(180deg,transparent,#0a0a0a)}
+.wet-hero-content{position:relative;z-index:2}
+.wet-hero-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:rgba(16,185,129,0.2);border:1px solid #10b981;border-radius:4px;font-size:8px;color:#10b981;font-weight:700;text-transform:uppercase;margin-bottom:6px}
+.wet-hero-title{font-size:22px;font-weight:900;letter-spacing:-0.02em;margin-bottom:4px}
+.wet-hero-meta{font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:6px}
+.wet-hero-desc{font-size:9px;color:rgba(255,255,255,0.6);max-width:60%;line-height:1.4;margin-bottom:8px}
+.wet-hero-btns{display:flex;gap:6px}
+.wet-play{background:#fff;color:#000;padding:5px 12px;border-radius:4px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px}
+.wet-info{background:rgba(255,255,255,0.2);color:#fff;padding:5px 12px;border-radius:4px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px)}
+.wet-row{padding:0 16px;margin-top:8px}
+.wet-row-title{font-size:11px;font-weight:700;margin-bottom:6px}
+.wet-row-items{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.wet-card{display:flex;flex-direction:column;gap:4px;cursor:pointer;transition:.2s}
+.wet-card:hover{transform:translateY(-3px)}
+.wet-card-img{aspect-ratio:2/3;border-radius:5px;background-size:cover;background-position:center;background-color:#1a1a1a;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
+.wet-card-rank{position:absolute;top:4px;left:4px;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);padding:2px 5px;border-radius:3px;font-size:8px;font-weight:700;color:#10b981;z-index:2}
+.wet-card-label{font-size:9px;font-weight:700;line-height:1.15;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px}
+.wet-card-meta{font-size:7.5px;font-weight:500;color:rgba(255,255,255,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px}
+
+.wet-mob{background:#0a0a0a;height:100%;color:#fff;padding:0;position:relative}
+.wet-mob-top{display:flex;justify-content:space-between;align-items:center;padding:30px 14px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.9),transparent);position:relative;z-index:3;gap:8px}
+.wet-mob-logo{font-size:16px;font-weight:900;color:#e50914;font-family:'Helvetica Neue','Arial Black',sans-serif;letter-spacing:-0.04em;font-style:italic;text-shadow:0 2px 6px rgba(229,9,20,0.35);flex-shrink:0}
+.wet-mob-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.wet-mob-lang{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border:1px solid rgba(255,255,255,0.22);border-radius:5px;font-size:8.5px;font-weight:600;color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.04);letter-spacing:.04em}
+.wet-mob-lang svg{width:7px;height:7px;opacity:.7}
+.wet-mob-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.85);border-radius:50%}
+.wet-mob-icon svg{width:13px;height:13px}
+.wet-mob-login{padding:3px 7px;background:#e50914;color:#fff;font-size:7.5px;font-weight:700;border-radius:4px;letter-spacing:.02em;box-shadow:0 2px 6px rgba(229,9,20,0.4);white-space:nowrap}
+.wet-mob-cats{display:flex;gap:6px;padding:0 14px;overflow:hidden}
+.wet-mob-cat{padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.3);font-size:9px;background:rgba(0,0,0,0.5)}
+.wet-mob-cat.act{background:#10b981;border-color:#10b981;color:#000;font-weight:700}
+.wet-mob-feat{margin:12px 14px;height:200px;border-radius:10px;background:url('https://image.tmdb.org/t/p/w780/49WJfeN0moxb9IPfGn8AIqMGskD.jpg') center/cover;position:relative;display:flex;align-items:flex-end;padding:12px;overflow:hidden}
+.wet-mob-feat::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,0.9));z-index:1}
+.wet-mob-feat-c{position:relative;z-index:2;text-shadow:0 1px 3px rgba(0,0,0,1)}
+.wet-mob-feat-tag{display:inline-block;padding:2px 6px;background:rgba(16,185,129,0.25);color:#10b981;border-radius:3px;font-size:8px;font-weight:700;margin-bottom:4px}
+.wet-mob-feat-t{font-size:16px;font-weight:900;letter-spacing:-0.02em;margin-bottom:2px}
+.wet-mob-feat-meta{font-size:8px;color:rgba(255,255,255,0.6)}
+.wet-mob-play{margin-top:8px;background:#fff;color:#000;padding:6px 16px;border-radius:4px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.wet-mob-list{padding:0 14px}
+.wet-mob-lt{font-size:11px;font-weight:700;margin-bottom:6px;margin-top:10px}
+.wet-mob-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.wet-mob-card{aspect-ratio:2/3;border-radius:6px;background-size:cover;background-position:center;background-color:#1a1a1a;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:4px}
+.wet-mob-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50%;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.9));pointer-events:none}
+.wet-mob-card-t{font-size:8px;font-weight:800;position:relative;z-index:3;line-height:1.1;text-shadow:0 1px 3px rgba(0,0,0,1)}
+
+/* 3. SPORTMUSCU */
+.slide-sport{--slide-bg:linear-gradient(135deg,#7c2d12 0%,#1a0808 100%)}
+.slide-sport .browser-content{height:480px}
+.sp-web{background:#0d0d0d;height:100%;color:#fff;padding:14px}
+.sp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.sp-logo{font-size:14px;font-weight:900;color:#10b981;letter-spacing:-0.02em}
+.sp-logo span{color:#fff}
+.sp-streak{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:99px;font-size:10px;font-weight:600}
+.sp-greet{font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:2px}
+.sp-name{font-size:16px;font-weight:800;margin-bottom:14px}
+.sp-card{background:linear-gradient(135deg,rgba(16,185,129,0.95),rgba(6,95,70,0.95)),url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80&auto=format&fit=crop') center/cover;border-radius:12px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden;color:#fff}
+.sp-card-l{font-size:10px;opacity:.85;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.sp-card-n{font-size:18px;font-weight:800;margin-top:4px}
+.sp-card-s{font-size:10px;opacity:.85;margin-top:2px}
+.sp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.sp-stat{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;text-align:center}
+.sp-stat-n{font-size:14px;font-weight:800;color:#10b981}
+.sp-stat-l{font-size:8px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.sp-list-l{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:8px}
+.sp-ex{display:flex;align-items:center;gap:10px;padding:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;margin-bottom:6px}
+.sp-ex-i{width:42px;height:42px;border-radius:8px;background-size:cover;background-position:center;flex-shrink:0;border:1px solid rgba(255,255,255,0.1)}
+.sp-ex-info{flex:1}
+.sp-ex-n{font-size:11px;font-weight:700}
+.sp-ex-s{font-size:9px;color:rgba(255,255,255,0.5)}
+.sp-ex-r{font-size:11px;font-weight:700;color:#10b981}
+
+.sp-mob{background:#0d0d0d;height:100%;color:#fff;padding:0}
+.sp-mob-h{padding:32px 14px 14px;text-align:center}
+.sp-mob-g{font-size:10px;color:rgba(255,255,255,0.5)}
+.sp-mob-n{font-size:15px;font-weight:800;margin-top:2px}
+.sp-mob-ring{margin:14px;position:relative;height:140px;display:flex;align-items:center;justify-content:center}
+.sp-mob-ring-circle{width:130px;height:130px;border-radius:50%;background:conic-gradient(#10b981 0% 75%,rgba(255,255,255,0.05) 75% 100%);display:flex;align-items:center;justify-content:center}
+.sp-mob-ring-inner{width:104px;height:104px;border-radius:50%;background:#0d0d0d;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sp-mob-ring-n{font-size:26px;font-weight:800}
+.sp-mob-ring-l{font-size:9px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.05em}
+.sp-mob-stats{padding:0 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.sp-mob-st{background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;text-align:center}
+.sp-mob-st-n{font-size:12px;font-weight:800;color:#10b981}
+.sp-mob-st-l{font-size:8px;color:rgba(255,255,255,0.5);margin-top:2px}
+.sp-mob-list{padding:14px 14px 0}
+.sp-mob-lt{font-size:11px;font-weight:700;margin-bottom:8px}
+.sp-mob-ex{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.sp-mob-ex-i{width:36px;height:36px;border-radius:8px;background-size:cover;background-position:center;flex-shrink:0}
+.sp-mob-ex-info{flex:1}
+.sp-mob-ex-n{font-size:10px;font-weight:700}
+.sp-mob-ex-s{font-size:8px;color:rgba(255,255,255,0.5)}
+
+/* 4. HURGHADA DREAM (travel) */
+.slide-hurghada{--slide-bg:linear-gradient(135deg,#0e7490 0%,#0c4a6e 100%)}
+.slide-hurghada .browser-content{height:500px}
+.slide-hurghada .phone-content{height:520px}
+.slide-hurghada .slide-stat{margin-bottom:14px}
+.slide-hurghada .slide-sub{margin-bottom:6px}
+.slide-hurghada .browser-frame{margin-top:90px}
+.slide-hurghada .phone-wrapper{margin-top:90px}
+.hg-web{background:#fff;height:100%;color:#0f172a;padding:0;overflow:hidden}
+.hg-hero{height:170px;position:relative;background:url('hut.jpg') center/cover;background-color:#0891b2;overflow:hidden;display:flex;align-items:flex-end;padding:16px;color:#fff}
+.hg-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,0.55));pointer-events:none}
+.hg-hero-content{position:relative;z-index:2}
+.hg-hero-tag{font-size:9px;background:rgba(255,255,255,0.25);padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:4px;backdrop-filter:blur(8px);font-weight:600}
+.hg-hero-t{font-size:18px;font-weight:800;letter-spacing:-0.02em;line-height:1.1}
+.hg-hero-s{font-size:10px;opacity:.9;margin-top:2px}
+.hg-search{margin:12px 16px 0;position:relative;z-index:3;background:#fff;border-radius:12px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:grid;grid-template-columns:1.5fr 1fr 1fr auto;gap:10px;align-items:end}
+.hg-s-f{}
+.hg-s-l{font-size:8px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.hg-s-v{font-size:11px;font-weight:700;color:#0f172a}
+.hg-s-btn{background:#10b981;color:#fff;padding:8px 14px;border-radius:8px;font-size:10px;font-weight:700}
+.hg-grid{padding:18px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
+.hg-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.06);position:relative}
+.hg-photo{height:110px;position:relative;overflow:hidden;background-size:cover;background-position:center}
+.hg-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,0.25))}
+.hg-photo-1{background-image:url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&q=80&auto=format&fit=crop')}
+.hg-photo-2{background-image:url('https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=400&q=80&auto=format&fit=crop')}
+.hg-photo-3{background-image:url('https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400&q=80&auto=format&fit=crop')}
+.hg-photo-4{background-image:url('https://images.unsplash.com/photo-1547234935-80c7145ec969?w=400&q=80&auto=format&fit=crop')}
+.hg-photo-5{background-image:url('https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400&q=80&auto=format&fit=crop')}
+.hg-photo-6{background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80&auto=format&fit=crop')}
+.hg-photo-fav{position:absolute;top:6px;right:6px;width:18px;height:18px;background:rgba(255,255,255,0.95);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;z-index:2}
+.hg-card-info{padding:8px}
+.hg-card-n{font-size:10px;font-weight:700;color:#0f172a}
+.hg-card-loc{font-size:8px;color:#64748b}
+.hg-card-r{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.hg-card-rate{font-size:8px;color:#f59e0b}
+.hg-card-p{font-size:10px;font-weight:800;color:#10b981}
+
+.hg-mob{background:#fff;height:100%;color:#0f172a;padding:0;overflow:hidden}
+.hg-mob-hero{height:180px;position:relative;background:url('hut.jpg') center/cover;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;padding-top:30px;color:#fff}
+.hg-mob-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.15) 0%,transparent 50%);pointer-events:none}
+.hg-mob-hero-t{position:relative;z-index:2;font-size:13px;font-weight:800;letter-spacing:-0.02em;white-space:nowrap;text-align:center;text-shadow:0 1px 6px rgba(0,0,0,0.3)}
+.hg-mob-search{margin:12px 14px 0;position:relative;z-index:3;background:#fff;border-radius:12px;padding:10px;box-shadow:0 8px 20px rgba(0,0,0,0.1)}
+.hg-mob-s-l{font-size:8px;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:2px}
+.hg-mob-s-v{font-size:11px;font-weight:700;margin-bottom:6px}
+.hg-mob-s-btn{background:#10b981;color:#fff;width:100%;padding:8px;border-radius:8px;font-size:10px;font-weight:700;text-align:center}
+.hg-mob-list{padding:12px 14px}
+.hg-mob-lh{font-size:11px;font-weight:700;margin-bottom:8px}
+.hg-mob-card{display:flex;gap:10px;padding:8px;background:#f8fafc;border-radius:10px;margin-bottom:6px;align-items:center}
+.hg-mob-photo{width:50px;height:50px;border-radius:8px;position:relative;overflow:hidden;flex-shrink:0;background-size:cover;background-position:center}
+.hg-mob-info{flex:1;min-width:0}
+.hg-mob-n{font-size:11px;font-weight:700}
+.hg-mob-l{font-size:9px;color:#64748b}
+.hg-mob-meta{display:flex;align-items:center;gap:6px;margin-top:2px}
+.hg-mob-r{font-size:8px;color:#f59e0b}
+.hg-mob-p{font-size:11px;font-weight:800;color:#10b981}
+
+
+@media(max-width:1180px){
+  .slide{grid-template-columns:1fr 240px;gap:24px;padding:40px 32px}
+  .browser-content{height:340px}
+  .phone-frame{width:200px}
+  .phone-content{height:400px}
+}
+@media(max-width:980px){
+  .slide{grid-template-columns:1fr;padding:32px 28px;min-height:auto}
+  .phone-wrapper{display:none}
+  .browser-content{height:380px}
+}
+/* ═══════════ HAMBURGER MOBILE ═══════════ */
+.nav-hamburger{display:none;width:38px;height:38px;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;padding:0;border-radius:5px;color:#0a0a0a;transition:.15s;flex-shrink:0}
+.nav-hamburger:hover{background:rgba(16,185,129,0.1);color:#059669}
+.nav-hamburger svg{width:20px;height:20px}
+.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(250,247,242,0.98);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid rgba(16,185,129,0.14);padding:12px 16px 20px;z-index:99;flex-direction:column;gap:2px;box-shadow:0 8px 24px -8px rgba(0,0,0,0.12)}
+.mobile-menu.open{display:flex}
+.mobile-menu a{padding:12px 12px;font-size:15px;color:rgba(10,10,10,0.78);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:.05em;border-radius:4px;transition:.15s}
+.mobile-menu a:hover{background:rgba(16,185,129,0.1);color:#059669}
+.mobile-menu-sep{height:1px;background:rgba(0,0,0,0.06);margin:8px 0}
+.mobile-menu .btn-getstarted{display:block;text-align:center;padding:13px 16px;margin-top:2px}
+
+@media(max-width:1024px){
+  nav{padding:0 20px}
+  .nav-left{gap:12px}
+  .nav-links a,.nav-login{padding-left:6px;padding-right:6px;letter-spacing:.03em}
+}
+@media(max-width:768px){
+  .nav-hamburger{display:flex}
+  nav{padding:0 16px}
+  .nav-links{display:none}
+  .nav-right .nav-lang-wrap,.nav-right .nav-login,.nav-right .btn-getstarted{display:none}
+  .hero{padding:80px 16px 8px}
+  .showcase{padding:4px 12px 60px}
+  .slide{padding:24px 16px;min-height:auto}
+  .slide-header{position:static;margin-bottom:16px}
+  .slide-stat{font-size:22px}
+  .slide-sub{font-size:12px;padding:0 12px}
+  .browser-frame{margin-top:0}
+  .browser-content{height:320px}
+  /* Hide columns on mobile to keep tables readable */
+  .acc-row{grid-template-columns:1fr 1fr auto !important;gap:8px}
+  .acc-row .acc-id,.acc-row > .acc-cl:nth-child(3){display:none}
+  .hg-search{grid-template-columns:1fr;gap:8px;padding:10px}
+  .hg-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ═══════════ PRICING ═══════════ */
+.pricing{position:relative;z-index:1;padding:40px 24px 40px;max-width:1280px;margin:0 auto}
+.pricing-head{text-align:center;margin-bottom:56px}
+.pricing-eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.1em;margin-bottom:18px;background:none;padding:0;border-radius:0}
+.pricing-eyebrow::before,.pricing-eyebrow::after{content:'';display:block;width:20px;height:1px;background:currentColor;opacity:.4}
+.pricing-title{font-size:clamp(32px,4.5vw,48px);font-weight:600;letter-spacing:-0.03em;color:#0a0a0a;line-height:1.05;margin-bottom:14px}
+.pricing-sub{font-size:17px;color:rgba(10,10,10,0.55);max-width:560px;margin:0 auto;line-height:1.5}
+.pricing-toggle{display:inline-flex;gap:4px;margin-top:28px;background:rgba(0,0,0,0.05);padding:4px;border-radius:99px;font-size:13px;font-weight:500}
+.pricing-toggle button{padding:8px 18px;border:none;background:transparent;border-radius:99px;cursor:pointer;color:rgba(10,10,10,0.6);font-family:inherit;font-weight:500;font-size:13px;transition:.2s}
+.pricing-toggle button.act{background:#fff;color:#0a0a0a;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.pricing-save{display:inline-block;font-size:10px;font-weight:700;color:#059669;background:rgba(16,185,129,0.15);padding:2px 7px;border-radius:99px;margin-left:5px;letter-spacing:.04em}
+
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch;max-width:1100px;margin:0 auto}
+.plan{background:#ffffff;border:1px solid rgba(0,0,0,0.08);border-radius:20px;padding:32px 26px;display:flex;flex-direction:column;position:relative;transition:.25s;box-shadow:0 1px 2px rgba(0,0,0,0.03)}
+.plan:hover{transform:translateY(-4px);box-shadow:0 20px 50px -20px rgba(0,0,0,0.15)}
+.plan.featured{background:linear-gradient(180deg,#0a0a0a 0%,#1a1a1a 100%);color:#fff;border-color:#0a0a0a;box-shadow:0 30px 60px -20px rgba(0,0,0,0.35)}
+.plan.featured:hover{box-shadow:0 40px 80px -20px rgba(0,0,0,0.45)}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em;box-shadow:0 6px 16px rgba(16,185,129,0.35)}
+.plan-name{font-size:18px;font-weight:700;letter-spacing:-0.01em;margin-bottom:8px}
+.plan-desc{font-size:13px;color:rgba(10,10,10,0.55);line-height:1.45;margin-bottom:22px;min-height:38px}
+.plan.featured .plan-desc{color:rgba(255,255,255,0.6)}
+.plan-price{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
+.plan-price-n{font-size:42px;font-weight:700;letter-spacing:-0.03em;line-height:1}
+.plan-price-cur{font-size:22px;font-weight:600;color:rgba(10,10,10,0.7)}
+.plan.featured .plan-price-cur{color:rgba(255,255,255,0.7)}
+.plan-price-per{font-size:13px;color:rgba(10,10,10,0.5);font-weight:500}
+.plan.featured .plan-price-per{color:rgba(255,255,255,0.55)}
+.plan-price-note{font-size:11px;color:rgba(10,10,10,0.45);margin-bottom:22px;min-height:14px}
+.plan.featured .plan-price-note{color:rgba(255,255,255,0.5)}
+.plan-cta{display:block;width:100%;padding:11px 16px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#0a0a0a;font-size:14px;font-weight:600;text-align:center;text-decoration:none;cursor:pointer;font-family:inherit;transition:.18s;margin-bottom:24px}
+.plan-cta:hover{background:#0a0a0a;color:#fff;border-color:#0a0a0a}
+.plan.featured .plan-cta{background:#fff;color:#0a0a0a;border-color:#fff}
+.plan.featured .plan-cta:hover{background:#10b981;color:#fff;border-color:#10b981}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:11px;font-size:13.5px;color:rgba(10,10,10,0.78);line-height:1.45;padding:0;margin:0}
+.plan.featured .plan-feats{color:rgba(255,255,255,0.85)}
+.plan-feats li{display:flex;gap:10px;align-items:flex-start}
+.plan-feats li svg{width:16px;height:16px;flex-shrink:0;margin-top:2px;color:#10b981}
+.plan-feats-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(10,10,10,0.45);margin-bottom:2px}
+.plan.featured .plan-feats-h{color:rgba(255,255,255,0.5)}
+
+@media(max-width:980px){.pricing-grid{grid-template-columns:1fr;max-width:480px}}
+@media(max-width:600px){.pricing{padding:60px 16px 80px}}
+
+/* ═══════════ FOOTER ═══════════ */
+@property --fb-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+.site-footer{background:#FAF7F2;padding:24px 24px 48px;position:relative;z-index:1}
+.footer-card{max-width:1240px;margin:0 auto;background:linear-gradient(rgba(16,185,129,.028) 1px,transparent 1px) 0 0/40px 40px,linear-gradient(90deg,rgba(16,185,129,.028) 1px,transparent 1px) 0 0/40px 40px,#0a0a0a;border:1px solid rgba(16,185,129,.16);border-radius:24px;padding:48px 56px 32px;position:relative;overflow:hidden;box-shadow:0 30px 80px -40px rgba(0,0,0,0.45),0 0 60px -30px rgba(16,185,129,0.25)}
+.footer-card::before{content:'';position:absolute;top:-200px;right:-120px;width:480px;height:480px;background:radial-gradient(circle,rgba(16,185,129,0.12),transparent 65%);pointer-events:none;filter:blur(40px);transition:opacity .4s ease}
+/* Animated emerald running border — dual sweep + glow */
+.footer-card::after{content:'';position:absolute;inset:0;border-radius:24px;padding:2px;background:conic-gradient(from var(--fb-angle),transparent 0deg,transparent 55deg,rgba(16,185,129,.55) 92deg,#d1fae5 118deg,#10b981 144deg,transparent 180deg,transparent 235deg,rgba(16,185,129,.55) 272deg,#d1fae5 298deg,#10b981 324deg,transparent 360deg);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;pointer-events:none;animation:fb-spin 5s linear infinite;z-index:3;filter:drop-shadow(0 0 5px rgba(16,185,129,0.7))}
+@keyframes fb-spin{to{--fb-angle:360deg}}
+.footer-card:hover::before{opacity:1.7}
+.footer-grid{display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:32px;position:relative;z-index:1}
+.footer-brand{display:flex;flex-direction:column;justify-content:space-between;gap:28px}
+.footer-brand-logo{display:inline-flex;align-items:center;gap:9px;text-decoration:none;width:fit-content;transition:filter .25s ease}
+.footer-brand-logo:hover{filter:drop-shadow(0 0 10px rgba(16,185,129,0.55))}
+.footer-brand-logo img{width:30px;height:30px;object-fit:contain}
+.footer-brand-logo span{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.footer-col h3{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);margin-bottom:18px;transition:color .25s ease,text-shadow .25s ease}
+.footer-col:hover h3{color:#10b981;text-shadow:0 0 14px rgba(16,185,129,0.5)}
+.footer-col a{position:relative;display:block;font-size:13.5px;color:rgba(255,255,255,.6);text-decoration:none;margin-bottom:11px;line-height:1.45;width:fit-content;padding:1px 0;transition:color .22s ease,transform .26s cubic-bezier(.4,0,.2,1),letter-spacing .26s ease,text-shadow .22s ease}
+/* glowing chevron prefix */
+.footer-col a::before{content:'›';position:absolute;left:-15px;top:50%;font-weight:700;color:#10b981;opacity:0;text-shadow:0 0 10px rgba(16,185,129,0.95);transform:translateY(-50%) translateX(-5px);transition:opacity .22s ease,transform .26s cubic-bezier(.4,0,.2,1)}
+/* neon underline scan */
+.footer-col a::after{content:'';position:absolute;left:0;bottom:-1px;height:1.5px;width:100%;border-radius:2px;background:linear-gradient(90deg,#10b981,#6ee7b7);box-shadow:0 0 9px rgba(16,185,129,0.9);transform:scaleX(0);transform-origin:left;transition:transform .32s cubic-bezier(.4,0,.2,1)}
+.footer-col a:hover{color:#ecfdf5;transform:translateX(15px);letter-spacing:.045em;text-shadow:0 0 14px rgba(16,185,129,0.4)}
+.footer-col a:hover::before{opacity:1;transform:translateY(-50%) translateX(0)}
+.footer-col a:hover::after{transform:scaleX(1)}
+.footer-lang{position:relative;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:rgba(255,255,255,.45);cursor:pointer;transition:color .2s ease,text-shadow .2s ease;width:fit-content}
+.footer-lang:hover{color:#10b981;text-shadow:0 0 12px rgba(16,185,129,0.45)}
+.footer-lang svg{width:13px;height:13px;transition:filter .2s ease}
+.footer-lang:hover svg{filter:drop-shadow(0 0 6px rgba(16,185,129,0.8))}
+.footer-base{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:44px;padding-top:24px;border-top:1px solid rgba(255,255,255,.08)}
+.footer-meta{font-size:12px;color:rgba(255,255,255,.3)}
+.footer-legal{display:flex;gap:20px;flex-wrap:wrap}
+.footer-legal a{font-size:12px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .2s ease,text-shadow .2s ease}
+.footer-legal a:hover{color:#10b981;text-shadow:0 0 10px rgba(16,185,129,0.45)}
+@media(max-width:1024px){
+  .footer-grid{grid-template-columns:1fr 1fr 1fr;gap:28px 36px}
+  .footer-brand{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;gap:16px;margin-bottom:8px}
+}
+@media(max-width:640px){
+  .site-footer{padding:12px 12px 24px}
+  .footer-card{padding:32px 24px 24px;border-radius:18px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:24px 28px}
+  .footer-base{flex-direction:column;align-items:flex-start;gap:12px}
+}
+
+/* ═══════════ FAQ ═══════════ */
+.faq{position:relative;z-index:1;padding:40px 24px 80px;background:#FAF7F2}
+.faq-inner{max-width:720px;margin:0 auto}
+.faq-head{text-align:center;margin-bottom:40px}
+.faq-eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.faq-eyebrow::before,.faq-eyebrow::after{content:'';display:block;width:20px;height:1px;background:currentColor;opacity:.4}
+.faq-title{font-size:clamp(26px,4vw,40px);font-weight:600;letter-spacing:-0.03em;color:#0a0a0a;line-height:1.1;margin-bottom:10px}
+.faq-sub{font-size:15px;color:rgba(10,10,10,0.45);max-width:460px;margin:0 auto;line-height:1.55}
+
+.faq-list{display:flex;flex-direction:column}
+.faq-item{position:relative;border-bottom:1px solid rgba(0,0,0,0.07);transition:background .2s}
+.faq-item:first-child{border-top:1px solid rgba(0,0,0,0.07)}
+.faq-item::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,#10b981,#059669);
+  transform:scaleY(0);transform-origin:top;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  border-radius:0 2px 2px 0;
+}
+.faq-item.open{background:rgba(16,185,129,0.03)}
+.faq-item.open::before{transform:scaleY(1)}
+
+.faq-q{
+  width:100%;background:transparent;border:none;
+  padding:22px 0 22px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  font-family:inherit;font-size:17px;font-weight:500;
+  letter-spacing:-0.02em;
+  cursor:pointer;text-align:left;line-height:1.4;
+}
+.faq-q > span:first-child{
+  background:linear-gradient(90deg,#0a0a0a 0%,#0a0a0a 30%,#10b981 50%,#059669 58%,#0a0a0a 72%,#0a0a0a 100%);
+  background-size:300% 100%;
+  background-position:right center;
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  color:transparent;
+  transition:background-position .7s cubic-bezier(.4,0,.2,1);
+}
+.faq-item:hover .faq-q > span:first-child{background-position:center center}
+.faq-item.open .faq-q > span:first-child{
+  background-position:left center;
+  font-weight:600;
+}
+
+.faq-icon{
+  flex-shrink:0;width:20px;height:20px;
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.fiq-h,.fiq-v{
+  position:absolute;background:#10b981;border-radius:2px;
+  top:50%;left:50%;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s,box-shadow .3s;
+}
+.fiq-h{width:12px;height:1.5px;transform:translate(-50%,-50%)}
+.fiq-v{width:1.5px;height:12px;transform:translate(-50%,-50%)}
+.faq-item.open .fiq-v{transform:translate(-50%,-50%) scaleY(0);opacity:0}
+.faq-item.open .fiq-h{
+  box-shadow:0 0 8px rgba(16,185,129,0.9),0 0 18px rgba(16,185,129,0.4);
+}
+
+.faq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .38s cubic-bezier(.4,0,.2,1)}
+.faq-item.open .faq-a{grid-template-rows:1fr}
+.faq-a-inner{overflow:hidden;min-height:0}
+.faq-a-text{
+  padding:0 0 20px 16px;
+  font-size:14px;line-height:1.7;color:rgba(10,10,10,0.55);
+  opacity:0;transform:translateY(-4px);
+  transition:opacity .3s .1s ease,transform .3s .1s ease;
+}
+.faq-item.open .faq-a-text{opacity:1;transform:translateY(0)}
+.faq-a-text a{color:#059669;font-weight:500;text-decoration:none;border-bottom:1px solid rgba(16,185,129,0.3)}
+.faq-a-text a:hover{border-color:#10b981}
+
+.faq-cta{margin-top:40px;text-align:center;padding:28px 24px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:16px}
+.faq-cta-t{font-size:16px;font-weight:600;color:#0a0a0a;letter-spacing:-0.01em;margin-bottom:4px}
+.faq-cta-s{font-size:13px;color:rgba(10,10,10,0.45);margin-bottom:16px}
+.faq-cta-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#0a0a0a;color:#fff;font-size:13.5px;font-weight:600;border-radius:9px;text-decoration:none;transition:.2s}
+.faq-cta-btn:hover{background:#10b981;transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,185,129,0.3)}
+.faq-cta-btn svg{width:13px;height:13px;stroke-width:2.5}
+@media(max-width:600px){.faq{padding:40px 16px 60px}.faq-q{padding:18px 0 18px 12px;font-size:14px}.faq-a-text{padding:0 0 16px 12px}.faq-cta{padding:22px 18px;margin-top:28px}}
+
+/* ═══════════ JOURNEY — 7 étapes guidées ═══════════ */
+.journey{position:relative;z-index:1;padding:100px 24px;background:#06060A;color:#fff;overflow:hidden}
+.journey::before{content:'';position:absolute;top:-300px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(16,185,129,0.07),transparent 65%);pointer-events:none;filter:blur(60px)}
+.journey::after{content:'';position:absolute;bottom:-300px;left:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(16,185,129,0.04),transparent 65%);pointer-events:none;filter:blur(80px)}
+.journey-inner{max-width:1240px;margin:0 auto;position:relative;z-index:1}
+
+.journey-header{margin-bottom:72px}
+.journey-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.12em;margin-bottom:20px}
+.journey-eyebrow::before,.journey-eyebrow::after{content:'';display:block;width:24px;height:1px;background:currentColor;opacity:.5}
+.journey-title{font-size:clamp(36px,4.5vw,56px);font-weight:600;letter-spacing:-.03em;line-height:1.06;color:#fff;margin-bottom:18px}
+.journey-title em{font-style:italic;color:#10b981}
+.journey-subdesc{font-size:16px;color:rgba(255,255,255,0.45);line-height:1.65;max-width:580px}
+.journey-subdesc strong{color:rgba(255,255,255,0.7);font-weight:500}
+
+.journey-body{display:grid;grid-template-columns:1fr 1.3fr;gap:64px;align-items:start}
+
+.journey-steps{display:flex;flex-direction:column;padding-top:4px}
+.journey-step{cursor:pointer;display:flex;gap:18px;align-items:flex-start;padding:16px 0;border-top:1px solid rgba(255,255,255,0.05);position:relative;transition:border-color .3s ease}
+.journey-step:last-child{border-bottom:1px solid rgba(255,255,255,0.05)}
+.journey-step.active{border-top-color:rgba(16,185,129,0.5)}
+.js-bar{position:absolute;left:0;top:0;width:0;height:2px;background:linear-gradient(90deg,#10b981,#059669)}
+.journey-step.active .js-bar{animation:js-fill 3.5s linear forwards}
+@keyframes js-fill{from{width:0}to{width:100%}}
+.js-num{font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);letter-spacing:.08em;min-width:20px;padding-top:3px;transition:color .3s ease;font-variant-numeric:tabular-nums}
+.journey-step.active .js-num{color:#10b981}
+.js-content{flex:1}
+.js-title{font-size:15px;font-weight:500;color:rgba(255,255,255,0.32);letter-spacing:-.01em;line-height:1.3;transition:color .3s ease}
+.journey-step.active .js-title{color:#fff;font-weight:600}
+.js-desc{font-size:13px;color:rgba(255,255,255,0.38);line-height:1.55;margin-top:6px;max-height:0;overflow:hidden;opacity:0;transition:max-height .4s cubic-bezier(.4,0,.2,1),opacity .3s ease}
+.journey-step.active .js-desc{max-height:60px;opacity:1}
+
+.journey-display{position:sticky;top:80px}
+.journey-browser{background:#0e0e12;border-radius:16px;border:1px solid rgba(255,255,255,0.07);overflow:hidden;box-shadow:0 40px 100px -30px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.03)}
+.jb-bar{display:flex;align-items:center;gap:6px;padding:0 14px;height:38px;background:#141418;border-bottom:1px solid rgba(255,255,255,0.06)}
+.jb-dot{width:10px;height:10px;border-radius:50%}
+.jb-url{flex:1;margin:0 12px;background:rgba(255,255,255,0.05);border-radius:6px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,0.3);font-family:monospace;letter-spacing:.02em;overflow:hidden;white-space:nowrap;padding:0 8px}
+.jb-content{position:relative;height:460px;overflow:hidden}
+.jm-slide{position:absolute;inset:0;opacity:0;transform:translateY(10px);transition:opacity .4s ease,transform .4s ease;pointer-events:none}
+.jm-slide.active{opacity:1;transform:translateY(0);pointer-events:auto}
+
+/* ── Slide 0: Prompt ── */
+.jm-s0{background:linear-gradient(160deg,#dcfce7 0%,#f0fdf4 50%,#d1fae5 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 28px;gap:26px;overflow:hidden}
+.jm-s0-title{font-size:22px;font-weight:800;color:#0a0a0a;letter-spacing:-.03em;text-align:center;line-height:1.15}
+.jm-s0-title span{color:#10b981}
+.jm-s0-box{width:100%;background:#fff;border-radius:18px;padding:18px 20px 14px;box-shadow:0 2px 0 rgba(0,0,0,0.04),0 8px 40px rgba(0,0,0,0.10)}
+.jm-s0-text{font-size:14px;color:#0a0a0a;min-height:42px;line-height:1.55;margin-bottom:14px;word-break:break-word}
+.jm-s0-tcursor{display:inline-block;width:2px;height:15px;background:#10b981;vertical-align:middle;margin-left:1px;animation:blink .75s step-end infinite}
+.jm-s0-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid rgba(0,0,0,0.06);padding-top:10px}
+.jm-s0-tools{display:flex;gap:4px}
+.jm-s0-tool{width:28px;height:28px;border-radius:7px;background:#f8fafc;border:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;font-size:12px;color:#94a3b8}
+.jm-s0-right{display:flex;align-items:center;gap:6px}
+.jm-s0-build{padding:5px 9px;background:#f8fafc;border:1px solid rgba(0,0,0,0.06);border-radius:8px;font-size:11px;color:#475569;font-weight:600;white-space:nowrap}
+.jm-s0-send{width:32px;height:32px;background:#0a0a0a;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;transition:transform .1s ease,box-shadow .1s ease}
+.jm-s0-send svg{width:14px;height:14px;stroke-width:2.5}
+.jm-s0-send.jm-clicked{transform:scale(.84);box-shadow:0 0 0 3px rgba(16,185,129,0.35)}
+/* Mouse cursor */
+.jm-s0-ptr{position:absolute;width:20px;height:20px;pointer-events:none;opacity:0;z-index:20;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.35));transition:opacity .18s ease,left .42s cubic-bezier(.4,0,.15,1),top .42s cubic-bezier(.4,0,.15,1)}
+
+/* ── Slide 1: Questions ── */
+.jm-s1{background:#fff;padding:26px 24px;overflow:hidden}
+.jm-s1-step{font-size:9px;color:#10b981;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.jm-s1-title{font-size:16px;font-weight:800;color:#0a0a0a;margin-bottom:3px;letter-spacing:-.03em}
+.jm-s1-sub{font-size:10px;color:#64748b;margin-bottom:18px}
+.jm-s1-q{margin-bottom:14px}
+.jm-s1-ql{font-size:10px;font-weight:600;color:#0f172a;margin-bottom:6px}
+.jm-s1-inp{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:7px 10px;font-size:11px;color:#0f172a}
+.jm-s1-chips{display:flex;gap:5px;flex-wrap:wrap}
+.jm-s1-chip{padding:4px 10px;background:#f1f5f9;border-radius:99px;font-size:10px;color:#475569;font-weight:500}
+.jm-s1-chip.sel{background:#10b981;color:#fff}
+
+/* ── Slide 2: Tones ── */
+.jm-s2{background:#fafafa;padding:26px 24px}
+.jm-s2-step{font-size:9px;color:#10b981;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.jm-s2-title{font-size:16px;font-weight:800;color:#0a0a0a;margin-bottom:3px;letter-spacing:-.03em}
+.jm-s2-sub{font-size:10px;color:#64748b;margin-bottom:18px}
+.jm-s2-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.jm-s2-card{border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.jm-s2-card.sel{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.15)}
+.jm-s2-swatch{height:68px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.jm-s2-name{font-size:9px;padding:4px 6px;background:#fff;color:#0f172a;font-weight:700}
+.jm-s2-desc{font-size:8px;padding:0 6px 5px;background:#fff;color:#64748b;line-height:1.3}
+
+/* ── Slide 3: Screens ── */
+.jm-s3{background:#fff;padding:26px 24px}
+.jm-s3-step{font-size:9px;color:#10b981;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.jm-s3-title{font-size:16px;font-weight:800;color:#0a0a0a;margin-bottom:3px;letter-spacing:-.03em}
+.jm-s3-sub{font-size:10px;color:#64748b;margin-bottom:16px}
+.jm-s3-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:#f8fafc;border-radius:9px;margin-bottom:5px}
+.jm-s3-check{width:16px;height:16px;border-radius:4px;background:#10b981;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;flex-shrink:0;margin-top:1px}
+.jm-s3-info{flex:1}
+.jm-s3-n{font-size:11px;font-weight:700;color:#0f172a}
+.jm-s3-d{font-size:9px;color:#64748b;margin-top:1px}
+.jm-s3-tag{font-size:8px;color:#10b981;font-weight:700;background:rgba(16,185,129,0.1);padding:1px 6px;border-radius:3px;flex-shrink:0}
+.jm-s3-add{display:flex;align-items:center;gap:6px;padding:9px 12px;border:1.5px dashed rgba(0,0,0,0.1);border-radius:9px;font-size:10px;color:#94a3b8;cursor:pointer;margin-top:4px}
+.jm-s3-add::before{content:'+';font-size:14px;font-weight:300}
+
+/* ── Slide 4: Hero variants ── */
+.jm-s4{background:#f8fafc;padding:26px 24px}
+.jm-s4-step{font-size:9px;color:#10b981;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.jm-s4-title{font-size:16px;font-weight:800;color:#0a0a0a;margin-bottom:3px;letter-spacing:-.03em}
+.jm-s4-sub{font-size:10px;color:#64748b;margin-bottom:16px}
+.jm-s4-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.jm-s4-card{border-radius:10px;overflow:hidden;border:2px solid transparent;cursor:pointer;transition:.15s;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.jm-s4-card.sel{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.15)}
+.jm-s4-preview{height:88px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:8px}
+.jm-s4-label{font-size:9px;font-weight:700;color:#0f172a;padding:5px 8px 2px}
+.jm-s4-hint{font-size:8px;color:#94a3b8;padding:0 8px 5px}
+.jm-s4-choose{display:block;width:calc(100% - 12px);margin:0 6px 6px;padding:4px;background:rgba(0,0,0,0.07);color:#0f172a;font-size:8px;font-weight:700;border-radius:5px;text-align:center}
+.jm-s4-card.sel .jm-s4-choose{background:#10b981;color:#fff}
+
+/* ── Slide 5: Palette & typo ── */
+.jm-s5{background:#fff;padding:26px 24px;overflow:hidden}
+.jm-s5-step{font-size:9px;color:#10b981;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.jm-s5-title{font-size:16px;font-weight:800;color:#0a0a0a;margin-bottom:3px;letter-spacing:-.03em}
+.jm-s5-sub{font-size:10px;color:#64748b;margin-bottom:12px}
+.jm-s5-section{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;margin-top:14px}
+.jm-s5-palette{display:flex;flex-direction:column;gap:6px}
+.jm-s5-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;border:1.5px solid transparent;transition:.15s}
+.jm-s5-row.sel{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.04)}
+.jm-s5-swatches{display:flex;gap:3px;flex-shrink:0}
+.jm-s5-sw{width:16px;height:16px;border-radius:3px}
+.jm-s5-info{flex:1}
+.jm-s5-name{font-size:10px;font-weight:700;color:#0f172a}
+.jm-s5-hint{font-size:8px;color:#94a3b8}
+.jm-s5-typo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.jm-s5-tf{padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;transition:.15s}
+.jm-s5-tf.sel{border-color:#10b981;background:rgba(16,185,129,0.03)}
+.jm-s5-tf-big{font-size:17px;font-weight:700;color:#0f172a;line-height:1.1;margin-bottom:3px}
+.jm-s5-tf-sm{font-size:8px;color:#64748b;line-height:1.4}
+.jm-s5-tf-meta{font-size:7px;color:#10b981;font-weight:700;margin-top:5px;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── Slide 6: Generate ── */
+.jm-s6{background:#0a0a0a;padding:20px 18px;display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:start;position:relative;overflow:hidden}
+.jm-s6-step{font-size:9px;color:#10b981;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.jm-s6-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-.02em}
+.jm-s6-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.jm-s6-k{font-size:10px;color:rgba(255,255,255,0.38)}
+.jm-s6-v{font-size:10px;color:#fff;font-weight:600;text-align:right}
+.jm-s6-right{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.jm-s6-q{font-size:12px;color:#fff;font-weight:700}
+.jm-s6-a{font-size:10px;color:rgba(255,255,255,0.45);line-height:1.5}
+.jm-s6-gen{background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:11px;font-weight:700;padding:12px 14px;border-radius:9px;text-align:center;box-shadow:0 6px 20px rgba(16,185,129,0.4);letter-spacing:.02em;cursor:pointer;transition:transform .1s ease,box-shadow .1s ease,opacity .1s ease}
+.jm-s6-gen.jm-clicked{transform:scale(.87);box-shadow:0 0 0 3px rgba(16,185,129,0.4);opacity:.82}
+.jm-s6-note{font-size:9px;color:rgba(255,255,255,0.25);text-align:center}
+.jm-s6-cat{font-size:7.5px;color:#10b981;font-weight:700;text-transform:uppercase;letter-spacing:.14em;margin:9px 0 3px;opacity:.7}
+.jm-s6-screens{display:flex;flex-wrap:wrap;gap:4px;margin:5px 0 2px}
+.jm-s6-screen{font-size:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.22);color:#10b981;padding:3px 8px;border-radius:20px;font-weight:600}
+.jm-s6-badge-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.jm-s6-badge{font-size:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.11);color:rgba(255,255,255,0.55);padding:4px 8px;border-radius:20px}
+.jm-s6-ptr{position:absolute;width:18px;height:18px;pointer-events:none;opacity:0;z-index:20;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.5));transition:opacity .18s ease,left .42s cubic-bezier(.4,0,.15,1),top .42s cubic-bezier(.4,0,.15,1)}
+
+/* ── Slide 7: Futuristic LMNP App ── */
+.jm-s7{background:#070c18;padding:0;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.jm-s7-grid-ov{position:absolute;inset:0;background-image:linear-gradient(rgba(34,211,238,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.04) 1px,transparent 1px);background-size:30px 30px;pointer-events:none;z-index:0}
+.jm-s7-nav{display:flex;align-items:center;gap:10px;padding:9px 14px;background:rgba(255,255,255,.025);border-bottom:1px solid rgba(34,211,238,.1);position:relative;z-index:1;flex-shrink:0}
+.jm-s7-logo{font-size:12px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-right:auto}
+.jm-s7-logo span{color:#22d3ee}
+.jm-s7-navlinks{display:flex;gap:2px}
+.jm-s7-navlink{font-size:8.5px;color:rgba(255,255,255,.35);padding:3px 7px;border-radius:4px}
+.jm-s7-navlink.act{color:#22d3ee;background:rgba(34,211,238,.1)}
+.jm-s7-badge{font-size:7px;background:linear-gradient(135deg,rgba(34,211,238,.15),rgba(16,185,129,.15));border:1px solid rgba(34,211,238,.28);color:#22d3ee;padding:3px 8px;border-radius:20px;font-weight:700;animation:s7pulse 2.2s ease-in-out infinite}
+@keyframes s7pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,211,238,.3)}50%{box-shadow:0 0 0 4px rgba(34,211,238,0)}}
+.jm-s7-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:11px 13px 7px;position:relative;z-index:1;flex-shrink:0}
+.jm-s7-kpi{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:9px 11px}
+.jm-s7-kpi.kpi-glow{border-color:rgba(34,211,238,.28);box-shadow:0 0 18px rgba(34,211,238,.08),inset 0 0 18px rgba(34,211,238,.03)}
+.jm-s7-kpi-label{font-size:7px;color:rgba(255,255,255,.32);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jm-s7-kpi-num{display:flex;align-items:baseline;gap:2px}
+.jm-s7-kpi-val{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.jm-s7-kpi.kpi-glow .jm-s7-kpi-val{color:#22d3ee}
+.jm-s7-kpi-unit{font-size:9px;color:rgba(255,255,255,.35);font-weight:600}
+.jm-s7-kpi-delta{font-size:7px;color:#10b981;font-weight:600;margin-top:3px}
+.jm-s7-bottom{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;padding:0 13px 12px;position:relative;z-index:1;flex:1;min-height:0}
+.jm-s7-chart-box{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:9px 11px;display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.jm-s7-chart-title{font-size:8px;color:rgba(255,255,255,.35);font-weight:600;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0}
+.jm-s7-bars{display:flex;gap:5px;align-items:flex-end;flex:1;min-height:60px;max-height:80px}
+.jm-s7-bar{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.jm-s7-bar-fill{width:100%;height:0;background:rgba(34,211,238,.2);border-radius:3px 3px 0 0;transition:height .65s cubic-bezier(.4,0,.2,1)}
+.jm-s7-bar.act .jm-s7-bar-fill{background:linear-gradient(180deg,#22d3ee,#0ea5e9);box-shadow:0 0 10px rgba(34,211,238,.4)}
+.jm-s7-bar.revealed .jm-s7-bar-fill{height:var(--h)}
+.jm-s7-bar span{font-size:6px;color:rgba(255,255,255,.22)}
+.jm-s7-txns{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:9px 11px;display:flex;flex-direction:column;gap:5px;overflow:hidden}
+.jm-s7-txns-title{font-size:8px;color:rgba(255,255,255,.35);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1px;flex-shrink:0}
+.jm-s7-txn{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.jm-s7-txn:last-child{border-bottom:none}
+.jm-s7-txn-icon{font-size:10px;flex-shrink:0}
+.jm-s7-txn-info{flex:1;min-width:0}
+.jm-s7-txn-name{font-size:8px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jm-s7-txn-date{font-size:6.5px;color:rgba(255,255,255,.28)}
+.jm-s7-txn-amt{font-size:8.5px;font-weight:700;flex-shrink:0}
+.jm-s7-txn-amt.pos{color:#10b981}
+.jm-s7-txn-amt.neg{color:rgba(255,90,90,.75)}
+
+@media(max-width:960px){
+  .journey-body{grid-template-columns:1fr;gap:40px}
+  .journey-display{position:static}
+  .jb-content{height:400px}
+}
+@media(max-width:640px){
+  .journey{padding:60px 16px}
+  .journey-header{margin-bottom:48px}
+  .jm-s2-grid,.jm-s4-grid{grid-template-columns:1fr 1fr}
+  .jm-s6{grid-template-columns:1fr}
+}
+
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+
+<nav>
+  <div class="nav-left">
+    <a href="#" class="logo"><img src="compile42-logo.svg" class="logo-svg" alt="Compile42"><span class="logo-name">Compile42</span></a>
+    <div class="nav-links">
+      <a href="#" data-i18n="affiliates">Affiliates</a><a href="#pricing" data-i18n="pricing">Pricing</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-lang-wrap">
+      <button class="nav-lang" id="langToggle" aria-haspopup="true" aria-expanded="false" aria-label="Change language">
+        <img class="nav-lang-flag" id="langFlag" src="https://flagcdn.com/w40/fr.png" alt="">
+        <svg class="nav-chev" fill="none" stroke="#0a0a0a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      <div class="nav-lang-menu" id="langMenu" role="menu"></div>
+    </div>
+    <a href="#" class="nav-login" data-i18n="demo">Playable Demo</a>
+    <a href="#" class="nav-login" data-i18n="login">Login</a>
+    <a href="#" class="btn-getstarted" data-i18n="cta">Get Started</a>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu" role="navigation">
+  <a href="#" data-i18n="affiliates">Affiliates</a>
+  <a href="#pricing" data-i18n="pricing">Pricing</a>
+  <a href="#" data-i18n="demo">Playable Demo</a>
+  <div class="mobile-menu-sep"></div>
+  <a href="#" data-i18n="login">Login</a>
+  <a href="#" class="btn-getstarted" data-i18n="cta">Get Started</a>
+  <div class="mobile-menu-sep"></div>
+  <div class="mobile-lang" id="mobileLang"></div>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <h1 class="hero-title reveal-up" style="--d:0ms">Build something<br><span class="rotator"><span class="rotator-track" id="rotator">
+      <span class="rotator-word">amazing</span>
+      <span class="rotator-word">magical</span>
+      <span class="rotator-word">beautiful</span>
+    </span></span><br>with Compile42</h1>
+    <p class="hero-subtitle reveal-up" style="--d:140ms" data-i18n="heroSub">Create apps and websites by chatting with AI</p>
+<div class="prompt-card reveal-up" style="--d:260ms">
+      <div class="prompt-area">
+        <div class="prompt-placeholder" id="placeholder"></div>
+        <textarea class="prompt-textarea" id="promptInput" rows="2"></textarea>
+      </div>
+      <div class="prompt-bar">
+        <div class="prompt-tools">
+          <button class="tool-btn"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+          <button class="tool-btn"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>Public</button>
+          <div class="tool-divider"></div>
+          <button class="tool-btn"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Auto</button>
+        </div>
+        <button class="btn-send" id="btnSend"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="showcase">
+  <div class="carousel-wrapper">
+    <div class="carousel-track" id="track">
+
+      <!-- 1. WETFLIX -->
+      <div class="slide slide-wet">
+        <div class="slide-header">
+          <div class="slide-stat"><span class="laurel">🌿</span><span>3M+ spectateurs</span><span class="laurel">🌿</span></div>
+          <div class="slide-sub">streament leurs séries sur Wetflix — construit en quelques minutes.</div>
+        </div>
+        <div class="browser-frame">
+          <div class="browser-bar"><div style="display:flex;gap:4px"><div class="bdot" style="background:#ff5f57"></div><div class="bdot" style="background:#febc2e"></div><div class="bdot" style="background:#28c840"></div></div><div class="browser-url"><div class="browser-url-pill"><img src="compile42-logo.svg" alt="">wetflix.compile42.app</div></div></div>
+          <div class="browser-content">
+            <div class="wet-web">
+              <div class="wet-nav">
+                <div class="wet-logo">WETFLIX</div>
+                <div class="wet-nav-links"><span>Accueil</span><span>Séries</span><span>Films</span><span>Top 10</span><span>Ma liste</span></div>
+                <div class="wet-actions">
+                  <div class="wet-lang"><span>FR</span><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></div>
+                  <div class="wet-icon-btn" title="Rechercher"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke-linecap="round"/><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.3-4.3"/></svg></div>
+                  <div class="wet-icon-btn" title="Notifications"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0"/></svg></div>
+                  <div class="wet-login">Log in</div>
+                </div>
+              </div>
+              <div class="wet-hero">
+                <div class="wet-hero-content">
+                  <div class="wet-hero-tag">★ N°1 cette semaine</div>
+                  <div class="wet-hero-title">Stranger Things</div>
+                  <div class="wet-hero-meta">Saison 5 · 2026 · 8 épisodes · Drame · Sci-Fi</div>
+                  <div class="wet-hero-desc">Une nouvelle dimension s'ouvre. Onze doit affronter sa plus grande menace dans cette saison finale.</div>
+                  <div class="wet-hero-btns">
+                    <div class="wet-play">▶ Lecture</div>
+                    <div class="wet-info">ⓘ Plus d'infos</div>
+                  </div>
+                </div>
+              </div>
+              <div class="wet-row">
+                <div class="wet-row-title">🔥 Top 10 cette semaine</div>
+                <div class="wet-row-items">
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg')"><div class="wet-card-rank">#1</div></div><div class="wet-card-label">Squid Game</div><div class="wet-card-meta">Saison 3 · Thriller</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/49WJfeN0moxb9IPfGn8AIqMGskD.jpg')"><div class="wet-card-rank">#2</div></div><div class="wet-card-label">Stranger Things</div><div class="wet-card-meta">Saison 5 · Sci-Fi</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/5UaYsGZOFhjFDwQh6GuLjjA1WlF.jpg')"><div class="wet-card-rank">#3</div></div><div class="wet-card-label">Black Mirror</div><div class="wet-card-meta">Série · Dystopie</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/or06FN3Dka5tukK1e9sl16pB3iy.jpg')"><div class="wet-card-rank">#4</div></div><div class="wet-card-label">Avengers Endgame</div><div class="wet-card-meta">Film · Action</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/9PFonBhy4cQy7Jz20NpMygczOkv.jpg')"><div class="wet-card-rank">#5</div></div><div class="wet-card-label">Wednesday</div><div class="wet-card-meta">Série · Comédie</div></div>
+                </div>
+              </div>
+              <div class="wet-row" style="margin-top:8px">
+                <div class="wet-row-title">🆕 Nouveautés Wetflix</div>
+                <div class="wet-row-items">
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Casa de Papel</div><div class="wet-card-meta">Série · Thriller</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/cZ0d3rtvXPVvuiX22sP79K3Hmjz.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">The Witcher</div><div class="wet-card-meta">Série · Fantastique</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Inception</div><div class="wet-card-meta">Film · Sci-Fi</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Mandalorian</div><div class="wet-card-meta">Série · Sci-Fi</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/ggFHVNu6YYI5L9pCfOacjizRGt.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Breaking Bad</div><div class="wet-card-meta">Série · Drame</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-wrapper">
+          <div class="phone-frame"><div class="phone-notch"></div><div class="phone-content">
+            <div class="wet-mob">
+              <div class="wet-mob-top">
+                <div class="wet-mob-logo">WETFLIX</div>
+                <div class="wet-mob-actions">
+                  <div class="wet-mob-lang"><span>FR</span><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></div>
+                  <div class="wet-mob-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke-linecap="round"/><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.3-4.3"/></svg></div>
+                  <div class="wet-mob-login">Log in</div>
+                </div>
+              </div>
+              <div class="wet-mob-cats">
+                <div class="wet-mob-cat act">Pour vous</div>
+                <div class="wet-mob-cat">Séries</div>
+                <div class="wet-mob-cat">Films</div>
+              </div>
+              <div class="wet-mob-feat">
+                <div class="wet-mob-feat-c">
+                  <div class="wet-mob-feat-tag">★ N°1</div>
+                  <div class="wet-mob-feat-t">Stranger<br>Things</div>
+                  <div class="wet-mob-feat-meta">Saison 5 · 2026</div>
+                  <div class="wet-mob-play">▶ Lecture</div>
+                </div>
+              </div>
+              <div class="wet-mob-list">
+                <div class="wet-mob-lt">🔥 Tendances</div>
+                <div class="wet-mob-cards">
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg')"><div class="wet-mob-card-t">Squid Game</div></div>
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/49WJfeN0moxb9IPfGn8AIqMGskD.jpg')"><div class="wet-mob-card-t">Stranger Things</div></div>
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/5UaYsGZOFhjFDwQh6GuLjjA1WlF.jpg')"><div class="wet-mob-card-t">Black Mirror</div></div>
+                </div>
+                <div class="wet-mob-lt" style="margin-top:10px">🆕 Nouveautés</div>
+                <div class="wet-mob-cards">
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg')"><div class="wet-mob-card-t">Casa de Papel</div></div>
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/or06FN3Dka5tukK1e9sl16pB3iy.jpg')"><div class="wet-mob-card-t">Avengers</div></div>
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg')"><div class="wet-mob-card-t">Mandalorian</div></div>
+                </div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="made-with"><img src="compile42-logo.svg" class="made-with-icon" alt="Compile42">Made with Compile42</div>
+      </div>
+
+      <!-- 2. SPORTMUSCU -->
+      <div class="slide slide-sport">
+        <div class="slide-header">
+          <div class="slide-stat"><span class="laurel">🌿</span><span>3M+ athlètes</span><span class="laurel">🌿</span></div>
+          <div class="slide-sub">suivent leurs séances de musculation avec SportMuscu — créé sur Compile42.</div>
+        </div>
+        <div class="browser-frame">
+          <div class="browser-bar"><div style="display:flex;gap:4px"><div class="bdot" style="background:#ff5f57"></div><div class="bdot" style="background:#febc2e"></div><div class="bdot" style="background:#28c840"></div></div><div class="browser-url"><div class="browser-url-pill"><img src="compile42-logo.svg" alt="">sportmuscu.compile42.app</div></div></div>
+          <div class="browser-content">
+            <div class="sp-web">
+              <div class="sp-top">
+                <div class="sp-logo">💪 Sport<span>Muscu</span></div>
+                <div class="sp-streak">🔥 12 jours</div>
+              </div>
+              <div class="sp-greet">Salut champion,</div>
+              <div class="sp-name">Lucas D.</div>
+              <div class="sp-card">
+                <div class="sp-card-l">Séance du jour</div>
+                <div class="sp-card-n">Pectoraux + Triceps</div>
+                <div class="sp-card-s">6 exercices · 45 min · Niveau intermédiaire</div>
+              </div>
+              <div class="sp-stats">
+                <div class="sp-stat"><div class="sp-stat-n">12,4t</div><div class="sp-stat-l">Volume semaine</div></div>
+                <div class="sp-stat"><div class="sp-stat-n">+8.2%</div><div class="sp-stat-l">Progression</div></div>
+                <div class="sp-stat"><div class="sp-stat-n">4/5</div><div class="sp-stat-l">Séances</div></div>
+              </div>
+              <div class="sp-list-l">Exercices du jour</div>
+              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Développé couché</div><div class="sp-ex-s">4 séries · 8 reps</div></div><div class="sp-ex-r">80 kg</div></div>
+              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Dips lestés</div><div class="sp-ex-s">3 séries · 10 reps</div></div><div class="sp-ex-r">+15 kg</div></div>
+              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Triceps poulie</div><div class="sp-ex-s">4 séries · 12 reps</div></div><div class="sp-ex-r">35 kg</div></div>
+              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1517344884509-a0c97ec11bcc?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Écarté couché</div><div class="sp-ex-s">3 séries · 12 reps</div></div><div class="sp-ex-r">22 kg</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-wrapper">
+          <div class="phone-frame"><div class="phone-notch"></div><div class="phone-content">
+            <div class="sp-mob">
+              <div class="sp-mob-h">
+                <div class="sp-mob-g">Salut champion,</div>
+                <div class="sp-mob-n">Lucas 💪</div>
+              </div>
+              <div class="sp-mob-ring">
+                <div class="sp-mob-ring-circle">
+                  <div class="sp-mob-ring-inner">
+                    <div class="sp-mob-ring-n">75%</div>
+                    <div class="sp-mob-ring-l">Objectif</div>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-mob-stats">
+                <div class="sp-mob-st"><div class="sp-mob-st-n">12,4t</div><div class="sp-mob-st-l">Volume</div></div>
+                <div class="sp-mob-st"><div class="sp-mob-st-n">4/5</div><div class="sp-mob-st-l">Séances</div></div>
+                <div class="sp-mob-st"><div class="sp-mob-st-n">🔥12j</div><div class="sp-mob-st-l">Streak</div></div>
+              </div>
+              <div class="sp-mob-list">
+                <div class="sp-mob-lt">Aujourd'hui</div>
+                <div class="sp-mob-ex"><div class="sp-mob-ex-i" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-mob-ex-info"><div class="sp-mob-ex-n">Développé couché</div><div class="sp-mob-ex-s">4×8 · 80 kg</div></div></div>
+                <div class="sp-mob-ex"><div class="sp-mob-ex-i" style="background-image:url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-mob-ex-info"><div class="sp-mob-ex-n">Dips lestés</div><div class="sp-mob-ex-s">3×10 · +15 kg</div></div></div>
+                <div class="sp-mob-ex"><div class="sp-mob-ex-i" style="background-image:url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-mob-ex-info"><div class="sp-mob-ex-n">Triceps poulie</div><div class="sp-mob-ex-s">4×12 · 35 kg</div></div></div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="made-with"><img src="compile42-logo.svg" class="made-with-icon" alt="Compile42">Made with Compile42</div>
+      </div>
+
+      <!-- 3. HURGHADA DREAM -->
+      <div class="slide slide-hurghada">
+        <div class="slide-header">
+          <div class="slide-stat"><span class="laurel">🌿</span><span>2M+ voyageurs</span><span class="laurel">🌿</span></div>
+          <div class="slide-sub">réservent leur séjour à Hurghada avec Hurghada Dream — créé sur Compile42.</div>
+        </div>
+        <div class="browser-frame">
+          <div class="browser-bar"><div style="display:flex;gap:4px"><div class="bdot" style="background:#ff5f57"></div><div class="bdot" style="background:#febc2e"></div><div class="bdot" style="background:#28c840"></div></div><div class="browser-url"><div class="browser-url-pill"><img src="compile42-logo.svg" alt="">hurghadadream.compile42.app</div></div></div>
+          <div class="browser-content">
+            <div class="hg-web">
+              <div class="hg-hero">
+                <div class="hg-hero-content" style="position:relative;z-index:2">
+                  <div class="hg-hero-t">Hurghada Dream</div>
+                  <div class="hg-hero-s">Plages paradisiaques, plongée et resorts 5★</div>
+                </div>
+              </div>
+              <div class="hg-search">
+                <div class="hg-s-f"><div class="hg-s-l">Destination</div><div class="hg-s-v">📍 Hurghada, Égypte</div></div>
+                <div class="hg-s-f"><div class="hg-s-l">Dates</div><div class="hg-s-v">15 - 22 juin</div></div>
+                <div class="hg-s-f"><div class="hg-s-l">Voyageurs</div><div class="hg-s-v">2 adultes</div></div>
+                <div class="hg-s-btn">Rechercher</div>
+              </div>
+              <div class="hg-grid">
+                <div class="hg-card"><div class="hg-photo hg-photo-1"><div class="hg-photo-fav">❤️</div></div><div class="hg-card-info"><div class="hg-card-n">Sahl Hasheesh Beach</div><div class="hg-card-loc">📍 Sahl Hasheesh · 5★</div><div class="hg-card-r"><span class="hg-card-rate">★ 4.9 (1.2k)</span><span class="hg-card-p">320 €</span></div></div></div>
+                <div class="hg-card"><div class="hg-photo hg-photo-2"><div class="hg-photo-fav">❤️</div></div><div class="hg-card-info"><div class="hg-card-n">Giftun Island</div><div class="hg-card-loc">📍 Mer Rouge · Plongée</div><div class="hg-card-r"><span class="hg-card-rate">★ 4.8 (892)</span><span class="hg-card-p">189 €</span></div></div></div>
+                <div class="hg-card"><div class="hg-photo hg-photo-3"><div class="hg-photo-fav">❤️</div></div><div class="hg-card-info"><div class="hg-card-n">Steigenberger Resort</div><div class="hg-card-loc">📍 Hurghada Marina · 5★</div><div class="hg-card-r"><span class="hg-card-rate">★ 4.9 (2.1k)</span><span class="hg-card-p">240 €</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-wrapper">
+          <div class="phone-frame"><div class="phone-notch"></div><div class="phone-content">
+            <div class="hg-mob">
+              <div class="hg-mob-hero">
+                <div class="hg-mob-hero-t">Hurghada Dream</div>
+              </div>
+              <div class="hg-mob-search">
+                <div class="hg-mob-s-l">Où allez-vous ?</div>
+                <div class="hg-mob-s-v"><svg class="loc-icon" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.69 2 6 4.69 6 8c0 4.5 6 12 6 12s6-7.5 6-12c0-3.31-2.69-6-6-6z"/><circle cx="12" cy="8" r="2"/></svg>Hurghada, Égypte</div>
+                <div class="hg-mob-s-l">Dates</div>
+                <div class="hg-mob-s-v">15 - 22 juin · 2 adultes</div>
+                <div class="hg-mob-s-btn">🔍 Rechercher</div>
+              </div>
+              <div class="hg-mob-list">
+                <div class="hg-mob-lh">Destinations populaires</div>
+                <div class="hg-mob-card"><div class="hg-mob-photo hg-photo-1"></div><div class="hg-mob-info"><div class="hg-mob-n">Sahl Hasheesh</div><div class="hg-mob-l">Plage privée · 5★</div><div class="hg-mob-meta"><span class="hg-mob-p">320 €</span></div></div></div>
+                <div class="hg-mob-card"><div class="hg-mob-photo hg-photo-2"></div><div class="hg-mob-info"><div class="hg-mob-n">Giftun Island</div><div class="hg-mob-l">Plongée · Snorkeling</div><div class="hg-mob-meta"><span class="hg-mob-p">189 €</span></div></div></div>
+                <div class="hg-mob-card"><div class="hg-mob-photo hg-photo-5"></div><div class="hg-mob-info"><div class="hg-mob-n">Dolphin House</div><div class="hg-mob-l">Tour bateau · Jour</div><div class="hg-mob-meta"><span class="hg-mob-p">45 €</span></div></div></div>
+                <div class="hg-mob-card"><div class="hg-mob-photo hg-photo-4"></div><div class="hg-mob-info"><div class="hg-mob-n">Désert Safari</div><div class="hg-mob-l">Excursion 4×4</div><div class="hg-mob-meta"><span class="hg-mob-p">65 €</span></div></div></div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="made-with"><img src="compile42-logo.svg" class="made-with-icon" alt="Compile42">Made with Compile42</div>
+      </div>
+
+      <!-- 4. COMPTABILITÉ -->
+      <div class="slide slide-acc">
+        <div class="slide-header">
+          <div class="slide-stat"><span class="laurel">🌿</span><span>3M+ entreprises</span><span class="laurel">🌿</span></div>
+          <div class="slide-sub">gèrent leur compta avec une app construite en quelques minutes sur Compile42.</div>
+        </div>
+        <div class="browser-frame">
+          <div class="browser-bar"><div style="display:flex;gap:4px"><div class="bdot" style="background:#ff5f57"></div><div class="bdot" style="background:#febc2e"></div><div class="bdot" style="background:#28c840"></div></div><div class="browser-url"><div class="browser-url-pill"><img src="compile42-logo.svg" alt="">books.compile42.app</div></div></div>
+          <div class="browser-content">
+            <div class="acc-web">
+              <div class="acc-top">
+                <div><div class="acc-title">Tableau de bord — Factures</div><div class="acc-sub">Mai 2026 · 24 factures émises</div></div>
+                <div class="acc-new">+ Nouvelle facture</div>
+              </div>
+              <div class="acc-stats">
+                <div class="acc-st"><div class="acc-st-l">Chiffre d'affaires</div><div class="acc-st-n">48 420 €</div><div class="acc-st-t">▲ +12.4%</div></div>
+                <div class="acc-st"><div class="acc-st-l">En attente</div><div class="acc-st-n">8 240 €</div><div class="acc-st-t" style="color:#d97706">5 factures</div></div>
+                <div class="acc-st"><div class="acc-st-l">Payé</div><div class="acc-st-n">40 180 €</div><div class="acc-st-t">19 factures</div></div>
+              </div>
+              <div class="acc-list">
+                <div class="acc-list-h">Factures récentes</div>
+                <div class="acc-row"><div class="acc-id">#0042</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-cl">Sophie Martin</div></div><div class="acc-cl">Acme Corp</div><div class="acc-am">2 400 €</div><div class="acc-st-r"><span class="acc-paid">Payé</span></div></div>
+                <div class="acc-row"><div class="acc-id">#0041</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-cl">Thomas Dubois</div></div><div class="acc-cl">Globex SARL</div><div class="acc-am">5 800 €</div><div class="acc-st-r"><span class="acc-due">En retard</span></div></div>
+                <div class="acc-row"><div class="acc-id">#0040</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-cl">Emma Laurent</div></div><div class="acc-cl">Initech SAS</div><div class="acc-am">1 250 €</div><div class="acc-st-r"><span class="acc-paid">Payé</span></div></div>
+                <div class="acc-row"><div class="acc-id">#0039</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-cl">Lucas Bernard</div></div><div class="acc-cl">Stark Industries</div><div class="acc-am">8 900 €</div><div class="acc-st-r"><span class="acc-paid">Payé</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-wrapper">
+          <div class="phone-frame"><div class="phone-notch"></div><div class="phone-content">
+            <div class="acc-mob">
+              <div class="acc-mob-h">
+                <div class="acc-mob-g">Bonjour,</div>
+                <div class="acc-mob-n">Marie L.</div>
+                <div class="acc-mob-rl">CA ce mois-ci</div>
+                <div class="acc-mob-r">48 420 €</div>
+              </div>
+              <div class="acc-mob-stats">
+                <div class="acc-mob-st"><div class="acc-mob-st-l">Payé</div><div class="acc-mob-st-n">40 180 €</div></div>
+                <div class="acc-mob-st"><div class="acc-mob-st-l">En attente</div><div class="acc-mob-st-n">8 240 €</div></div>
+              </div>
+              <div class="acc-mob-list">
+                <div class="acc-mob-lh">Paiements récents</div>
+                <div class="acc-mob-row"><div class="acc-mob-icon" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-mob-info"><div class="acc-mob-cl">Sophie M.</div><div class="acc-mob-dt">Acme Corp · 2h</div></div><div class="acc-mob-am">+2 400 €</div></div>
+                <div class="acc-mob-row"><div class="acc-mob-icon" style="background-image:url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-mob-info"><div class="acc-mob-cl">Lucas B.</div><div class="acc-mob-dt">Stark Industries · Hier</div></div><div class="acc-mob-am">+8 900 €</div></div>
+                <div class="acc-mob-row"><div class="acc-mob-icon" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-mob-info"><div class="acc-mob-cl">Emma L.</div><div class="acc-mob-dt">Initech SAS · 14 mai</div></div><div class="acc-mob-am">+1 250 €</div></div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="made-with"><img src="compile42-logo.svg" class="made-with-icon" alt="Compile42">Made with Compile42</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="carousel-nav">
+    <button class="nav-arrow" id="prevBtn"><svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+    <div class="nav-dots" id="dots"></div>
+    <button class="nav-arrow" id="nextBtn"><svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+</section>
+
+<!-- ═══ Meet Compile42 — 7 guided steps ═══ -->
+<section class="journey" id="how">
+  <div class="journey-inner">
+
+    <div class="journey-header">
+      <div class="journey-eyebrow">Ce qui nous différencie</div>
+      <h2 class="journey-title">Avant de générer,<br>on <em>comprend</em>.</h2>
+      <p class="journey-subdesc">Lovable et Bolt partent du prompt et génèrent directement. Compile42 <strong>co-construit avec vous</strong> — il comprend votre projet, choisit les écrans, le ton, la palette — avant d'écrire une seule ligne de code.</p>
+    </div>
+
+    <div class="journey-body">
+
+      <div class="journey-steps" id="journeySteps">
+        <div class="journey-step active" data-jstep="0">
+          <div class="js-bar"></div>
+          <div class="js-num">01</div>
+          <div class="js-content">
+            <div class="js-title">Décris ton idée</div>
+            <div class="js-desc">Un prompt en langage naturel — c'est tout ce qu'il faut pour commencer.</div>
+          </div>
+        </div>
+        <div class="journey-step" data-jstep="1">
+          <div class="js-bar"></div>
+          <div class="js-num">02</div>
+          <div class="js-content">
+            <div class="js-title">On creuse ensemble</div>
+            <div class="js-desc">Compile42 pose les vraies questions : nom, utilisateurs, régime, fonctionnalités prioritaires.</div>
+          </div>
+        </div>
+        <div class="journey-step" data-jstep="2">
+          <div class="js-bar"></div>
+          <div class="js-num">03</div>
+          <div class="js-content">
+            <div class="js-title">Choisis ton univers visuel</div>
+            <div class="js-desc">6 tons proposés — Calm, Editorial, Playful, Corporate, Warm, Tech monospace.</div>
+          </div>
+        </div>
+        <div class="journey-step" data-jstep="3">
+          <div class="js-bar"></div>
+          <div class="js-num">04</div>
+          <div class="js-content">
+            <div class="js-title">Valide tes écrans</div>
+            <div class="js-desc">Liste des pages proposées. Tu ajustes, tu ajoutes, tu retires avant la génération.</div>
+          </div>
+        </div>
+        <div class="journey-step" data-jstep="4">
+          <div class="js-bar"></div>
+          <div class="js-num">05</div>
+          <div class="js-content">
+            <div class="js-title">Ton hero, ta vision</div>
+            <div class="js-desc">3 variations de hero générées. Tu choisis celle qui te parle.</div>
+          </div>
+        </div>
+        <div class="journey-step" data-jstep="5">
+          <div class="js-bar"></div>
+          <div class="js-num">06</div>
+          <div class="js-content">
+            <div class="js-title">Palette & typographie</div>
+            <div class="js-desc">Finalise l'identité visuelle — couleurs et polices — avant la génération.</div>
+          </div>
+        </div>
+        <div class="journey-step" data-jstep="6">
+          <div class="js-bar"></div>
+          <div class="js-num">07</div>
+          <div class="js-content">
+            <div class="js-title">Récapitulatif</div>
+            <div class="js-desc">Validation finale avant lancement — ton app de A à Z résumée en un coup d'œil.</div>
+          </div>
+        </div>
+        <div class="journey-step" data-jstep="7">
+          <div class="js-bar"></div>
+          <div class="js-num">08</div>
+          <div class="js-content">
+            <div class="js-title">Génération</div>
+            <div class="js-desc">Compile42 construit ton app React complète, fonctionnelle et déployable. En quelques minutes.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-display">
+        <div class="journey-browser">
+          <div class="jb-bar">
+            <div class="jb-dot" style="background:#ff5f57"></div>
+            <div class="jb-dot" style="background:#febc2e"></div>
+            <div class="jb-dot" style="background:#28c840"></div>
+            <div class="jb-url" id="jbUrl">app.compile42.com — Nouveau projet</div>
+          </div>
+          <div class="jb-content">
+
+            <!-- Slide 0: Prompt -->
+            <div class="jm-slide jm-s0 active" data-jslide="0" id="jm0Slide">
+              <div class="jm-s0-title">What are we building <span>next</span> ?</div>
+              <div class="jm-s0-box">
+                <div class="jm-s0-text" id="jm0Text"></div>
+                <div class="jm-s0-bar">
+                  <div class="jm-s0-tools">
+                    <div class="jm-s0-tool">
+                      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
+                    </div>
+                    <div class="jm-s0-tool">
+                      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                    </div>
+                  </div>
+                  <div class="jm-s0-right">
+                    <div class="jm-s0-build">Build ▾</div>
+                    <div class="jm-s0-send" id="jm0Send">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5M5 12l7-7 7 7"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Cursor pointer -->
+              <svg class="jm-s0-ptr" id="jm0Ptr" viewBox="0 0 20 22" fill="white" stroke="#1a1a1a" stroke-width="1.4" stroke-linejoin="round">
+                <path d="M3.5 1.5L17 11L11 12.5L8.5 19.5L3.5 1.5Z"/>
+              </svg>
+            </div>
+
+            <!-- Slide 1: Questions -->
+            <div class="jm-slide jm-s1" data-jslide="1">
+              <div class="jm-s1-step">ÉTAPE 1 SUR 5</div>
+              <div class="jm-s1-title">Avant tout, dis-m'en plus.</div>
+              <div class="jm-s1-sub">Quelques questions rapides pour comprendre tes intentions. Tu peux choisir « Auto ».</div>
+              <div class="jm-s1-q">
+                <div class="jm-s1-ql">Comment souhaites-tu appeler ton application ?</div>
+                <div class="jm-s1-inp">LMNP Pro</div>
+              </div>
+              <div class="jm-s1-q">
+                <div class="jm-s1-ql">Type d'espace utilisateur ?</div>
+                <div class="jm-s1-chips">
+                  <div class="jm-s1-chip">Espace personnel</div>
+                  <div class="jm-s1-chip sel">App partagée</div>
+                  <div class="jm-s1-chip">Auto</div>
+                </div>
+              </div>
+              <div class="jm-s1-q">
+                <div class="jm-s1-ql">Quel régime fiscal LMNP ?</div>
+                <div class="jm-s1-chips">
+                  <div class="jm-s1-chip">Micro-BIC</div>
+                  <div class="jm-s1-chip sel">Réel simplifié</div>
+                  <div class="jm-s1-chip">Les deux</div>
+                  <div class="jm-s1-chip">Auto</div>
+                </div>
+              </div>
+              <div class="jm-s1-q">
+                <div class="jm-s1-ql">Fonctionnalités prioritaires ?</div>
+                <div class="jm-s1-chips">
+                  <div class="jm-s1-chip sel">Recettes / charges</div>
+                  <div class="jm-s1-chip">Amortissements</div>
+                  <div class="jm-s1-chip sel">Export fiscal 2025</div>
+                  <div class="jm-s1-chip">Auto</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 2: Tones -->
+            <div class="jm-slide jm-s2" data-jslide="2">
+              <div class="jm-s2-step">ÉTAPE 2 SUR 5</div>
+              <div class="jm-s2-title">Quel ton tu lui donnes ?</div>
+              <div class="jm-s2-sub">Choisis l'ambiance visuelle. On s'adapte ensuite pour les détails.</div>
+              <div class="jm-s2-grid">
+                <div class="jm-s2-card sel">
+                  <div class="jm-s2-swatch" style="background:#f0fdf4;color:#15803d">Calm</div>
+                  <div class="jm-s2-name">Calm minimal</div>
+                  <div class="jm-s2-desc">Épuré, aéré, sobre.</div>
+                </div>
+                <div class="jm-s2-card">
+                  <div class="jm-s2-swatch" style="background:#0a0a0a;color:#fff">Editorial</div>
+                  <div class="jm-s2-name">Editorial dark</div>
+                  <div class="jm-s2-desc">Typographie forte.</div>
+                </div>
+                <div class="jm-s2-card">
+                  <div class="jm-s2-swatch" style="background:#fdf2f8;color:#be185d">Playful</div>
+                  <div class="jm-s2-name">Playful soft</div>
+                  <div class="jm-s2-desc">Coloré, fun.</div>
+                </div>
+                <div class="jm-s2-card">
+                  <div class="jm-s2-swatch" style="background:#1e40af;color:#fff">Corporate</div>
+                  <div class="jm-s2-name">Corporate</div>
+                  <div class="jm-s2-desc">Pro, rassurant.</div>
+                </div>
+                <div class="jm-s2-card">
+                  <div class="jm-s2-swatch" style="background:#fef3c7;color:#92400e">Warm</div>
+                  <div class="jm-s2-name">Warm artisan</div>
+                  <div class="jm-s2-desc">Chaleureux, humain.</div>
+                </div>
+                <div class="jm-s2-card">
+                  <div class="jm-s2-swatch" style="background:#0a0a0a;color:#10b981;font-family:monospace;font-size:10px">_ Tech</div>
+                  <div class="jm-s2-name">Tech monospace</div>
+                  <div class="jm-s2-desc">Dev-first, raw.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 3: Screens -->
+            <div class="jm-slide jm-s3" data-jslide="3">
+              <div class="jm-s3-step">ÉTAPE 3 SUR 5</div>
+              <div class="jm-s3-title">Voici les écrans que je propose.</div>
+              <div class="jm-s3-sub">Tu peux retirer, renommer ou ajouter des pages avant qu'on génère.</div>
+              <div class="jm-s3-item"><div class="jm-s3-check">✓</div><div class="jm-s3-info"><div class="jm-s3-n">Tableau de bord</div><div class="jm-s3-d">Vue d'ensemble des revenus LMNP</div></div><div class="jm-s3-tag">proposé</div></div>
+              <div class="jm-s3-item"><div class="jm-s3-check">✓</div><div class="jm-s3-info"><div class="jm-s3-n">Biens immobiliers</div><div class="jm-s3-d">Gestion des biens & locataires</div></div><div class="jm-s3-tag">proposé</div></div>
+              <div class="jm-s3-item"><div class="jm-s3-check">✓</div><div class="jm-s3-info"><div class="jm-s3-n">Recettes & Dépenses</div><div class="jm-s3-d">Saisie des flux financiers</div></div><div class="jm-s3-tag">proposé</div></div>
+              <div class="jm-s3-item"><div class="jm-s3-check">✓</div><div class="jm-s3-info"><div class="jm-s3-n">Amortissements</div><div class="jm-s3-d">Calcul automatique sur les biens</div></div><div class="jm-s3-tag">proposé</div></div>
+              <div class="jm-s3-item"><div class="jm-s3-check">✓</div><div class="jm-s3-info"><div class="jm-s3-n">Déclaration Fiscale</div><div class="jm-s3-d">Export CERFA pour la 2044 SPE</div></div><div class="jm-s3-tag">proposé</div></div>
+              <div class="jm-s3-add">Ajouter un écran</div>
+            </div>
+
+            <!-- Slide 4: Hero variants -->
+            <div class="jm-slide jm-s4" data-jslide="4">
+              <div class="jm-s4-step">ÉTAPE 4 SUR 5 — Le hero</div>
+              <div class="jm-s4-title">3 pistes pour ton hero.</div>
+              <div class="jm-s4-sub">Trois directions visuelles. Choisis celle qui t'inspire le plus.</div>
+              <div class="jm-s4-grid">
+                <div class="jm-s4-card">
+                  <div class="jm-s4-preview" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)">
+                    <div style="text-align:center"><div style="font-size:10px;font-weight:800;color:#0f172a;line-height:1.3">Votre compta<br>LMNP, enfin<br>simple.</div><div style="margin-top:6px;padding:3px 8px;background:#10b981;color:#fff;border-radius:4px;font-size:7px;font-weight:700;display:inline-block">Commencer →</div></div>
+                  </div>
+                  <div class="jm-s4-label">Calm centré</div>
+                  <div class="jm-s4-hint">Fond clair, texte centré</div>
+                  <div class="jm-s4-choose">Choisir</div>
+                </div>
+                <div class="jm-s4-card sel">
+                  <div class="jm-s4-preview" style="background:#fff;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px;align-items:center">
+                    <div><div style="font-size:8px;font-weight:800;color:#0f172a;line-height:1.3">Gérez votre<br>LMNP sans<br>comptable.</div><div style="margin-top:4px;padding:2px 6px;background:#10b981;color:#fff;border-radius:3px;font-size:6px;font-weight:700;display:inline-block">Démarrer</div></div>
+                    <div style="background:#f1f5f9;border-radius:6px;height:68px;display:flex;align-items:center;justify-content:center"><div style="width:28px;height:28px;border-radius:50%;background:#10b981;opacity:.35"></div></div>
+                  </div>
+                  <div class="jm-s4-label">Split avec visuel</div>
+                  <div class="jm-s4-hint">Texte gauche, image droite</div>
+                  <div class="jm-s4-choose">Choisir</div>
+                </div>
+                <div class="jm-s4-card">
+                  <div class="jm-s4-preview" style="background:#0a0a0a">
+                    <div style="text-align:center"><div style="font-size:9px;font-weight:800;color:#10b981;font-family:monospace;line-height:1.3">Gérez votre<br>location<br>immobilière</div><div style="margin-top:5px;padding:2px 7px;border:1px solid #10b981;color:#10b981;border-radius:4px;font-size:6px;font-weight:700;display:inline-block">Générer →</div></div>
+                  </div>
+                  <div class="jm-s4-label" style="background:#0a0a0a;color:#fff">Editorial sombre</div>
+                  <div class="jm-s4-hint" style="background:#0a0a0a;color:#555">Dark, typographique</div>
+                  <div class="jm-s4-choose" style="background:#0a0a0a;color:#555;margin-bottom:0;border-radius:0">Choisir</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 5: Palette & typo -->
+            <div class="jm-slide jm-s5" data-jslide="5">
+              <div class="jm-s5-step">ÉTAPE 5 SUR 5</div>
+              <div class="jm-s5-title">Finis avec la palette et la typo.</div>
+              <div class="jm-s5-sub">Finalise l'identité visuelle avant qu'on génère.</div>
+              <div class="jm-s5-section">Palette</div>
+              <div class="jm-s5-palette">
+                <div class="jm-s5-row sel">
+                  <div class="jm-s5-swatches"><div class="jm-s5-sw" style="background:#10b981"></div><div class="jm-s5-sw" style="background:#f0fdf4"></div><div class="jm-s5-sw" style="background:#0a0a0a"></div><div class="jm-s5-sw" style="background:#fff"></div></div>
+                  <div class="jm-s5-info"><div class="jm-s5-name">Emerald calm</div><div class="jm-s5-hint">Vert émeraude, lumineux, sobre</div></div>
+                </div>
+                <div class="jm-s5-row">
+                  <div class="jm-s5-swatches"><div class="jm-s5-sw" style="background:#0ea5e9"></div><div class="jm-s5-sw" style="background:#e0f2fe"></div><div class="jm-s5-sw" style="background:#0c4a6e"></div><div class="jm-s5-sw" style="background:#fff"></div></div>
+                  <div class="jm-s5-info"><div class="jm-s5-name">Ocean</div><div class="jm-s5-hint">Bleu ciel, confiance, sérénité</div></div>
+                </div>
+                <div class="jm-s5-row">
+                  <div class="jm-s5-swatches"><div class="jm-s5-sw" style="background:#f59e0b"></div><div class="jm-s5-sw" style="background:#fef3c7"></div><div class="jm-s5-sw" style="background:#78350f"></div><div class="jm-s5-sw" style="background:#fff"></div></div>
+                  <div class="jm-s5-info"><div class="jm-s5-name">Warm terra</div><div class="jm-s5-hint">Ambre, chaleureux, humain</div></div>
+                </div>
+              </div>
+              <div class="jm-s5-section">Typographie</div>
+              <div class="jm-s5-typo">
+                <div class="jm-s5-tf sel">
+                  <div class="jm-s5-tf-big">Du calme et de l'air.</div>
+                  <div class="jm-s5-tf-sm">Gérez vos biens sereinement.</div>
+                  <div class="jm-s5-tf-meta">DM Sans — Moderne</div>
+                </div>
+                <div class="jm-s5-tf">
+                  <div class="jm-s5-tf-big" style="font-style:italic">Élégant & précis.</div>
+                  <div class="jm-s5-tf-sm">Une comptabilité rigoureuse.</div>
+                  <div class="jm-s5-tf-meta">Playfair — Éditorial</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 6: Récapitulatif -->
+            <div class="jm-slide jm-s6" data-jslide="6" id="jm6Slide">
+              <!-- Cursor pointer for s6 -->
+              <svg class="jm-s6-ptr" id="jm6Ptr" viewBox="0 0 20 22" fill="white" stroke="#1a1a1a" stroke-width="1.4" stroke-linejoin="round">
+                <path d="M3.5 1.5L17 11L11 12.5L8.5 19.5L3.5 1.5Z"/>
+              </svg>
+              <div>
+                <div class="jm-s6-step">RÉCAPITULATIF</div>
+                <div class="jm-s6-title">Voici ce qu'on va construire.</div>
+                <div class="jm-s6-cat">PROJET</div>
+                <div class="jm-s6-row"><span class="jm-s6-k">Nom</span><span class="jm-s6-v">LMNP Pro</span></div>
+                <div class="jm-s6-row"><span class="jm-s6-k">Régime fiscal</span><span class="jm-s6-v">Réel simplifié</span></div>
+                <div class="jm-s6-cat">DESIGN</div>
+                <div class="jm-s6-row"><span class="jm-s6-k">Palette</span><span class="jm-s6-v">Emerald calm</span></div>
+                <div class="jm-s6-row"><span class="jm-s6-k">Typographie</span><span class="jm-s6-v">DM Sans</span></div>
+                <div class="jm-s6-row"><span class="jm-s6-k">Ton</span><span class="jm-s6-v">Sobre & efficace</span></div>
+                <div class="jm-s6-cat">CONTENU — 5 ÉCRANS</div>
+                <div class="jm-s6-screens">
+                  <div class="jm-s6-screen">Dashboard</div>
+                  <div class="jm-s6-screen">Revenus</div>
+                  <div class="jm-s6-screen">Charges</div>
+                  <div class="jm-s6-screen">Déclaration</div>
+                  <div class="jm-s6-screen">Biens</div>
+                </div>
+              </div>
+              <div class="jm-s6-right">
+                <div class="jm-s6-badge-row">
+                  <div class="jm-s6-badge">⚡ ~3 min</div>
+                  <div class="jm-s6-badge">5 écrans</div>
+                  <div class="jm-s6-badge">Auth incluse</div>
+                </div>
+                <div class="jm-s6-q">Tout est prêt.</div>
+                <div class="jm-s6-a">Compile42 génère ton app React complète, fonctionnelle et déployable — sans une seule ligne de code de ta part.</div>
+                <div class="jm-s6-gen" id="jm6Gen">▶ Générer mon app</div>
+                <div class="jm-s6-note">✓ Modifiable à tout moment après génération</div>
+              </div>
+            </div>
+
+            <!-- Slide 7: Futuristic LMNP App Generated -->
+            <div class="jm-slide jm-s7" data-jslide="7">
+              <div class="jm-s7-grid-ov"></div>
+              <!-- App top nav -->
+              <div class="jm-s7-nav">
+                <div class="jm-s7-logo">LMNP<span>pro</span></div>
+                <div class="jm-s7-navlinks">
+                  <span class="jm-s7-navlink act">Dashboard</span>
+                  <span class="jm-s7-navlink">Revenus</span>
+                  <span class="jm-s7-navlink">Charges</span>
+                  <span class="jm-s7-navlink">Déclaration</span>
+                </div>
+                <div class="jm-s7-badge">Made with Compile42</div>
+              </div>
+              <!-- KPI cards -->
+              <div class="jm-s7-kpis">
+                <div class="jm-s7-kpi">
+                  <div class="jm-s7-kpi-label">Revenus annuels</div>
+                  <div class="jm-s7-kpi-num"><div class="jm-s7-kpi-val" data-target="28400">0</div><div class="jm-s7-kpi-unit"> €</div></div>
+                  <div class="jm-s7-kpi-delta">▲ 12.4% vs N-1</div>
+                </div>
+                <div class="jm-s7-kpi kpi-glow">
+                  <div class="jm-s7-kpi-label">Résultat fiscal</div>
+                  <div class="jm-s7-kpi-num"><div class="jm-s7-kpi-val" data-target="8750">0</div><div class="jm-s7-kpi-unit"> €</div></div>
+                  <div class="jm-s7-kpi-delta">▲ 5.1% vs N-1</div>
+                </div>
+                <div class="jm-s7-kpi">
+                  <div class="jm-s7-kpi-label">Taux d'occupation</div>
+                  <div class="jm-s7-kpi-num"><div class="jm-s7-kpi-val" data-target="94">0</div><div class="jm-s7-kpi-unit"> %</div></div>
+                  <div class="jm-s7-kpi-delta">▲ 3.2%</div>
+                </div>
+                <div class="jm-s7-kpi">
+                  <div class="jm-s7-kpi-label">Biens gérés</div>
+                  <div class="jm-s7-kpi-num"><div class="jm-s7-kpi-val" data-target="3">0</div><div class="jm-s7-kpi-unit"></div></div>
+                  <div class="jm-s7-kpi-delta">appartements</div>
+                </div>
+              </div>
+              <!-- Bottom row -->
+              <div class="jm-s7-bottom">
+                <div class="jm-s7-chart-box">
+                  <div class="jm-s7-chart-title">Revenus mensuels 2026</div>
+                  <div class="jm-s7-bars" id="jm7Bars">
+                    <div class="jm-s7-bar" style="--h:62%"><div class="jm-s7-bar-fill"></div><span>Jan</span></div>
+                    <div class="jm-s7-bar" style="--h:78%"><div class="jm-s7-bar-fill"></div><span>Fév</span></div>
+                    <div class="jm-s7-bar" style="--h:71%"><div class="jm-s7-bar-fill"></div><span>Mar</span></div>
+                    <div class="jm-s7-bar" style="--h:85%"><div class="jm-s7-bar-fill"></div><span>Avr</span></div>
+                    <div class="jm-s7-bar" style="--h:90%"><div class="jm-s7-bar-fill"></div><span>Mai</span></div>
+                    <div class="jm-s7-bar act" style="--h:100%"><div class="jm-s7-bar-fill"></div><span>Juin</span></div>
+                  </div>
+                </div>
+                <div class="jm-s7-txns">
+                  <div class="jm-s7-txns-title">Transactions récentes</div>
+                  <div class="jm-s7-txn">
+                    <div class="jm-s7-txn-icon">🏠</div>
+                    <div class="jm-s7-txn-info"><div class="jm-s7-txn-name">Loyer Appt. A</div><div class="jm-s7-txn-date">28 mai 2026</div></div>
+                    <div class="jm-s7-txn-amt pos">+1 450 €</div>
+                  </div>
+                  <div class="jm-s7-txn">
+                    <div class="jm-s7-txn-icon">🔧</div>
+                    <div class="jm-s7-txn-info"><div class="jm-s7-txn-name">Charge copropriété</div><div class="jm-s7-txn-date">22 mai 2026</div></div>
+                    <div class="jm-s7-txn-amt neg">−285 €</div>
+                  </div>
+                  <div class="jm-s7-txn">
+                    <div class="jm-s7-txn-icon">🏠</div>
+                    <div class="jm-s7-txn-info"><div class="jm-s7-txn-name">Loyer Appt. B</div><div class="jm-s7-txn-date">15 mai 2026</div></div>
+                    <div class="jm-s7-txn-amt pos">+890 €</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="pricing-head">
+    <div class="pricing-eyebrow">Pricing</div>
+    <h2 class="pricing-title">Build without limits,<br>pay as your project grows</h2>
+    <p class="pricing-sub">Start for free. Move up to a higher plan when your project takes off. Cancel anytime.</p>
+    <div class="pricing-toggle">
+      <button data-mode="m">Monthly</button>
+      <button class="act" data-mode="a">Annual<span class="pricing-save">−20%</span></button>
+    </div>
+  </div>
+
+  <div class="pricing-grid">
+
+    <div class="plan">
+      <div class="plan-name">Free</div>
+      <div class="plan-desc">Get started with essential features at no cost</div>
+      <div class="plan-price"><span class="plan-price-cur">$</span><span class="plan-price-n">0</span><span class="plan-price-per">/ month</span></div>
+      <div class="plan-price-note">No credit card required</div>
+      <a class="plan-cta" href="#">Get started</a>
+      <div class="plan-feats-h">Included</div>
+      <ul class="plan-feats">
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>10 free monthly credits</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Unlock all core platform features</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Build elegant Web and Mobile experiences</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Instant access to the most advanced models</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>One-click LLM integration</li>
+      </ul>
+    </div>
+
+    <div class="plan featured">
+      <div class="plan-badge">Populaire</div>
+      <div class="plan-name">Standard</div>
+      <div class="plan-desc">For creators ready to ship real products</div>
+      <div class="plan-price"><span class="plan-price-cur">$</span><span class="plan-price-n" data-m="21" data-a="17">17</span><span class="plan-price-per">/ month</span></div>
+      <div class="plan-price-note" data-m="Billed monthly" data-a="Save $36">Save $36</div>
+      <a class="plan-cta" href="#">Start Standard</a>
+      <div class="plan-feats-h">Everything in Free, plus:</div>
+      <ul class="plan-feats">
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Build web &amp; mobile apps</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Private project hosting</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>100 credits per month</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Purchase extra credits as needed</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>GitHub integration</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Fork tasks</li>
+      </ul>
+    </div>
+
+    <div class="plan">
+      <div class="plan-badge" style="background:linear-gradient(135deg,#0a0a0a,#1a1a1a);box-shadow:0 6px 16px rgba(0,0,0,0.25)">Best Value</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-desc">Built for serious creators and brands</div>
+      <div class="plan-price"><span class="plan-price-cur">$</span><span class="plan-price-n" data-m="209" data-a="167">167</span><span class="plan-price-per">/ month</span></div>
+      <div class="plan-price-note" data-m="Billed monthly, cancel anytime" data-a="Billed annually · Save $396">Billed annually · Save $396</div>
+      <a class="plan-cta" href="#" id="proCta" data-m="Start Pro" data-a="Go Pro Annual">Go Pro Annual</a>
+      <div class="plan-feats-h">Everything in Standard, plus:</div>
+      <ul class="plan-feats">
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>1M context window</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Ultra thinking</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>System Prompt Edit</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Create custom AI agents</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>High-performance computing</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>750 Monthly Credits</li>
+        <li><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Priority customer support</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="faq-inner">
+    <div class="faq-head">
+      <div class="faq-eyebrow">FAQ</div>
+      <h2 class="faq-title">Frequently asked questions</h2>
+      <p class="faq-sub">Everything you need to know before turning your idea into an app.</p>
+    </div>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>What is Compile42?</span>
+          <span class="faq-icon"><span class="fiq-h"></span><span class="fiq-v"></span></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner"><div class="faq-a-text">Compile42 is an AI-powered app generation platform. Describe your idea in plain English and Compile42 produces a complete web app (React, TypeScript, Tailwind) ready to deploy in one click, with authentication, database and hosting already wired up.</div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>Do I need to know how to code to use Compile42?</span>
+          <span class="faq-icon"><span class="fiq-h"></span><span class="fiq-v"></span></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner"><div class="faq-a-text">No. Compile42 is built for creators, designers and founders who want to bring an idea to life without touching code. If you are a developer, you still get full access to the source code to customize it or push it to GitHub.</div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>What technologies power the generated apps?</span>
+          <span class="faq-icon"><span class="fiq-h"></span><span class="fiq-v"></span></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner"><div class="faq-a-text">A modern, battle-tested stack: React 18, TypeScript and Tailwind CSS on the front-end, Vite for real-time HMR previews, and Supabase for authentication, database and storage. All apps are deployed on Compile42's European infrastructure.</div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>Can I export the source code of my app?</span>
+          <span class="faq-icon"><span class="fiq-h"></span><span class="fiq-v"></span></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner"><div class="faq-a-text">Yes. Starting on the Pro plan, you can export the full source of your project at any time or push it directly to your own GitHub repository through the native integration. You are never locked in.</div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>How many apps can I build on the Free plan?</span>
+          <span class="faq-icon"><span class="fiq-h"></span><span class="fiq-v"></span></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner"><div class="faq-a-text">The Free plan includes 10 free monthly credits, enough to experiment and build several small apps. If you need more, the Standard plan includes 100 monthly credits and lets you purchase additional credits on demand. The Pro plan goes further with 750 monthly credits.</div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>Can I connect a custom domain?</span>
+          <span class="faq-icon"><span class="fiq-h"></span><span class="fiq-v"></span></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner"><div class="faq-a-text">Yes, starting on the Pro plan. You can point your own domain to Compile42 in a few minutes from the app settings, with no complex DNS configuration to handle yourself. SSL certificates are issued automatically.</div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>How does subscription cancellation work?</span>
+          <span class="faq-icon"><span class="fiq-h"></span><span class="fiq-v"></span></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner"><div class="faq-a-text">Your subscription can be cancelled at any time from your dashboard, with no commitment and no hidden fees. You keep access until the end of the period already paid for, and your projects remain exportable even after cancellation.</div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>Is my data &mdash; and my users' data &mdash; secure?</span>
+          <span class="faq-icon"><span class="fiq-h"></span><span class="fiq-v"></span></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner"><div class="faq-a-text">Compile42 hosts its infrastructure in Europe (Paris) on GDPR-compliant providers. All traffic is TLS-encrypted, databases are isolated per project and backups are encrypted at rest.</div></div></div>
+      </div>
+
+    </div>
+
+    <div class="faq-cta">
+      <div class="faq-cta-t">Still have a question?</div>
+      <div class="faq-cta-s">Our team usually replies within a few hours.</div>
+      <a href="#" class="faq-cta-btn">Contact support<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-card">
+    <div class="footer-grid">
+
+      <div class="footer-brand">
+        <a href="#" class="footer-brand-logo">
+          <img src="compile42-logo.svg" alt="Compile42">
+          <span>Compile42</span>
+        </a>
+        <div class="footer-lang">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 3c-2.5 3-4 5.5-4 9s1.5 6 4 9M12 3c2.5 3 4 5.5 4 9s-1.5 6-4 9M3 12h18"/></svg>
+          EN
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h3>Product</h3>
+        <a href="#">Build</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#">Integrations</a>
+      </div>
+
+      <div class="footer-col">
+        <h3>Resources</h3>
+        <a href="docs.html">Docs</a>
+        <a href="#">Templates</a>
+        <a href="#">Support</a>
+      </div>
+
+      <div class="footer-col">
+        <h3>Help</h3>
+        <a href="#">Help Section</a>
+        <a href="#">Terms and Conditions</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+
+      <div class="footer-col">
+        <h3>Community</h3>
+        <a href="#">Discord</a>
+        <a href="#">X / Twitter</a>
+        <a href="#">YouTube</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">GitHub</a>
+        <a href="#">Code of conduct</a>
+      </div>
+
+    </div>
+
+    <div class="footer-base">
+      <span class="footer-meta">© 2026 Compile42. All rights reserved.</span>
+      <div class="footer-legal">
+        <a href="#">Privacy policy</a>
+        <a href="#">Terms</a>
+        <a href="#">Cookie settings</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const typingPhrases = [
+  "Ask Compile42 to create a streaming platform like Wetflix...",
+  "Ask Compile42 to create a workout tracker app...",
+  "Ask Compile42 to create a travel booking app for Hurghada...",
+  "Ask Compile42 to create an accounting app..."
+]
+let phraseIndex = 0, charIndex = 0, deleting = false
+const placeholder = document.getElementById('placeholder')
+function typeLoop() {
+  const phrase = typingPhrases[phraseIndex]
+  if (!deleting) {
+    placeholder.innerHTML = phrase.slice(0, ++charIndex) + '<span class="typing-cursor"></span>'
+    if (charIndex === phrase.length) { deleting = true; setTimeout(typeLoop, 2000); return }
+  } else {
+    placeholder.innerHTML = phrase.slice(0, --charIndex) + '<span class="typing-cursor"></span>'
+    if (charIndex === 0) { deleting = false; phraseIndex = (phraseIndex + 1) % typingPhrases.length }
+  }
+  setTimeout(typeLoop, deleting ? 35 : 65)
+}
+typeLoop()
+
+const promptInput = document.getElementById('promptInput')
+const btnSend = document.getElementById('btnSend')
+promptInput.addEventListener('input', () => {
+  const hasValue = promptInput.value.trim().length > 0
+  placeholder.style.display = hasValue ? 'none' : ''
+  btnSend.classList.toggle('active', hasValue)
+  promptInput.style.height = 'auto'
+  promptInput.style.height = Math.min(promptInput.scrollHeight, 200) + 'px'
+})
+
+const track = document.getElementById('track')
+const slides = track.querySelectorAll('.slide')
+const dotsContainer = document.getElementById('dots')
+const totalSlides = slides.length
+let currentSlide = 0
+let autoplayPaused = false
+let autoplayTimer = null
+let autoplayStart = 0
+let autoplayElapsed = 0
+const SLIDE_MS = 5000
+
+slides.forEach((_, i) => {
+  const dot = document.createElement('button')
+  dot.className = 'nav-dot' + (i === 0 ? ' active' : '')
+  const fill = document.createElement('span')
+  fill.className = 'dot-fill'
+  dot.appendChild(fill)
+  dot.addEventListener('click', () => goTo(i))
+  dotsContainer.appendChild(dot)
+})
+
+// Init first slide visible immediately
+slides[0].classList.add('is-active')
+
+function scheduleNext(delay) {
+  clearTimeout(autoplayTimer)
+  autoplayStart = Date.now()
+  autoplayTimer = setTimeout(next, Math.max(delay, 0))
+}
+
+function restartDotProgress() {
+  autoplayElapsed = 0
+  dotsContainer.querySelectorAll('.dot-fill').forEach(f => {
+    f.classList.remove('filling')
+    void f.offsetWidth
+  })
+  const activeFill = dotsContainer.querySelector('.nav-dot.active .dot-fill')
+  if (activeFill) {
+    void activeFill.offsetHeight
+    activeFill.classList.add('filling')
+  }
+  if (!autoplayPaused) scheduleNext(SLIDE_MS)
+}
+
+function goTo(idx) {
+  const prev = currentSlide
+  currentSlide = (idx + totalSlides) % totalSlides
+  if (prev === currentSlide) return
+
+  const prevSlide = slides[prev]
+  const nextSlide = slides[currentSlide]
+
+  // Blur out the leaving slide
+  prevSlide.classList.remove('is-active')
+  prevSlide.classList.add('is-leaving')
+  prevSlide.addEventListener('transitionend', () => prevSlide.classList.remove('is-leaving'), { once: true })
+
+  // Unblur the entering slide
+  nextSlide.classList.add('is-active')
+
+  dotsContainer.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide))
+  restartDotProgress()
+}
+function next() { goTo(currentSlide + 1) }
+function prev() { goTo(currentSlide - 1) }
+
+document.getElementById('nextBtn').addEventListener('click', next)
+document.getElementById('prevBtn').addEventListener('click', prev)
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') prev()
+  if (e.key === 'ArrowRight') next()
+})
+
+const wrapper = document.querySelector('.carousel-wrapper')
+wrapper.addEventListener('mouseenter', () => {
+  autoplayPaused = true
+  clearTimeout(autoplayTimer)
+  autoplayElapsed += Date.now() - autoplayStart
+  dotsContainer.querySelectorAll('.dot-fill.filling').forEach(f => f.style.animationPlayState = 'paused')
+})
+wrapper.addEventListener('mouseleave', () => {
+  autoplayPaused = false
+  const remaining = SLIDE_MS - autoplayElapsed
+  dotsContainer.querySelectorAll('.dot-fill.filling').forEach(f => f.style.animationPlayState = 'running')
+  scheduleNext(remaining)
+})
+
+restartDotProgress()
+
+const rotator = document.getElementById('rotator')
+const rotatorWords = rotator.children.length
+let rotIdx = 0
+function rotateNext() {
+  rotIdx = (rotIdx + 1) % rotatorWords
+  rotator.style.transform = `translateY(-${rotIdx * 1.34}em)`
+}
+setInterval(rotateNext, 2200)
+
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    const p = c.getAttribute('data-prompt')
+    promptInput.value = p
+    placeholder.style.display = 'none'
+    btnSend.classList.add('active')
+    promptInput.focus()
+    promptInput.style.height = 'auto'
+    promptInput.style.height = Math.min(promptInput.scrollHeight, 200) + 'px'
+  })
+})
+
+const toggleBtns = document.querySelectorAll('.pricing-toggle button')
+const priceTargets = document.querySelectorAll('[data-m][data-a]')
+function applyPricingMode(mode) {
+  priceTargets.forEach(el => { el.textContent = el.dataset[mode] })
+}
+toggleBtns.forEach(b => b.addEventListener('click', () => {
+  toggleBtns.forEach(x => x.classList.remove('act'))
+  b.classList.add('act')
+  applyPricingMode(b.dataset.mode)
+}))
+
+const hamburger = document.getElementById('hamburger')
+const mobileMenu = document.getElementById('mobileMenu')
+const iconBurger = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>'
+const iconClose  = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>'
+hamburger.addEventListener('click', () => {
+  const open = mobileMenu.classList.toggle('open')
+  hamburger.innerHTML = open ? iconClose : iconBurger
+  hamburger.setAttribute('aria-expanded', String(open))
+})
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  mobileMenu.classList.remove('open')
+  hamburger.innerHTML = iconBurger
+  hamburger.setAttribute('aria-expanded', 'false')
+}))
+
+document.querySelectorAll('.faq-item').forEach(item => {
+  const btn = item.querySelector('.faq-q')
+  btn.addEventListener('click', () => {
+    const wasOpen = item.classList.contains('open')
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'))
+    if (!wasOpen) item.classList.add('open')
+  })
+})
+
+// Journey — 8 guided steps
+;(function(){
+  const steps   = document.querySelectorAll('.journey-step')
+  const slides  = document.querySelectorAll('.jm-slide')
+  const urlEl   = document.getElementById('jbUrl')
+  const urls    = [
+    'app.compile42.com — Nouveau projet',
+    'app.compile42.com — Étape 1 / 5',
+    'app.compile42.com — Étape 2 / 5',
+    'app.compile42.com — Étape 3 / 5',
+    'app.compile42.com — Étape 4 / 5',
+    'app.compile42.com — Étape 5 / 5',
+    'app.compile42.com — Récapitulatif',
+    'lmnppro.compile42.app — Dashboard',
+  ]
+  let current = 0, timer = null
+
+  // ── Slide 0 animation: typewriter + cursor click ──
+  const s0Phrase = 'Fais moi une application pour ma comptabilité en LMNP'
+  const s0Text   = document.getElementById('jm0Text')
+  const s0Ptr    = document.getElementById('jm0Ptr')
+  const s0Send   = document.getElementById('jm0Send')
+  const s0Slide  = document.getElementById('jm0Slide')
+  let s0Timers   = []
+
+  function s0Clear() {
+    s0Timers.forEach(clearTimeout)
+    s0Timers = []
+    if (s0Text) s0Text.innerHTML = ''
+    if (s0Ptr)  { s0Ptr.style.transition = 'none'; s0Ptr.style.opacity = '0' }
+    if (s0Send) s0Send.classList.remove('jm-clicked')
+  }
+
+  function s0Start() {
+    s0Clear()
+    let i = 0
+    function typeNext() {
+      if (!s0Text) return
+      i++
+      s0Text.innerHTML = s0Phrase.slice(0, i) + '<span class="jm-s0-tcursor"></span>'
+      if (i < s0Phrase.length) {
+        s0Timers.push(setTimeout(typeNext, 38))
+      } else {
+        s0Timers.push(setTimeout(s0MoveCursor, 420))
+      }
+    }
+    s0Timers.push(setTimeout(typeNext, 280))
+  }
+
+  function s0MoveCursor() {
+    if (!s0Ptr || !s0Send || !s0Slide) return
+    const slideR = s0Slide.getBoundingClientRect()
+    const btnR   = s0Send.getBoundingClientRect()
+    // Start position: left-center of text area
+    const sx = slideR.width * 0.28
+    const sy = slideR.height * 0.58
+    // End position: center of send button
+    const ex = btnR.left - slideR.left + btnR.width  * 0.5 - 10
+    const ey = btnR.top  - slideR.top  + btnR.height * 0.5 - 10
+
+    s0Ptr.style.transition = 'none'
+    s0Ptr.style.left = sx + 'px'
+    s0Ptr.style.top  = sy + 'px'
+    s0Ptr.style.opacity = '1'
+    // Force reflow before enabling transition
+    s0Ptr.getBoundingClientRect()
+    s0Ptr.style.transition = 'opacity .18s ease, left .42s cubic-bezier(.4,0,.15,1), top .42s cubic-bezier(.4,0,.15,1)'
+    s0Ptr.style.left = ex + 'px'
+    s0Ptr.style.top  = ey + 'px'
+
+    s0Timers.push(setTimeout(s0Click, 480))
+  }
+
+  function s0Click() {
+    if (!s0Send) return
+    s0Send.classList.add('jm-clicked')
+    s0Timers.push(setTimeout(() => {
+      s0Send.classList.remove('jm-clicked')
+      if (s0Text) s0Text.innerHTML = s0Phrase // remove blinking cursor
+      if (s0Ptr)  s0Ptr.style.opacity = '0'
+    }, 200))
+  }
+
+  // ── Slide 6 animation: cursor moves to "Générer" button and clicks ──
+  const s6Ptr   = document.getElementById('jm6Ptr')
+  const s6Gen   = document.getElementById('jm6Gen')
+  const s6Slide = document.getElementById('jm6Slide')
+  let s6Timers  = []
+
+  function s6Clear() {
+    s6Timers.forEach(clearTimeout); s6Timers = []
+    if (s6Ptr) { s6Ptr.style.transition = 'none'; s6Ptr.style.opacity = '0' }
+    if (s6Gen) s6Gen.classList.remove('jm-clicked')
+  }
+
+  function s6Start() {
+    s6Clear()
+    s6Timers.push(setTimeout(s6MoveCursor, 900))
+  }
+
+  function s6MoveCursor() {
+    if (!s6Ptr || !s6Gen || !s6Slide) return
+    const slideR = s6Slide.getBoundingClientRect()
+    const btnR   = s6Gen.getBoundingClientRect()
+    const sx = slideR.width * 0.12
+    const sy = slideR.height * 0.28
+    const ex = btnR.left - slideR.left + btnR.width  * 0.5 - 9
+    const ey = btnR.top  - slideR.top  + btnR.height * 0.5 - 9
+    s6Ptr.style.transition = 'none'
+    s6Ptr.style.left = sx + 'px'
+    s6Ptr.style.top  = sy + 'px'
+    s6Ptr.style.opacity = '1'
+    s6Ptr.getBoundingClientRect()
+    s6Ptr.style.transition = 'opacity .18s ease, left .42s cubic-bezier(.4,0,.15,1), top .42s cubic-bezier(.4,0,.15,1)'
+    s6Ptr.style.left = ex + 'px'
+    s6Ptr.style.top  = ey + 'px'
+    s6Timers.push(setTimeout(s6Click, 480))
+  }
+
+  function s6Click() {
+    if (!s6Gen) return
+    s6Gen.classList.add('jm-clicked')
+    s6Timers.push(setTimeout(() => {
+      s6Gen.classList.remove('jm-clicked')
+      if (s6Ptr) s6Ptr.style.opacity = '0'
+    }, 220))
+  }
+
+  // ── Slide 7 animation: number count-up + bar reveal ──
+  const s7ValEls = document.querySelectorAll('.jm-s7-kpi-val[data-target]')
+  const s7BarEls = document.querySelectorAll('#jm7Bars .jm-s7-bar')
+  let s7Timers   = []
+
+  function s7Clear() {
+    s7Timers.forEach(clearTimeout); s7Timers = []
+    s7ValEls.forEach(el => { el.textContent = '0' })
+    s7BarEls.forEach(b => b.classList.remove('revealed'))
+  }
+
+  function s7Start() {
+    s7Clear()
+    // Staggered bar reveals
+    s7Timers.push(setTimeout(() => {
+      s7BarEls.forEach((b, i) => {
+        s7Timers.push(setTimeout(() => b.classList.add('revealed'), i * 90))
+      })
+    }, 250))
+    // Count-up numbers
+    s7ValEls.forEach((el, j) => {
+      const target   = parseInt(el.dataset.target, 10)
+      const duration = 1100
+      const delay    = 350 + j * 80
+      s7Timers.push(setTimeout(() => {
+        const start = Date.now()
+        function step() {
+          const t = Math.min((Date.now() - start) / duration, 1)
+          const eased = 1 - Math.pow(1 - t, 3)
+          el.textContent = Math.round(target * eased).toLocaleString('fr-FR')
+          if (t < 1) s7Timers.push(setTimeout(step, 16))
+        }
+        step()
+      }, delay))
+    })
+  }
+
+  function goTo(idx) {
+    const prev = current
+    steps[current].classList.remove('active')
+    slides[current].classList.remove('active')
+    current = (idx + steps.length) % steps.length
+    steps[current].classList.add('active')
+    slides[current].classList.add('active')
+    if (urlEl) urlEl.textContent = urls[current]
+    if (current === 0) s0Start(); else if (prev === 0) s0Clear()
+    if (current === 6) s6Start(); else if (prev === 6) s6Clear()
+    if (current === 7) s7Start(); else if (prev === 7) s7Clear()
+  }
+
+  function start() { if (!timer) timer = setInterval(() => goTo(current + 1), 3800) }
+  function stop()  { if (timer) { clearInterval(timer); timer = null } }
+
+  steps.forEach((s, i) => s.addEventListener('click', () => { stop(); goTo(i); start() }))
+
+  const section = document.querySelector('.journey')
+  if (section) {
+    section.addEventListener('mouseenter', stop)
+    section.addEventListener('mouseleave', start)
+  }
+
+  goTo(0)
+  s0Start()
+  start()
+})()
+
+// ═══════════ Language switcher (translate like Shipper) ═══════════
+;(function(){
+  const LANGS = [
+    {code:'en', cc:'gb', name:'English'},
+    {code:'fr', cc:'fr', name:'Français'},
+    {code:'de', cc:'de', name:'Deutsch'},
+    {code:'es', cc:'es', name:'Español'},
+    {code:'it', cc:'it', name:'Italiano'},
+    {code:'pt', cc:'pt', name:'Português'},
+    {code:'nl', cc:'nl', name:'Nederlands'},
+    {code:'pl', cc:'pl', name:'Polski'},
+    {code:'ru', cc:'ru', name:'Русский'},
+    {code:'ar', cc:'sa', name:'العربية'},
+  ]
+  const I18N = {
+    en:{affiliates:'Affiliates',pricing:'Pricing',demo:'Playable Demo',login:'Login',cta:'Get Started',heroSub:'Create apps and websites by chatting with AI'},
+    fr:{affiliates:'Affiliés',pricing:'Tarifs',demo:'Démo interactive',login:'Connexion',cta:'Commencer',heroSub:"Créez des applications et des sites web en discutant avec l'IA"},
+    de:{affiliates:'Partnerprogramm',pricing:'Preise',demo:'Interaktive Demo',login:'Anmelden',cta:'Loslegen',heroSub:'Erstelle Apps und Websites im Gespräch mit der KI'},
+    es:{affiliates:'Afiliados',pricing:'Precios',demo:'Demo interactiva',login:'Iniciar sesión',cta:'Empezar',heroSub:'Crea aplicaciones y sitios web chateando con la IA'},
+    it:{affiliates:'Affiliati',pricing:'Prezzi',demo:'Demo interattiva',login:'Accedi',cta:'Inizia ora',heroSub:"Crea app e siti web chattando con l'IA"},
+    pt:{affiliates:'Afiliados',pricing:'Preços',demo:'Demo interativa',login:'Entrar',cta:'Começar',heroSub:'Crie aplicativos e sites conversando com a IA'},
+    nl:{affiliates:'Partners',pricing:'Prijzen',demo:'Interactieve demo',login:'Inloggen',cta:'Aan de slag',heroSub:'Maak apps en websites door te chatten met AI'},
+    pl:{affiliates:'Program partnerski',pricing:'Cennik',demo:'Interaktywne demo',login:'Zaloguj się',cta:'Zacznij teraz',heroSub:'Twórz aplikacje i strony, rozmawiając z AI'},
+    ru:{affiliates:'Партнёрам',pricing:'Цены',demo:'Интерактивное демо',login:'Войти',cta:'Начать',heroSub:'Создавайте приложения и сайты, общаясь с ИИ'},
+    ar:{affiliates:'الشركاء',pricing:'الأسعار',demo:'عرض تجريبي تفاعلي',login:'تسجيل الدخول',cta:'ابدأ الآن',heroSub:'أنشئ تطبيقات ومواقع ويب عبر الدردشة مع الذكاء الاصطناعي'},
+  }
+  const toggle = document.getElementById('langToggle')
+  const menu   = document.getElementById('langMenu')
+  const flag   = document.getElementById('langFlag')
+  const mlang  = document.getElementById('mobileLang')
+  if (!toggle || !menu || !flag) return
+
+  menu.innerHTML = LANGS.map(l =>
+    `<button class="nav-lang-item" data-code="${l.code}" role="menuitem"><img src="https://flagcdn.com/w40/${l.cc}.png" alt=""><span>${l.name}</span><svg class="nav-lang-check" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></button>`
+  ).join('')
+  if (mlang) mlang.innerHTML = LANGS.map(l =>
+    `<button data-code="${l.code}" title="${l.name}" aria-label="${l.name}"><img src="https://flagcdn.com/w40/${l.cc}.png" alt="${l.name}"></button>`
+  ).join('')
+
+  function applyLang(code){
+    const dict = I18N[code]; if (!dict) return
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.getAttribute('data-i18n')
+      if (dict[k] !== undefined) el.textContent = dict[k]
+    })
+    const meta = LANGS.find(l => l.code === code)
+    flag.src = `https://flagcdn.com/w40/${meta.cc}.png`
+    flag.alt = meta.name
+    document.documentElement.lang = code
+    document.documentElement.dir  = code === 'ar' ? 'rtl' : 'ltr'
+    menu.querySelectorAll('.nav-lang-item').forEach(i => i.classList.toggle('active', i.dataset.code === code))
+    if (mlang) mlang.querySelectorAll('button').forEach(i => i.classList.toggle('active', i.dataset.code === code))
+  }
+  function openMenu(){ menu.classList.add('open'); toggle.classList.add('open'); toggle.setAttribute('aria-expanded','true') }
+  function closeMenu(){ menu.classList.remove('open'); toggle.classList.remove('open'); toggle.setAttribute('aria-expanded','false') }
+
+  toggle.addEventListener('click', e => { e.stopPropagation(); menu.classList.contains('open') ? closeMenu() : openMenu() })
+  menu.addEventListener('click', e => { const b = e.target.closest('.nav-lang-item'); if (!b) return; applyLang(b.dataset.code); closeMenu() })
+  if (mlang) mlang.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; applyLang(b.dataset.code) })
+  document.addEventListener('click', e => { if (!e.target.closest('.nav-lang-wrap')) closeMenu() })
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu() })
+
+  applyLang('fr')
+})()
+</script>
+</body>
+</html>
