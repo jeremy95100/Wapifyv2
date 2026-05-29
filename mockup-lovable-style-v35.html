@@ -12,6 +12,37 @@
 html{scroll-behavior:smooth}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF7F2;color:#0a0a0a;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;min-height:100vh;overflow-x:hidden}
 
+/* ═══════════ AUTH MODAL (style Lovable, adapté Compile42) ═══════════ */
+.auth-overlay{position:fixed;inset:0;z-index:1000;background:rgba(5,7,11,0.62);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
+.auth-overlay.open{display:flex;animation:auth-fade .25s ease}
+@keyframes auth-fade{from{opacity:0}to{opacity:1}}
+.auth-modal{width:100%;max-width:432px;background:#0b0d12;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:28px 28px 24px;position:relative;box-shadow:0 40px 110px -30px rgba(0,0,0,0.85),0 0 0 1px rgba(16,185,129,0.06),0 0 80px -40px rgba(16,185,129,0.35);animation:auth-pop .3s cubic-bezier(.2,.7,.2,1);text-align:left}
+@keyframes auth-pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.auth-close{position:absolute;top:18px;right:18px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:rgba(255,255,255,0.45);cursor:pointer;transition:.15s}
+.auth-close:hover{background:rgba(255,255,255,0.06);color:#fff}
+.auth-close svg{width:17px;height:17px}
+.auth-logo{width:36px;height:36px;object-fit:contain;display:block;margin-bottom:20px;filter:drop-shadow(0 0 12px rgba(16,185,129,0.5))}
+.auth-eyebrow{font-size:15px;color:rgba(255,255,255,0.4);font-weight:500;letter-spacing:-0.01em}
+.auth-title{font-size:23px;font-weight:700;color:#fff;letter-spacing:-0.025em;margin-bottom:22px}
+.auth-btn{position:relative;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;margin-bottom:10px;background:#13161c;border:1px solid rgba(255,255,255,0.1);border-radius:11px;color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:.18s}
+.auth-btn:hover{border-color:rgba(16,185,129,0.55);background:#171b22;box-shadow:0 0 0 3px rgba(16,185,129,0.08)}
+.auth-btn svg{width:17px;height:17px;flex-shrink:0}
+.auth-badge{position:absolute;top:-9px;right:12px;font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#10b981,#059669);padding:2px 8px;border-radius:99px;letter-spacing:.02em;box-shadow:0 4px 12px -2px rgba(16,185,129,0.6)}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:rgba(255,255,255,0.28);font-size:11px;font-weight:700;letter-spacing:.1em}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08)}
+.auth-input{width:100%;padding:12px 14px;background:#13161c;border:1px solid rgba(255,255,255,0.1);border-radius:11px;color:#fff;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px;transition:.18s}
+.auth-input::placeholder{color:rgba(255,255,255,0.35)}
+.auth-input:focus{border-color:rgba(16,185,129,0.6);box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
+.auth-continue{width:100%;padding:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-family:inherit;font-size:14px;font-weight:700;border:none;border-radius:11px;cursor:pointer;transition:.2s;box-shadow:0 6px 20px -4px rgba(16,185,129,0.5)}
+.auth-continue:hover{transform:translateY(-1px);box-shadow:0 10px 28px -6px rgba(16,185,129,0.65)}
+.auth-terms{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.5;margin-top:16px}
+.auth-terms a{color:rgba(255,255,255,0.6);text-decoration:underline;text-underline-offset:2px}
+.auth-terms a:hover{color:#10b981}
+.auth-sso{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.07);font-size:12px;color:rgba(255,255,255,0.4)}
+.auth-sso svg{width:12px;height:12px}
+.auth-sso a{color:rgba(255,255,255,0.6);text-decoration:underline;text-underline-offset:2px}
+.auth-sso a:hover{color:#10b981}
+
 .bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0}
 .bg-glow::before{content:'';position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);width:1200px;height:1200px;background:radial-gradient(circle at center,rgba(16,185,129,0.10) 0%,rgba(5,150,105,0.05) 30%,transparent 70%);filter:blur(40px);animation:pulse 8s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1}50%{transform:translate(-50%,-50%) scale(1.15);opacity:.85}}
@@ -91,8 +122,8 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
 
 .showcase{position:relative;z-index:1;padding:8px 24px 40px;max-width:1400px;margin:0 auto}
 .carousel-wrapper{position:relative;margin-top:8px;border-radius:24px;overflow:hidden;background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(5,150,105,0.03));border:1px solid rgba(0,0,0,0.08);box-shadow:0 30px 80px -40px rgba(0,0,0,0.25)}
-.carousel-track{position:relative;min-height:560px}
-.slide{position:absolute;top:0;left:0;right:0;display:grid;grid-template-columns:1fr 280px;gap:32px;padding:48px 56px;align-items:center;background:var(--slide-bg);min-height:560px;opacity:0;filter:blur(10px);transform:scale(1.014);transition:opacity .65s ease,filter .65s ease,transform .65s ease;pointer-events:none;will-change:opacity,filter,transform}
+.carousel-track{position:relative;min-height:740px}
+.slide{position:absolute;top:0;left:0;right:0;display:grid;grid-template-columns:1fr 280px;gap:32px;padding:48px 56px;align-items:center;background:var(--slide-bg);min-height:740px;opacity:0;filter:blur(10px);transform:scale(1.014);transition:opacity .65s ease,filter .65s ease,transform .65s ease;pointer-events:none;will-change:opacity,filter,transform}
 .slide.is-active{opacity:1;filter:blur(0);transform:scale(1);pointer-events:auto;z-index:2}
 .slide.is-leaving{opacity:0;filter:blur(10px);transform:scale(.987);z-index:1;pointer-events:none}
 .loc-icon{display:inline-flex;align-items:center;vertical-align:middle;margin-right:3px;flex-shrink:0}
@@ -179,7 +210,7 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
 
 /* 2. WETFLIX */
 .slide-wet{--slide-bg:linear-gradient(135deg,#000 0%,#1a0a0a 100%)}
-.slide-wet .browser-content{height:480px}
+.slide-wet .browser-content{height:540px}
 .wet-web{background:#0a0a0a;height:100%;color:#fff;padding:0;position:relative;overflow:hidden}
 .wet-nav{display:flex;align-items:center;padding:10px 16px;background:linear-gradient(180deg,rgba(0,0,0,0.9),transparent);position:relative;z-index:3;gap:14px}
 .wet-logo{font-size:18px;font-weight:900;color:#e50914;letter-spacing:-0.04em;font-family:'Helvetica Neue','Arial Black',sans-serif;text-shadow:0 2px 6px rgba(229,9,20,0.35);flex-shrink:0;font-style:italic}
@@ -208,8 +239,8 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
 .wet-hero-btns{display:flex;gap:6px}
 .wet-play{background:#fff;color:#000;padding:5px 12px;border-radius:4px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px}
 .wet-info{background:rgba(255,255,255,0.2);color:#fff;padding:5px 12px;border-radius:4px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px)}
-.wet-row{padding:0 16px;margin-top:8px}
-.wet-row-title{font-size:11px;font-weight:700;margin-bottom:6px}
+.wet-row{padding:0 16px;margin-top:16px}
+.wet-row-title{font-size:11px;font-weight:700;margin-bottom:9px}
 .wet-row-items{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .wet-card{display:flex;flex-direction:column;gap:4px;cursor:pointer;transition:.2s}
 .wet-card:hover{transform:translateY(-3px)}
@@ -247,6 +278,9 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
 /* 3. SPORTMUSCU */
 .slide-sport{--slide-bg:linear-gradient(135deg,#7c2d12 0%,#1a0808 100%)}
 .slide-sport .browser-content{height:480px}
+.slide-sport .slide-stat{margin-bottom:10px}
+.slide-sport .browser-frame{margin-top:100px}
+.slide-sport .phone-wrapper{margin-top:100px}
 .sp-web{background:#0d0d0d;height:100%;color:#fff;padding:14px}
 .sp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .sp-logo{font-size:14px;font-weight:900;color:#10b981;letter-spacing:-0.02em}
@@ -283,7 +317,8 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
 .sp-mob-st{background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;text-align:center}
 .sp-mob-st-n{font-size:12px;font-weight:800;color:#10b981}
 .sp-mob-st-l{font-size:8px;color:rgba(255,255,255,0.5);margin-top:2px}
-.sp-mob-list{padding:14px 14px 0}
+.sp-mob-list{padding:14px 14px 26px}
+.slide-sport .phone-content{height:500px}
 .sp-mob-lt{font-size:11px;font-weight:700;margin-bottom:8px}
 .sp-mob-ex{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
 .sp-mob-ex-i{width:36px;height:36px;border-radius:8px;background-size:cover;background-position:center;flex-shrink:0}
@@ -294,7 +329,7 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
 /* 4. HURGHADA DREAM (travel) */
 .slide-hurghada{--slide-bg:linear-gradient(135deg,#0e7490 0%,#0c4a6e 100%)}
 .slide-hurghada .browser-content{height:500px}
-.slide-hurghada .phone-content{height:520px}
+.slide-hurghada .phone-content{height:560px}
 .slide-hurghada .slide-stat{margin-bottom:14px}
 .slide-hurghada .slide-sub{margin-bottom:6px}
 .slide-hurghada .browser-frame{margin-top:90px}
@@ -337,7 +372,7 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
 .hg-mob-s-l{font-size:8px;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:2px}
 .hg-mob-s-v{font-size:11px;font-weight:700;margin-bottom:6px}
 .hg-mob-s-btn{background:#10b981;color:#fff;width:100%;padding:8px;border-radius:8px;font-size:10px;font-weight:700;text-align:center}
-.hg-mob-list{padding:12px 14px}
+.hg-mob-list{padding:12px 14px 26px}
 .hg-mob-lh{font-size:11px;font-weight:700;margin-bottom:8px}
 .hg-mob-card{display:flex;gap:10px;padding:8px;background:#f8fafc;border-radius:10px;margin-bottom:6px;align-items:center}
 .hg-mob-photo{width:50px;height:50px;border-radius:8px;position:relative;overflow:hidden;flex-shrink:0;background-size:cover;background-position:center}
@@ -782,32 +817,31 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
   <div class="nav-left">
     <a href="#" class="logo"><img src="compile42-logo.svg" class="logo-svg" alt="Compile42"><span class="logo-name">Compile42</span></a>
     <div class="nav-links">
-      <a href="#" data-i18n="affiliates">Affiliates</a><a href="#pricing" data-i18n="pricing">Pricing</a>
+      <a href="integrations.html" data-i18n="integrations">Integrations</a><a href="#" data-i18n="affiliates">Affiliates</a><a href="#pricing" data-i18n="pricing">Pricing</a>
     </div>
   </div>
   <div class="nav-right">
     <div class="nav-lang-wrap">
       <button class="nav-lang" id="langToggle" aria-haspopup="true" aria-expanded="false" aria-label="Change language">
-        <img class="nav-lang-flag" id="langFlag" src="https://flagcdn.com/w40/fr.png" alt="">
+        <img class="nav-lang-flag" id="langFlag" src="https://flagcdn.com/w40/gb.png" alt="">
         <svg class="nav-chev" fill="none" stroke="#0a0a0a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
       </button>
       <div class="nav-lang-menu" id="langMenu" role="menu"></div>
     </div>
     <a href="#" class="nav-login" data-i18n="demo">Playable Demo</a>
-    <a href="#" class="nav-login" data-i18n="login">Login</a>
-    <a href="#" class="btn-getstarted" data-i18n="cta">Get Started</a>
+    <a href="#" class="btn-getstarted js-auth" data-i18n="cta">Get Started</a>
     <button class="nav-hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
   </div>
 </nav>
 <div class="mobile-menu" id="mobileMenu" role="navigation">
+  <a href="integrations.html" data-i18n="integrations">Integrations</a>
   <a href="#" data-i18n="affiliates">Affiliates</a>
   <a href="#pricing" data-i18n="pricing">Pricing</a>
   <a href="#" data-i18n="demo">Playable Demo</a>
   <div class="mobile-menu-sep"></div>
-  <a href="#" data-i18n="login">Login</a>
-  <a href="#" class="btn-getstarted" data-i18n="cta">Get Started</a>
+  <a href="#" class="btn-getstarted js-auth" data-i18n="cta">Get Started</a>
   <div class="mobile-menu-sep"></div>
   <div class="mobile-lang" id="mobileLang"></div>
 </div>
@@ -877,21 +911,21 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
               <div class="wet-row">
                 <div class="wet-row-title">🔥 Top 10 cette semaine</div>
                 <div class="wet-row-items">
-                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg')"><div class="wet-card-rank">#1</div></div><div class="wet-card-label">Squid Game</div><div class="wet-card-meta">Saison 3 · Thriller</div></div>
-                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/49WJfeN0moxb9IPfGn8AIqMGskD.jpg')"><div class="wet-card-rank">#2</div></div><div class="wet-card-label">Stranger Things</div><div class="wet-card-meta">Saison 5 · Sci-Fi</div></div>
-                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/5UaYsGZOFhjFDwQh6GuLjjA1WlF.jpg')"><div class="wet-card-rank">#3</div></div><div class="wet-card-label">Black Mirror</div><div class="wet-card-meta">Série · Dystopie</div></div>
-                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/or06FN3Dka5tukK1e9sl16pB3iy.jpg')"><div class="wet-card-rank">#4</div></div><div class="wet-card-label">Avengers Endgame</div><div class="wet-card-meta">Film · Action</div></div>
-                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/9PFonBhy4cQy7Jz20NpMygczOkv.jpg')"><div class="wet-card-rank">#5</div></div><div class="wet-card-label">Wednesday</div><div class="wet-card-meta">Série · Comédie</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w500/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg')"><div class="wet-card-rank">#1</div></div><div class="wet-card-label">Squid Game</div><div class="wet-card-meta">Saison 3 · Thriller</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg')"><div class="wet-card-rank">#2</div></div><div class="wet-card-label">Stranger Things</div><div class="wet-card-meta">Saison 5 · Sci-Fi</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w500/5UaYsGZOFhjFDwQh6GuLjjA1WlF.jpg')"><div class="wet-card-rank">#3</div></div><div class="wet-card-label">Black Mirror</div><div class="wet-card-meta">Série · Dystopie</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg')"><div class="wet-card-rank">#4</div></div><div class="wet-card-label">Avengers Endgame</div><div class="wet-card-meta">Film · Action</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg')"><div class="wet-card-rank">#5</div></div><div class="wet-card-label">Wednesday</div><div class="wet-card-meta">Série · Comédie</div></div>
                 </div>
               </div>
-              <div class="wet-row" style="margin-top:8px">
+              <div class="wet-row" style="margin-top:18px">
                 <div class="wet-row-title">🆕 Nouveautés Wetflix</div>
                 <div class="wet-row-items">
-                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Casa de Papel</div><div class="wet-card-meta">Série · Thriller</div></div>
-                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/cZ0d3rtvXPVvuiX22sP79K3Hmjz.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">The Witcher</div><div class="wet-card-meta">Série · Fantastique</div></div>
-                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Inception</div><div class="wet-card-meta">Film · Sci-Fi</div></div>
-                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Mandalorian</div><div class="wet-card-meta">Série · Sci-Fi</div></div>
-                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w342/ggFHVNu6YYI5L9pCfOacjizRGt.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Breaking Bad</div><div class="wet-card-meta">Série · Drame</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Casa de Papel</div><div class="wet-card-meta">Série · Thriller</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w500/cZ0d3rtvXPVvuiX22sP79K3Hmjz.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">The Witcher</div><div class="wet-card-meta">Série · Fantastique</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Inception</div><div class="wet-card-meta">Film · Sci-Fi</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w500/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Mandalorian</div><div class="wet-card-meta">Série · Sci-Fi</div></div>
+                  <div class="wet-card"><div class="wet-card-img" style="background-image:url('https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg')"><div class="wet-card-rank">NEW</div></div><div class="wet-card-label">Breaking Bad</div><div class="wet-card-meta">Série · Drame</div></div>
                 </div>
               </div>
             </div>
@@ -924,15 +958,15 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
               <div class="wet-mob-list">
                 <div class="wet-mob-lt">🔥 Tendances</div>
                 <div class="wet-mob-cards">
-                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg')"><div class="wet-mob-card-t">Squid Game</div></div>
-                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/49WJfeN0moxb9IPfGn8AIqMGskD.jpg')"><div class="wet-mob-card-t">Stranger Things</div></div>
-                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/5UaYsGZOFhjFDwQh6GuLjjA1WlF.jpg')"><div class="wet-mob-card-t">Black Mirror</div></div>
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w500/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg')"><div class="wet-mob-card-t">Squid Game</div></div>
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg')"><div class="wet-mob-card-t">Stranger Things</div></div>
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w500/5UaYsGZOFhjFDwQh6GuLjjA1WlF.jpg')"><div class="wet-mob-card-t">Black Mirror</div></div>
                 </div>
                 <div class="wet-mob-lt" style="margin-top:10px">🆕 Nouveautés</div>
                 <div class="wet-mob-cards">
-                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg')"><div class="wet-mob-card-t">Casa de Papel</div></div>
-                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/or06FN3Dka5tukK1e9sl16pB3iy.jpg')"><div class="wet-mob-card-t">Avengers</div></div>
-                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w342/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg')"><div class="wet-mob-card-t">Mandalorian</div></div>
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg')"><div class="wet-mob-card-t">Casa de Papel</div></div>
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg')"><div class="wet-mob-card-t">Avengers</div></div>
+                  <div class="wet-mob-card" style="background-image:url('https://image.tmdb.org/t/p/w500/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg')"><div class="wet-mob-card-t">Mandalorian</div></div>
                 </div>
               </div>
             </div>
@@ -968,10 +1002,10 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
                 <div class="sp-stat"><div class="sp-stat-n">4/5</div><div class="sp-stat-l">Séances</div></div>
               </div>
               <div class="sp-list-l">Exercices du jour</div>
-              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Développé couché</div><div class="sp-ex-s">4 séries · 8 reps</div></div><div class="sp-ex-r">80 kg</div></div>
-              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Dips lestés</div><div class="sp-ex-s">3 séries · 10 reps</div></div><div class="sp-ex-r">+15 kg</div></div>
-              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Triceps poulie</div><div class="sp-ex-s">4 séries · 12 reps</div></div><div class="sp-ex-r">35 kg</div></div>
-              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1517344884509-a0c97ec11bcc?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Écarté couché</div><div class="sp-ex-s">3 séries · 12 reps</div></div><div class="sp-ex-r">22 kg</div></div>
+              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=85&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Développé couché</div><div class="sp-ex-s">4 séries · 8 reps</div></div><div class="sp-ex-r">80 kg</div></div>
+              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=400&q=85&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Dips lestés</div><div class="sp-ex-s">3 séries · 10 reps</div></div><div class="sp-ex-r">+15 kg</div></div>
+              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&q=85&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Triceps poulie</div><div class="sp-ex-s">4 séries · 12 reps</div></div><div class="sp-ex-r">35 kg</div></div>
+              <div class="sp-ex"><div class="sp-ex-i" style="background-image:url('https://images.unsplash.com/photo-1517344884509-a0c97ec11bcc?w=400&q=85&auto=format&fit=crop')"></div><div class="sp-ex-info"><div class="sp-ex-n">Écarté couché</div><div class="sp-ex-s">3 séries · 12 reps</div></div><div class="sp-ex-r">22 kg</div></div>
             </div>
           </div>
         </div>
@@ -997,9 +1031,9 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
               </div>
               <div class="sp-mob-list">
                 <div class="sp-mob-lt">Aujourd'hui</div>
-                <div class="sp-mob-ex"><div class="sp-mob-ex-i" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-mob-ex-info"><div class="sp-mob-ex-n">Développé couché</div><div class="sp-mob-ex-s">4×8 · 80 kg</div></div></div>
-                <div class="sp-mob-ex"><div class="sp-mob-ex-i" style="background-image:url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-mob-ex-info"><div class="sp-mob-ex-n">Dips lestés</div><div class="sp-mob-ex-s">3×10 · +15 kg</div></div></div>
-                <div class="sp-mob-ex"><div class="sp-mob-ex-i" style="background-image:url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=200&q=80&auto=format&fit=crop')"></div><div class="sp-mob-ex-info"><div class="sp-mob-ex-n">Triceps poulie</div><div class="sp-mob-ex-s">4×12 · 35 kg</div></div></div>
+                <div class="sp-mob-ex"><div class="sp-mob-ex-i" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=85&auto=format&fit=crop')"></div><div class="sp-mob-ex-info"><div class="sp-mob-ex-n">Développé couché</div><div class="sp-mob-ex-s">4×8 · 80 kg</div></div></div>
+                <div class="sp-mob-ex"><div class="sp-mob-ex-i" style="background-image:url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=400&q=85&auto=format&fit=crop')"></div><div class="sp-mob-ex-info"><div class="sp-mob-ex-n">Dips lestés</div><div class="sp-mob-ex-s">3×10 · +15 kg</div></div></div>
+                <div class="sp-mob-ex"><div class="sp-mob-ex-i" style="background-image:url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&q=85&auto=format&fit=crop')"></div><div class="sp-mob-ex-info"><div class="sp-mob-ex-n">Triceps poulie</div><div class="sp-mob-ex-s">4×12 · 35 kg</div></div></div>
               </div>
             </div>
           </div></div>
@@ -1084,10 +1118,10 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
               </div>
               <div class="acc-list">
                 <div class="acc-list-h">Factures récentes</div>
-                <div class="acc-row"><div class="acc-id">#0042</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-cl">Sophie Martin</div></div><div class="acc-cl">Acme Corp</div><div class="acc-am">2 400 €</div><div class="acc-st-r"><span class="acc-paid">Payé</span></div></div>
-                <div class="acc-row"><div class="acc-id">#0041</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-cl">Thomas Dubois</div></div><div class="acc-cl">Globex SARL</div><div class="acc-am">5 800 €</div><div class="acc-st-r"><span class="acc-due">En retard</span></div></div>
-                <div class="acc-row"><div class="acc-id">#0040</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-cl">Emma Laurent</div></div><div class="acc-cl">Initech SAS</div><div class="acc-am">1 250 €</div><div class="acc-st-r"><span class="acc-paid">Payé</span></div></div>
-                <div class="acc-row"><div class="acc-id">#0039</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-cl">Lucas Bernard</div></div><div class="acc-cl">Stark Industries</div><div class="acc-am">8 900 €</div><div class="acc-st-r"><span class="acc-paid">Payé</span></div></div>
+                <div class="acc-row"><div class="acc-id">#0042</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=85&auto=format&fit=crop')"></div><div class="acc-cl">Sophie Martin</div></div><div class="acc-cl">Acme Corp</div><div class="acc-am">2 400 €</div><div class="acc-st-r"><span class="acc-paid">Payé</span></div></div>
+                <div class="acc-row"><div class="acc-id">#0041</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=85&auto=format&fit=crop')"></div><div class="acc-cl">Thomas Dubois</div></div><div class="acc-cl">Globex SARL</div><div class="acc-am">5 800 €</div><div class="acc-st-r"><span class="acc-due">En retard</span></div></div>
+                <div class="acc-row"><div class="acc-id">#0040</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=85&auto=format&fit=crop')"></div><div class="acc-cl">Emma Laurent</div></div><div class="acc-cl">Initech SAS</div><div class="acc-am">1 250 €</div><div class="acc-st-r"><span class="acc-paid">Payé</span></div></div>
+                <div class="acc-row"><div class="acc-id">#0039</div><div class="acc-cl-wrap"><div class="acc-avatar" style="background-image:url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=85&auto=format&fit=crop')"></div><div class="acc-cl">Lucas Bernard</div></div><div class="acc-cl">Stark Industries</div><div class="acc-am">8 900 €</div><div class="acc-st-r"><span class="acc-paid">Payé</span></div></div>
               </div>
             </div>
           </div>
@@ -1107,9 +1141,9 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;ali
               </div>
               <div class="acc-mob-list">
                 <div class="acc-mob-lh">Paiements récents</div>
-                <div class="acc-mob-row"><div class="acc-mob-icon" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-mob-info"><div class="acc-mob-cl">Sophie M.</div><div class="acc-mob-dt">Acme Corp · 2h</div></div><div class="acc-mob-am">+2 400 €</div></div>
-                <div class="acc-mob-row"><div class="acc-mob-icon" style="background-image:url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-mob-info"><div class="acc-mob-cl">Lucas B.</div><div class="acc-mob-dt">Stark Industries · Hier</div></div><div class="acc-mob-am">+8 900 €</div></div>
-                <div class="acc-mob-row"><div class="acc-mob-icon" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&auto=format&fit=crop')"></div><div class="acc-mob-info"><div class="acc-mob-cl">Emma L.</div><div class="acc-mob-dt">Initech SAS · 14 mai</div></div><div class="acc-mob-am">+1 250 €</div></div>
+                <div class="acc-mob-row"><div class="acc-mob-icon" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=85&auto=format&fit=crop')"></div><div class="acc-mob-info"><div class="acc-mob-cl">Sophie M.</div><div class="acc-mob-dt">Acme Corp · 2h</div></div><div class="acc-mob-am">+2 400 €</div></div>
+                <div class="acc-mob-row"><div class="acc-mob-icon" style="background-image:url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=85&auto=format&fit=crop')"></div><div class="acc-mob-info"><div class="acc-mob-cl">Lucas B.</div><div class="acc-mob-dt">Stark Industries · Hier</div></div><div class="acc-mob-am">+8 900 €</div></div>
+                <div class="acc-mob-row"><div class="acc-mob-icon" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=85&auto=format&fit=crop')"></div><div class="acc-mob-info"><div class="acc-mob-cl">Emma L.</div><div class="acc-mob-dt">Initech SAS · 14 mai</div></div><div class="acc-mob-am">+1 250 €</div></div>
               </div>
             </div>
           </div></div>
@@ -2163,8 +2197,53 @@ document.querySelectorAll('.faq-item').forEach(item => {
   document.addEventListener('click', e => { if (!e.target.closest('.nav-lang-wrap')) closeMenu() })
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu() })
 
-  applyLang('fr')
+  applyLang('en')
 })()
+
+// ── Auth modal ──
+document.addEventListener('DOMContentLoaded', function(){
+  const overlay = document.getElementById('authOverlay')
+  if (!overlay) return
+  const mobileMenu = document.getElementById('mobileMenu')
+  const open = e => { if (e) e.preventDefault(); if (mobileMenu) mobileMenu.classList.remove('open'); overlay.classList.add('open') }
+  const close = () => overlay.classList.remove('open')
+  document.querySelectorAll('.js-auth').forEach(b => b.addEventListener('click', open))
+  document.getElementById('authClose').addEventListener('click', close)
+  overlay.addEventListener('click', e => { if (e.target === overlay) close() })
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close() })
+})
 </script>
+
+<!-- ═══════════ AUTH MODAL ═══════════ -->
+<div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true">
+  <div class="auth-modal">
+    <button class="auth-close" id="authClose" aria-label="Close"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg></button>
+    <img src="compile42-logo.svg" class="auth-logo" alt="Compile42">
+    <div class="auth-eyebrow">Start building.</div>
+    <div class="auth-title">Create your free account</div>
+
+    <button class="auth-btn">
+      <span class="auth-badge">Last used</span>
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38z"/></svg>
+      Continue with Google
+    </button>
+    <button class="auth-btn">
+      <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 1A11 11 0 0 0 8.5 22.4c.55.1.75-.24.75-.53v-1.9c-3.06.67-3.7-1.47-3.7-1.47-.5-1.27-1.22-1.61-1.22-1.61-1-.68.08-.67.08-.67 1.1.08 1.68 1.13 1.68 1.13.98 1.68 2.57 1.2 3.2.92.1-.71.38-1.2.7-1.47-2.45-.28-5.02-1.22-5.02-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13a10.5 10.5 0 0 1 5.5 0c2.1-1.43 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.04 5.43.4.34.74 1 .74 2.03v3c0 .3.2.64.76.53A11 11 0 0 0 12 1z"/></svg>
+      Continue with GitHub
+    </button>
+    <button class="auth-btn">
+      <svg viewBox="0 0 24 24" fill="#fff"><path d="M17.05 12.54c-.02-2.06 1.68-3.05 1.76-3.1-0.96-1.4-2.45-1.6-2.98-1.62-1.27-.13-2.48.75-3.12.75-.64 0-1.64-.73-2.7-.71-1.39.02-2.67.81-3.38 2.05-1.44 2.5-.37 6.2 1.04 8.23.69.99 1.51 2.1 2.58 2.06 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.6.67 2.7.65 1.11-.02 1.82-1.01 2.5-2 .79-1.15 1.11-2.26 1.13-2.32-.03-.01-2.17-.83-2.19-3.3zM15.1 6.2c.56-.69.94-1.63.84-2.58-.81.03-1.8.54-2.38 1.22-.52.6-.98 1.57-.86 2.49.9.07 1.83-.46 2.4-1.13z"/></svg>
+      Continue with Apple
+    </button>
+
+    <div class="auth-divider">OR</div>
+
+    <input class="auth-input" type="email" placeholder="Email">
+    <button class="auth-continue">Continue</button>
+
+    <div class="auth-terms">By continuing, you agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</div>
+    <div class="auth-sso"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path stroke-linecap="round" d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>SSO available on <a href="#">Business and Enterprise</a> plans</div>
+  </div>
+</div>
 </body>
 </html>

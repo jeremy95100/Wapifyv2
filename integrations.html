@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Compile42 — Integrations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF7F2;color:#0a0a0a;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;min-height:100vh;overflow-x:hidden}
+
+.bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0}
+.bg-glow::before{content:'';position:absolute;top:8%;left:50%;transform:translate(-50%,-50%);width:1100px;height:900px;background:radial-gradient(circle at center,rgba(16,185,129,0.10) 0%,rgba(5,150,105,0.04) 32%,transparent 70%);filter:blur(40px)}
+
+/* ═══════════ NAV (réutilisé de v35) ═══════════ */
+nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;display:flex;align-items:center;padding:0 32px;background:rgba(250,247,242,0.72);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(16,185,129,0.12)}
+.nav-left{display:flex;align-items:center;gap:18px}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:#0a0a0a;transition:filter .25s ease}
+.logo:hover{filter:drop-shadow(0 0 8px rgba(16,185,129,0.45))}
+.logo-svg{width:26px;height:26px;object-fit:contain;display:block}
+.logo-name{font-size:clamp(16px,1.5vw,18px);font-weight:700;letter-spacing:-0.02em}
+.nav-links{display:flex;gap:2px;margin-left:2px}
+.nav-links a{position:relative;padding:7px 9px;font-size:clamp(13px,1.05vw,15px);color:rgba(10,10,10,0.62);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:.055em;transition:color .2s ease,letter-spacing .22s ease}
+.nav-links a.active{color:#059669}
+.nav-links a::after{content:'';position:absolute;left:9px;right:9px;bottom:3px;height:1.5px;border-radius:2px;background:linear-gradient(90deg,#10b981,#6ee7b7);box-shadow:0 0 8px rgba(16,185,129,0.85);transform:scaleX(0);transform-origin:left;transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.nav-links a:hover{color:#059669;letter-spacing:.085em}
+.nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+.nav-login{position:relative;padding:7px 9px;font-size:clamp(13px,1.05vw,15px);color:rgba(10,10,10,0.82);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:.055em;transition:color .2s ease,letter-spacing .22s ease}
+.nav-login:hover{color:#059669;letter-spacing:.085em}
+.btn-getstarted{position:relative;padding:9px 18px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:clamp(13px,1.05vw,15px);font-weight:700;text-transform:uppercase;letter-spacing:.055em;border-radius:5px;border:none;cursor:pointer;text-decoration:none;transition:.22s;box-shadow:0 4px 14px -2px rgba(16,185,129,0.45)}
+.btn-getstarted:hover{transform:translateY(-1px);letter-spacing:.085em;box-shadow:0 7px 24px -4px rgba(16,185,129,0.6)}
+.nav-hamburger{display:none;width:38px;height:38px;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;border-radius:5px;color:#0a0a0a;transition:.15s;flex-shrink:0}
+.nav-hamburger:hover{background:rgba(16,185,129,0.1);color:#059669}
+.nav-hamburger svg{width:20px;height:20px}
+.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(250,247,242,0.98);backdrop-filter:blur(24px);border-bottom:1px solid rgba(16,185,129,0.14);padding:12px 16px 20px;z-index:99;flex-direction:column;gap:2px;box-shadow:0 8px 24px -8px rgba(0,0,0,0.12)}
+.mobile-menu.open{display:flex}
+.mobile-menu a{padding:12px;font-size:15px;color:rgba(10,10,10,0.78);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:.05em;border-radius:4px}
+.mobile-menu a:hover{background:rgba(16,185,129,0.1);color:#059669}
+.mobile-menu .btn-getstarted{display:block;text-align:center;padding:13px 16px;margin-top:4px}
+
+/* ═══════════ HERO ═══════════ */
+.int-hero{position:relative;z-index:1;text-align:center;padding:108px 24px 28px;max-width:760px;margin:0 auto}
+.int-hero h1{font-size:clamp(34px,5.5vw,54px);font-weight:700;letter-spacing:-0.035em;line-height:1.08;margin-bottom:16px}
+.int-hero h1 em{font-style:italic;background:linear-gradient(135deg,#10b981,#059669);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block;padding:0 .12em;margin:0 -.06em}
+.rotator{display:inline-block;height:1.2em;min-width:6.4em;overflow:hidden;vertical-align:bottom;position:relative;line-height:1.2}
+.rotator-track{display:flex;flex-direction:column}
+.rotator-word{display:block;height:1.2em;line-height:1.2;background:linear-gradient(135deg,#10b981 0%,#059669 60%,#047857 100%);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic;font-weight:700;white-space:nowrap;padding:0 .1em}
+.int-hero p{font-size:clamp(15px,1.6vw,18px);color:rgba(10,10,10,0.55);line-height:1.5;margin-bottom:26px}
+.int-search{display:flex;align-items:center;gap:10px;max-width:440px;margin:0 auto;padding:0 16px;height:46px;background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;box-shadow:0 1px 2px rgba(0,0,0,0.03),0 12px 40px -16px rgba(16,185,129,0.25);transition:.2s}
+.int-search:focus-within{border-color:rgba(16,185,129,0.5);box-shadow:0 0 0 4px rgba(16,185,129,0.08),0 12px 40px -16px rgba(16,185,129,0.35)}
+.int-search svg{width:17px;height:17px;color:rgba(10,10,10,0.4);flex-shrink:0}
+.int-search input{flex:1;border:none;outline:none;font-family:inherit;font-size:15px;color:#0a0a0a;background:transparent}
+.int-search input::placeholder{color:rgba(10,10,10,0.4)}
+
+/* ═══════════ LAYOUT ═══════════ */
+.int-shell{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:32px 24px 80px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;align-items:start}
+
+/* ── Category filter ── */
+.int-cats{position:sticky;top:88px}
+.int-cats-t{font-size:13px;font-weight:700;color:rgba(10,10,10,0.45);text-transform:uppercase;letter-spacing:.16em;margin-bottom:18px;padding-left:14px}
+.int-cat{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:13px 16px;background:transparent;border:none;border-radius:10px;font-family:inherit;font-size:16.5px;font-weight:600;letter-spacing:-0.01em;color:rgba(10,10,10,0.62);cursor:pointer;transition:color .15s,background .15s,transform .12s cubic-bezier(.34,1.56,.64,1),box-shadow .25s;margin-bottom:3px}
+/* neon leading bar */
+.int-cat::before{content:'';position:absolute;left:0;top:50%;width:3px;height:0;border-radius:0 3px 3px 0;background:linear-gradient(180deg,#10b981,#6ee7b7);box-shadow:0 0 10px rgba(16,185,129,0.9);transform:translateY(-50%);transition:height .26s cubic-bezier(.4,0,.2,1)}
+.int-cat:hover{background:rgba(16,185,129,0.06);color:#0a0a0a}
+.int-cat:hover::before{height:42%}
+.int-cat:active{transform:scale(.97)}
+.int-cat.active{background:linear-gradient(90deg,rgba(16,185,129,0.14) 0%,rgba(16,185,129,0.03) 100%);color:#047857;font-weight:800;box-shadow:inset 0 0 0 1px rgba(16,185,129,0.18),0 8px 26px -12px rgba(16,185,129,0.5)}
+.int-cat.active::before{height:70%;width:3.5px}
+/* futuristic tap ripple */
+.int-cat::after{content:'';position:absolute;left:var(--rx,50%);top:var(--ry,50%);width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,0.55),rgba(16,185,129,0) 70%);transform:translate(-50%,-50%) scale(0);opacity:0;pointer-events:none}
+.int-cat.pulse::after{animation:cat-ripple .6s cubic-bezier(.2,.7,.2,1)}
+@keyframes cat-ripple{0%{transform:translate(-50%,-50%) scale(0);opacity:.95}100%{transform:translate(-50%,-50%) scale(16);opacity:0}}
+.int-cat.pulse{box-shadow:0 0 0 1px rgba(16,185,129,0.45),0 0 22px -2px rgba(16,185,129,0.6)}
+.int-cat .cnt{font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;color:rgba(10,10,10,0.3);transition:color .2s}
+.int-cat:hover .cnt{color:rgba(5,150,105,0.7)}
+.int-cat.active .cnt{color:#10b981;font-weight:700}
+
+/* ── Grid ── */
+.int-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.int-card{display:flex;flex-direction:column;padding:20px;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:14px;text-decoration:none;color:inherit;transition:.22s;position:relative;overflow:hidden;min-height:158px}
+.int-card::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,#10b981,#6ee7b7);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.int-card:hover{transform:translateY(-3px);border-color:rgba(16,185,129,0.4);box-shadow:0 18px 44px -22px rgba(16,185,129,0.4)}
+.int-card:hover::after{transform:scaleX(1)}
+.int-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;margin-bottom:14px;box-shadow:0 4px 12px -4px rgba(0,0,0,0.25);flex-shrink:0;overflow:hidden}
+.int-icon.has-logo{background:#fff!important;border:1px solid rgba(0,0,0,0.07);box-shadow:0 4px 12px -6px rgba(0,0,0,0.2)}
+.int-icon img{width:30px;height:30px;object-fit:contain;display:block}
+.int-name{font-size:15px;font-weight:700;letter-spacing:-0.01em;margin-bottom:5px}
+.int-desc{font-size:12.5px;color:rgba(10,10,10,0.5);line-height:1.5}
+.int-empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:rgba(10,10,10,0.4);font-size:14px}
+
+@media(max-width:980px){
+  .int-shell{grid-template-columns:1fr;gap:24px}
+  .int-cats{position:static}
+  .int-cats-list{display:flex;flex-wrap:wrap;gap:8px}
+  .int-cat{width:auto;border-radius:99px;border:1px solid rgba(0,0,0,0.1);padding:7px 14px;margin:0}
+  .int-cat.active{box-shadow:none;border-color:#10b981}
+  .int-cat .cnt{display:none}
+  .int-cats-t{padding-left:0}
+  .int-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  nav{padding:0 16px}.nav-links{display:none}.nav-right .nav-login,.nav-right .btn-getstarted{display:none}
+  .nav-hamburger{display:flex}
+}
+@media(max-width:560px){.int-grid{grid-template-columns:1fr}}
+
+/* ═══════════ AUTH MODAL (style Lovable, adapté Compile42) ═══════════ */
+.auth-overlay{position:fixed;inset:0;z-index:1000;background:rgba(5,7,11,0.62);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
+.auth-overlay.open{display:flex;animation:auth-fade .25s ease}
+@keyframes auth-fade{from{opacity:0}to{opacity:1}}
+.auth-modal{width:100%;max-width:432px;background:#0b0d12;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:28px 28px 24px;position:relative;box-shadow:0 40px 110px -30px rgba(0,0,0,0.85),0 0 0 1px rgba(16,185,129,0.06),0 0 80px -40px rgba(16,185,129,0.35);animation:auth-pop .3s cubic-bezier(.2,.7,.2,1)}
+@keyframes auth-pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.auth-close{position:absolute;top:18px;right:18px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:rgba(255,255,255,0.45);cursor:pointer;transition:.15s}
+.auth-close:hover{background:rgba(255,255,255,0.06);color:#fff}
+.auth-close svg{width:17px;height:17px}
+.auth-logo{width:36px;height:36px;object-fit:contain;display:block;margin-bottom:20px;filter:drop-shadow(0 0 12px rgba(16,185,129,0.5))}
+.auth-eyebrow{font-size:15px;color:rgba(255,255,255,0.4);font-weight:500;letter-spacing:-0.01em}
+.auth-title{font-size:23px;font-weight:700;color:#fff;letter-spacing:-0.025em;margin-bottom:22px}
+.auth-btn{position:relative;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;margin-bottom:10px;background:#13161c;border:1px solid rgba(255,255,255,0.1);border-radius:11px;color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:.18s}
+.auth-btn:hover{border-color:rgba(16,185,129,0.55);background:#171b22;box-shadow:0 0 0 3px rgba(16,185,129,0.08)}
+.auth-btn svg{width:17px;height:17px;flex-shrink:0}
+.auth-badge{position:absolute;top:-9px;right:12px;font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#10b981,#059669);padding:2px 8px;border-radius:99px;letter-spacing:.02em;box-shadow:0 4px 12px -2px rgba(16,185,129,0.6)}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:rgba(255,255,255,0.28);font-size:11px;font-weight:700;letter-spacing:.1em}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08)}
+.auth-input{width:100%;padding:12px 14px;background:#13161c;border:1px solid rgba(255,255,255,0.1);border-radius:11px;color:#fff;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px;transition:.18s}
+.auth-input::placeholder{color:rgba(255,255,255,0.35)}
+.auth-input:focus{border-color:rgba(16,185,129,0.6);box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
+.auth-continue{width:100%;padding:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-family:inherit;font-size:14px;font-weight:700;border:none;border-radius:11px;cursor:pointer;transition:.2s;box-shadow:0 6px 20px -4px rgba(16,185,129,0.5)}
+.auth-continue:hover{transform:translateY(-1px);box-shadow:0 10px 28px -6px rgba(16,185,129,0.65)}
+.auth-terms{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.5;margin-top:16px}
+.auth-terms a{color:rgba(255,255,255,0.6);text-decoration:underline;text-underline-offset:2px}
+.auth-terms a:hover{color:#10b981}
+.auth-sso{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.07);font-size:12px;color:rgba(255,255,255,0.4)}
+.auth-sso svg{width:12px;height:12px}
+.auth-sso a{color:rgba(255,255,255,0.6);text-decoration:underline;text-underline-offset:2px}
+.auth-sso a:hover{color:#10b981}
+
+/* ═══════════ FOOTER (réutilisé de v35) ═══════════ */
+@property --fb-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+.site-footer{background:#FAF7F2;padding:24px 24px 48px;position:relative;z-index:1}
+.footer-card{max-width:1240px;margin:0 auto;background:linear-gradient(rgba(16,185,129,.028) 1px,transparent 1px) 0 0/40px 40px,linear-gradient(90deg,rgba(16,185,129,.028) 1px,transparent 1px) 0 0/40px 40px,#0a0a0a;border:1px solid rgba(16,185,129,.16);border-radius:24px;padding:48px 56px 32px;position:relative;overflow:hidden;box-shadow:0 30px 80px -40px rgba(0,0,0,0.45),0 0 60px -30px rgba(16,185,129,0.25)}
+.footer-card::after{content:'';position:absolute;inset:0;border-radius:24px;padding:2px;background:conic-gradient(from var(--fb-angle),transparent 0deg,transparent 55deg,rgba(16,185,129,.55) 92deg,#d1fae5 118deg,#10b981 144deg,transparent 180deg,transparent 235deg,rgba(16,185,129,.55) 272deg,#d1fae5 298deg,#10b981 324deg,transparent 360deg);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;pointer-events:none;animation:fb-spin 5s linear infinite;z-index:3;filter:drop-shadow(0 0 5px rgba(16,185,129,0.7))}
+@keyframes fb-spin{to{--fb-angle:360deg}}
+.footer-grid{display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:32px;position:relative;z-index:1}
+.footer-brand{display:flex;flex-direction:column;gap:20px}
+.footer-brand-logo{display:inline-flex;align-items:center;gap:9px;text-decoration:none;width:fit-content}
+.footer-brand-logo img{width:30px;height:30px;object-fit:contain}
+.footer-brand-logo span{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.footer-tag{font-size:13px;color:rgba(255,255,255,.45);line-height:1.5;max-width:240px}
+.footer-col h3{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);margin-bottom:18px}
+.footer-col a{position:relative;display:block;font-size:13.5px;color:rgba(255,255,255,.6);text-decoration:none;margin-bottom:11px;width:fit-content;transition:color .22s ease,transform .26s cubic-bezier(.4,0,.2,1)}
+.footer-col a:hover{color:#ecfdf5;transform:translateX(6px)}
+.footer-base{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:44px;padding-top:24px;border-top:1px solid rgba(255,255,255,.08)}
+.footer-meta{font-size:12px;color:rgba(255,255,255,.3)}
+.footer-legal{display:flex;gap:20px}
+.footer-legal a{font-size:12px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .2s}
+.footer-legal a:hover{color:#10b981}
+@media(max-width:1024px){.footer-grid{grid-template-columns:1fr 1fr 1fr;gap:28px 36px}.footer-brand{grid-column:1/-1}}
+@media(max-width:640px){.site-footer{padding:12px 12px 24px}.footer-card{padding:32px 24px 24px}.footer-grid{grid-template-columns:1fr 1fr}.footer-base{flex-direction:column;align-items:flex-start;gap:12px}}
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<nav>
+  <div class="nav-left">
+    <a href="mockup-lovable-style-v35.html" class="logo"><img src="compile42-logo.svg" class="logo-svg" alt="Compile42"><span class="logo-name">Compile42</span></a>
+    <div class="nav-links">
+      <a href="integrations.html" class="active">Integrations</a>
+      <a href="docs.html">Docs</a>
+      <a href="mockup-lovable-style-v35.html#pricing">Pricing</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="btn-getstarted js-auth">Get Started</a>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="integrations.html">Integrations</a>
+  <a href="docs.html">Docs</a>
+  <a href="mockup-lovable-style-v35.html#pricing">Pricing</a>
+  <a href="#" class="btn-getstarted js-auth">Get Started</a>
+</div>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="int-hero">
+  <h1>Supercharge your app with <span class="rotator"><span class="rotator-track" id="rotator">
+    <span class="rotator-word">automations</span>
+    <span class="rotator-word">AI models</span>
+    <span class="rotator-word">payments</span>
+  </span></span><br>thanks to integrations</h1>
+  <p>Connect Compile42 to the third-party tools that drive your business forward every day.</p>
+  <div class="int-search">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.3-4.3"/></svg>
+    <input id="search" type="text" placeholder="Search integrations…" autocomplete="off">
+  </div>
+</section>
+
+<!-- ═══════════ SHELL ═══════════ -->
+<div class="int-shell">
+  <aside class="int-cats">
+    <div class="int-cats-t">Filter by category</div>
+    <div class="int-cats-list" id="cats"></div>
+  </aside>
+  <main class="int-grid" id="grid"></main>
+</div>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="site-footer">
+  <div class="footer-card">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="mockup-lovable-style-v35.html" class="footer-brand-logo"><img src="compile42-logo.svg" alt="Compile42"><span>Compile42</span></a>
+        <div class="footer-tag">From prompt to deployed React app — connected to your tools.</div>
+      </div>
+      <div class="footer-col"><h3>Product</h3><a href="mockup-lovable-style-v35.html">Build</a><a href="integrations.html">Integrations</a><a href="mockup-lovable-style-v35.html#pricing">Pricing</a></div>
+      <div class="footer-col"><h3>Resources</h3><a href="docs.html">Docs</a><a href="#">Templates</a><a href="#">Support</a></div>
+      <div class="footer-col"><h3>Help</h3><a href="#">Help Section</a><a href="#">Terms</a><a href="#">Privacy</a></div>
+      <div class="footer-col"><h3>Community</h3><a href="#">Discord</a><a href="#">X / Twitter</a><a href="#">GitHub</a></div>
+    </div>
+    <div class="footer-base">
+      <span class="footer-meta">© 2026 Compile42. All rights reserved.</span>
+      <div class="footer-legal"><a href="#">Privacy policy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════ AUTH MODAL ═══════════ -->
+<div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true">
+  <div class="auth-modal">
+    <button class="auth-close" id="authClose" aria-label="Fermer"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg></button>
+    <img src="compile42-logo.svg" class="auth-logo" alt="Compile42">
+    <div class="auth-eyebrow">Start building.</div>
+    <div class="auth-title">Create your free account</div>
+
+    <button class="auth-btn">
+      <span class="auth-badge">Last used</span>
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38z"/></svg>
+      Continue with Google
+    </button>
+    <button class="auth-btn">
+      <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 1A11 11 0 0 0 8.5 22.4c.55.1.75-.24.75-.53v-1.9c-3.06.67-3.7-1.47-3.7-1.47-.5-1.27-1.22-1.61-1.22-1.61-1-.68.08-.67.08-.67 1.1.08 1.68 1.13 1.68 1.13.98 1.68 2.57 1.2 3.2.92.1-.71.38-1.2.7-1.47-2.45-.28-5.02-1.22-5.02-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13a10.5 10.5 0 0 1 5.5 0c2.1-1.43 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.04 5.43.4.34.74 1 .74 2.03v3c0 .3.2.64.76.53A11 11 0 0 0 12 1z"/></svg>
+      Continue with GitHub
+    </button>
+    <button class="auth-btn">
+      <svg viewBox="0 0 24 24" fill="#fff"><path d="M17.05 12.54c-.02-2.06 1.68-3.05 1.76-3.1-0.96-1.4-2.45-1.6-2.98-1.62-1.27-.13-2.48.75-3.12.75-.64 0-1.64-.73-2.7-.71-1.39.02-2.67.81-3.38 2.05-1.44 2.5-.37 6.2 1.04 8.23.69.99 1.51 2.1 2.58 2.06 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.6.67 2.7.65 1.11-.02 1.82-1.01 2.5-2 .79-1.15 1.11-2.26 1.13-2.32-.03-.01-2.17-.83-2.19-3.3zM15.1 6.2c.56-.69.94-1.63.84-2.58-.81.03-1.8.54-2.38 1.22-.52.6-.98 1.57-.86 2.49.9.07 1.83-.46 2.4-1.13z"/></svg>
+      Continue with Apple
+    </button>
+
+    <div class="auth-divider">OR</div>
+
+    <input class="auth-input" type="email" placeholder="Email">
+    <button class="auth-continue">Continue</button>
+
+    <div class="auth-terms">By continuing, you agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</div>
+    <div class="auth-sso"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path stroke-linecap="round" d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>SSO available on <a href="#">Business and Enterprise</a> plans</div>
+  </div>
+</div>
+
+<script>
+// ── Mobile nav ──
+const hamburger = document.getElementById('hamburger'), mobileMenu = document.getElementById('mobileMenu')
+hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'))
+
+// ── Auth modal ──
+const authOverlay = document.getElementById('authOverlay')
+const openAuth = e => { if (e) e.preventDefault(); mobileMenu.classList.remove('open'); authOverlay.classList.add('open') }
+const closeAuth = () => authOverlay.classList.remove('open')
+document.querySelectorAll('.js-auth').forEach(b => b.addEventListener('click', openAuth))
+document.getElementById('authClose').addEventListener('click', closeAuth)
+authOverlay.addEventListener('click', e => { if (e.target === authOverlay) closeAuth() })
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuth() })
+
+// ── Rotating words ──
+;(function(){
+  const track = document.getElementById('rotator')
+  if (!track) return
+  const count = track.children.length
+  track.appendChild(track.children[0].cloneNode(true)) // seamless loop
+  let idx = 0
+  setInterval(() => {
+    idx++
+    track.style.transition = 'transform .6s cubic-bezier(.7,0,.2,1)'
+    track.style.transform = `translateY(-${idx * 1.2}em)`
+    if (idx === count) setTimeout(() => { track.style.transition = 'none'; idx = 0; track.style.transform = 'translateY(0)' }, 620)
+  }, 2200)
+})()
+
+// ── Integrations data ──
+const INTEGRATIONS = [
+  // AI
+  {name:'Claude',cat:'AI',color:'#D97757',glyph:'✳',domain:'claude.ai',desc:'Generate content with Anthropic\'s Claude models.'},
+  {name:'OpenAI',cat:'AI',color:'#0a0a0a',glyph:'◍',domain:'openai.com',desc:'GPT-4o, embeddings and image generation.'},
+  {name:'Mistral AI',cat:'AI',color:'#F2A33C',glyph:'M',domain:'mistral.ai',desc:'Fast European open-weight models.'},
+  {name:'Azure AI',cat:'AI',color:'#0078D4',glyph:'A',domain:'azure.microsoft.com',desc:'Machine learning models via Azure AI.'},
+  // Data
+  {name:'Supabase',cat:'Data',color:'#3ECF8E',glyph:'⚡',domain:'supabase.com',desc:'Realtime Postgres database, Auth and Storage.'},
+  {name:'Airtable',cat:'Data',color:'#FCB400',glyph:'▦',domain:'airtable.com',desc:'No-code databases kept in sync.'},
+  {name:'Google Sheets',cat:'Data',color:'#0F9D58',glyph:'▤',domain:'docs.google.com',desc:'Read and write to your spreadsheets.'},
+  {name:'Notion',cat:'Data',color:'#0a0a0a',glyph:'N',domain:'notion.so',desc:'Connect Notion pages, databases and docs.'},
+  {name:'PostgreSQL',cat:'Data',color:'#336791',glyph:'⛁',domain:'postgresql.org',desc:'Direct connection to your Postgres database.'},
+  // Email
+  {name:'Gmail',cat:'Email',color:'#EA4335',glyph:'✉',domain:'gmail.com',desc:'Send and read emails through Gmail.'},
+  {name:'Resend',cat:'Email',color:'#0a0a0a',glyph:'R',domain:'resend.com',desc:'Transactional email for developers.'},
+  {name:'Mailchimp',cat:'Email',color:'#FFE01B',glyph:'✦',dark:true,domain:'mailchimp.com',desc:'Marketing campaigns and audiences.'},
+  {name:'SendGrid',cat:'Email',color:'#1A82E2',glyph:'≫',domain:'sendgrid.com',desc:'Email deliverability at scale.'},
+  // Messaging
+  {name:'Slack',cat:'Messaging',color:'#4A154B',glyph:'#',domain:'slack.com',desc:'Notifications and messages in your channels.'},
+  {name:'Discord',cat:'Messaging',color:'#5865F2',glyph:'◓',domain:'discord.com',desc:'Bots and webhooks for your servers.'},
+  {name:'Twilio',cat:'Messaging',color:'#F22F46',glyph:'≋',domain:'twilio.com',desc:'SMS, voice and phone verification.'},
+  {name:'WhatsApp',cat:'Messaging',color:'#25D366',glyph:'◗',domain:'whatsapp.com',desc:'Business messaging via the WhatsApp API.'},
+  // Payments
+  {name:'Stripe',cat:'Payments',color:'#635BFF',glyph:'S',domain:'stripe.com',desc:'Payments, subscriptions and billing.'},
+  {name:'PayPal',cat:'Payments',color:'#003087',glyph:'P',domain:'paypal.com',desc:'Get paid with PayPal in one click.'},
+  {name:'Lemon Squeezy',cat:'Payments',color:'#FFC233',glyph:'🍋',dark:true,domain:'lemonsqueezy.com',desc:'Merchant of Record for SaaS and digital.'},
+  // Auth & SSO
+  {name:'Single sign-on',cat:'Auth & SSO',color:'#0a0a0a',glyph:'⚿',desc:'SSO for all your apps via your IdP.'},
+  {name:'Google OAuth',cat:'Auth & SSO',color:'#4285F4',glyph:'G',domain:'google.com',desc:'"Sign in with Google" login.'},
+  {name:'Auth0',cat:'Auth & SSO',color:'#EB5424',glyph:'⊙',domain:'auth0.com',desc:'Authentication and identity management.'},
+  // CRM & Accounting
+  {name:'Salesforce',cat:'CRM & Accounting',color:'#00A1E0',glyph:'☁',domain:'salesforce.com',desc:'CRM leads, opportunities and contacts.'},
+  {name:'HubSpot',cat:'CRM & Accounting',color:'#FF7A59',glyph:'⬡',domain:'hubspot.com',desc:'CRM, marketing and sales pipelines.'},
+  {name:'QuickBooks',cat:'CRM & Accounting',color:'#2CA01C',glyph:'qb',domain:'quickbooks.intuit.com',desc:'Accounting, invoices and payments.'},
+  {name:'Xero',cat:'CRM & Accounting',color:'#13B5EA',glyph:'X',domain:'xero.com',desc:'Online accounting for small businesses.'},
+  // Productivity
+  {name:'Asana',cat:'Productivity',color:'#F06A6A',glyph:'⋯',domain:'asana.com',desc:'Create and track tasks and projects.'},
+  {name:'Linear',cat:'Productivity',color:'#5E6AD2',glyph:'∟',domain:'linear.app',desc:'Issue tracking and product sprints.'},
+  {name:'GitHub',cat:'Productivity',color:'#0a0a0a',glyph:'⌥',domain:'github.com',desc:'Repos, issues and pull requests.'},
+  {name:'Trello',cat:'Productivity',color:'#0079BF',glyph:'▭',domain:'trello.com',desc:'Kanban boards and cards.'},
+  // Calendar
+  {name:'Google Calendar',cat:'Calendar',color:'#4285F4',glyph:'▥',domain:'calendar.google.com',desc:'Synced events and availability.'},
+  {name:'Cal.com',cat:'Calendar',color:'#0a0a0a',glyph:'◔',domain:'cal.com',desc:'Open-source scheduling.'},
+  // Workflow
+  {name:'Zapier',cat:'Workflow',color:'#FF4F00',glyph:'⚡',domain:'zapier.com',desc:'Automate across 6,000+ apps.'},
+  {name:'Make',cat:'Workflow',color:'#6D00CC',glyph:'◆',domain:'make.com',desc:'Visual automation scenarios.'},
+  {name:'n8n',cat:'Workflow',color:'#EA4B71',glyph:'⬢',domain:'n8n.io',desc:'Self-hosted automations.'},
+  // Media
+  {name:'Cloudinary',cat:'Media',color:'#3448C5',glyph:'◈',domain:'cloudinary.com',desc:'Image and video storage and transforms.'},
+  {name:'Unsplash',cat:'Media',color:'#0a0a0a',glyph:'◇',domain:'unsplash.com',desc:'High-quality stock photography.'},
+  {name:'AWS S3',cat:'Media',color:'#FF9900',glyph:'⛃',domain:'aws.amazon.com',desc:'Scalable object storage.'},
+  // Enrichment
+  {name:'Clearbit',cat:'Enrichment',color:'#2D2D9E',glyph:'◐',domain:'clearbit.com',desc:'Enrich your contacts and companies.'},
+  {name:'Hunter',cat:'Enrichment',color:'#FF6711',glyph:'◎',domain:'hunter.io',desc:'Find and verify professional emails.'},
+]
+
+const grid = document.getElementById('grid'), catsEl = document.getElementById('cats'), searchEl = document.getElementById('search')
+let activeCat = 'All', query = ''
+
+// build categories with counts
+const cats = ['All', ...Array.from(new Set(INTEGRATIONS.map(i => i.cat)))]
+const countFor = c => c === 'All' ? INTEGRATIONS.length : INTEGRATIONS.filter(i => i.cat === c).length
+catsEl.innerHTML = cats.map(c => `<button class="int-cat${c===activeCat?' active':''}" data-cat="${c}">${c}<span class="cnt">${countFor(c)}</span></button>`).join('')
+
+function render(){
+  const list = INTEGRATIONS.filter(i =>
+    (activeCat === 'All' || i.cat === activeCat) &&
+    (!query || i.name.toLowerCase().includes(query) || i.desc.toLowerCase().includes(query) || i.cat.toLowerCase().includes(query))
+  )
+  if (!list.length){ grid.innerHTML = `<div class="int-empty">No integration matches "${query}".</div>`; return }
+  grid.innerHTML = list.map(i => {
+    const fallback = `this.parentNode.classList.remove('has-logo');this.parentNode.style.background='${i.color}';this.parentNode.style.color='${i.dark?'#0a0a0a':'#fff'}';this.parentNode.textContent='${i.glyph}'`
+    const icon = i.domain
+      ? `<span class="int-icon has-logo"><img src="https://www.google.com/s2/favicons?sz=128&domain=${i.domain}" alt="${i.name}" loading="lazy" onerror="${fallback}"></span>`
+      : `<span class="int-icon" style="background:${i.color}${i.dark?';color:#0a0a0a':''}">${i.glyph}</span>`
+    return `
+    <a class="int-card" href="#">
+      ${icon}
+      <span class="int-name">${i.name}</span>
+      <span class="int-desc">${i.desc}</span>
+    </a>`
+  }).join('')
+}
+
+catsEl.addEventListener('click', e => {
+  const btn = e.target.closest('.int-cat'); if (!btn) return
+  const r = btn.getBoundingClientRect()
+  btn.style.setProperty('--rx', `${e.clientX - r.left}px`)
+  btn.style.setProperty('--ry', `${e.clientY - r.top}px`)
+  btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse')
+  setTimeout(() => btn.classList.remove('pulse'), 600)
+  activeCat = btn.dataset.cat
+  catsEl.querySelectorAll('.int-cat').forEach(b => b.classList.toggle('active', b === btn))
+  render()
+})
+searchEl.addEventListener('input', () => { query = searchEl.value.trim().toLowerCase(); render() })
+render()
+</script>
+</body>
+</html>
